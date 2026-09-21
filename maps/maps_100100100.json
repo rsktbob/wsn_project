@@ -1,0 +1,45 @@
+{
+  "split": "test",
+  "generator": "CreateTest.py",
+  "minimum_coverage_required": 3,
+  "target_layout": "fixed_grid",
+  "maps": [
+    {
+      "file": "MAP01",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "MAP02",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "MAP03",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "MAP04",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "MAP05",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "MAP06",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    }
+  ],
+  "validation_maps": []
+}

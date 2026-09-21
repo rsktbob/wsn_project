@@ -1,0 +1,45 @@
+# ---- Python / 編輯器快取 ----
+**/__pycache__/
+*.py[cod]
+*.so
+.DS_Store
+.vscode/
+.idea/
+**/.ipynb_checkpoints/
+
+# ---- 虛擬環境 ----
+.venv/
+venv/
+env/
+
+# ---- 產生的資料、實驗產物 (約 1.44 GB，不進版控) ----
+# 注意：data/ 裡的地圖目前無法重新產生 —— maps/*.json 沒有記錄 map_seed，
+# 而 manifest 指定的產生器 CreateTest.py 也已不存在。備份 data/ 之前
+# 不要把它當成可拋棄的快取。
+data/
+experiment_results/
+tmp/
+
+# ---- 模型權重 ----
+# Models/ 本身不忽略，只忽略內容，這樣下面的例外才會生效
+# （git 不會進入被忽略的目錄，寫成 Models/ 會讓 ! 規則失效）。
+Models/*
+!Models/*.training.json
+
+# ---- Numba / 效能分析快取 ----
+*.nbc
+*.nbi
+*.prof
+
+# ---- 大型二進位 ----
+*.pt
+*.pth
+*.ckpt
+*.npz
+*.zip
+
+# ---- 執行紀錄 ----
+*.log
+
+# 圖檔不做全域忽略：輸出圖都落在上面已忽略的 experiment_results/ 與 tmp/，
+# 全域擋 *.png 只會讓之後要進版控的論文圖表被默默略過。

@@ -1,0 +1,13 @@
+{
+  "description": "Original single A2 map used by the initial experiments.",
+  "maps": [
+    {
+      "name": "A2",
+      "file": "A2",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100,
+      "full_energy": 10
+    }
+  ]
+}

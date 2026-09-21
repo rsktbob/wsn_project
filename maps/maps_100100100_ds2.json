@@ -1,0 +1,13 @@
+{
+  "description": "DS2 average 100x100 WSN map.",
+  "maps": [
+    {
+      "name": "DS2_avg",
+      "file": "DS2_avg",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100,
+      "full_energy": 10
+    }
+  ]
+}
