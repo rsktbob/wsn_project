@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import inspect
 from pathlib import Path
 
 import numpy as np
@@ -9,8 +11,49 @@ import numpy as np
 from Algorithm.se.SI_SETS import SI_SETS
 from Algorithm.se.d3qn import D3QNAgent
 from State.Encoding import swap_segment
-from State.SensorEncoding import SensorEncoding
-from environment_defaults import environment_contract, check_environment_contract
+from State.SensorEncoding import DEFAULT_SENSOR_ENCODING, SensorEncoding
+from State.State import State
+
+
+# RL 策略是凍結的 .npz，只在訓練當下那組 fitness／routing／decode 實作下有意義。
+# 這兩個函式把 problem 用到的實作組合雜湊起來，載入 checkpoint 時比對，
+# 避免環境改過卻默默跑出無意義的結果。RL_SETSv2~v5 都繼承自這裡。
+def environment_contract(problem):
+    """Record actual implementations, including changes within a version."""
+    implementations = {
+        "fitness": type(problem.fitness_service),
+        "routing": type(problem.routing_service),
+        "decode": SensorEncoding,
+        "problem": type(problem),
+        "state": State,
+        "energy": type(problem.energy_service),
+        "coverage": type(problem.coverage_service),
+        "geometry": type(problem.G),
+    }
+    # Hash inherited service methods too, not only each leaf class file.
+    sources = {
+        f"{base.__module__}.{base.__name__}":
+            hashlib.sha256(Path(inspect.getfile(base)).read_bytes()).hexdigest()
+        for implementation in implementations.values()
+        for base in implementation.__mro__ if base is not object
+    }
+    return {
+        "sensing_mode": problem.sensing_mode,
+        "sensor_encoding": DEFAULT_SENSOR_ENCODING,
+        "implementations": {
+            key: f"{value.__module__}.{value.__name__}"
+            for key, value in implementations.items()
+        },
+        "source_sha256": sources,
+    }
+
+
+def check_environment_contract(saved, problem):
+    if saved != environment_contract(problem):
+        raise ValueError(
+            "RL checkpoint environment differs from this run (fitness, routing, "
+            "decode or sensing mode). Use the training configuration or retrain."
+        )
 
 
 class RL_SETS(SI_SETS):

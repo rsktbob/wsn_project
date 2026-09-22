@@ -45,7 +45,7 @@ class RL_SETSv2(RL_SETS):
             raise ValueError("RL_SETSv2 checkpoint action schema changed")
         if metadata.get("reward_version") != self.REWARD_VERSION:
             raise ValueError("RL_SETSv2 checkpoint reward version changed")
-        from environment_defaults import check_environment_contract
+        from Algorithm.se.RL_SETS import check_environment_contract
 
         check_environment_contract(metadata.get("environment"), problem)
 

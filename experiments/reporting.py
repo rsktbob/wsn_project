@@ -8,7 +8,7 @@ from pathlib import Path
 
 from Problem.services import FitnessServiceV2, FitnessServiceV3
 from Problem.services.evaluation_kernels import NUMBA_AVAILABLE, NUMBA_VERSION
-from environment_defaults import DEFAULT_SENSOR_ENCODING
+from State.SensorEncoding import DEFAULT_SENSOR_ENCODING
 
 from experiments import PROJECT_ROOT
 from experiments.builder import algorithm_label, algorithm_params

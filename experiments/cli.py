@@ -5,14 +5,13 @@ import json
 import sys
 from pathlib import Path
 
-from environment_defaults import (
-    DEFAULT_FITNESS_SERVICE,
-    DEFAULT_ROUTING_SERVICE,
-    DEFAULT_SENSING_MODE,
-)
+
 
 from experiments.builder import RANDOM_POLICY_ALGORITHMS, configured_algorithm_params
 from experiments.config import (
+    DEFAULT_FITNESS_SERVICE,
+    DEFAULT_ROUTING_SERVICE,
+    DEFAULT_SENSING_MODE,
     EVALUATE_OVERRIDES,
     EXPERIMENT_PRESET,
     FITNESS_SERVICES,

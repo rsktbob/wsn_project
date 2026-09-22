@@ -7,7 +7,7 @@ import numpy as np
 from Algorithm.se.RL_SETSv3 import RL_SETSv3
 from State.Encoding import swap_segment
 from State.SensorEncoding import SensorEncoding
-from environment_defaults import check_environment_contract
+from Algorithm.se.RL_SETS import check_environment_contract
 
 
 class RL_SETSv4(RL_SETSv3):

@@ -18,9 +18,10 @@ from Algorithm.se.RL_SETSv4 import RL_SETSv4
 from Algorithm.se.RL_SETSv5 import RL_SETSv5
 from Algorithm.se.SA_SETS import SA_SETS
 from CreateMapData import dataset_fingerprint
-from environment_defaults import (
+from Algorithm.se.RL_SETS import environment_contract
+from State.SensorEncoding import DEFAULT_SENSOR_ENCODING
+from experiments.config import (
     DEFAULT_FITNESS_SERVICE, DEFAULT_ROUTING_SERVICE, DEFAULT_SENSING_MODE,
-    DEFAULT_SENSOR_ENCODING, environment_contract,
 )
 from experiment_algorithms import (
     EXPERIMENT_PRESET,

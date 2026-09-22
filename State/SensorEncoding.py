@@ -6,11 +6,14 @@ import numpy as np
 
 from State.Encoding import Encoding
 from State.State import State
-from environment_defaults import DEFAULT_SENSOR_ENCODING
 from Problem.services.evaluation_kernels import (
     NUMBA_AVAILABLE,
     decode_sensor_schedule_kernel,
 )
+
+
+# decode() 的預設編碼版本；改版時同時影響 RL checkpoint 的環境契約。
+DEFAULT_SENSOR_ENCODING = "v3"
 
 
 class SensorEncoding(Encoding):

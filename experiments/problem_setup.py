@@ -5,13 +5,12 @@ import numpy as np
 from Problem.Problem import Problem
 from Problem.services import FitnessServiceV2, FitnessServiceV3
 from Problem.services.mobility_service import MobilityService
-from environment_defaults import (
+
+
+from experiments.config import (
     DEFAULT_FITNESS_SERVICE,
     DEFAULT_ROUTING_SERVICE,
     DEFAULT_SENSING_MODE,
-)
-
-from experiments.config import (
     FITNESS_SERVICES,
     MOVING_TARGET_ENERGY_THRESHOLD,
     set_seed,
