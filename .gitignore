@@ -16,9 +16,9 @@ env/
 # 注意：data/ 裡的地圖目前無法重新產生 —— maps/*.json 沒有記錄 map_seed，
 # 而 manifest 指定的產生器 CreateTest.py 也已不存在。備份 data/ 之前
 # 不要把它當成可拋棄的快取。
-data/
-experiment_results/
-tmp/
+data
+experiment_results
+tmp
 
 # ---- 模型權重 ----
 # Models/ 本身不忽略，只忽略內容，這樣下面的例外才會生效
