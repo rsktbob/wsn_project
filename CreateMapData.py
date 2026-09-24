@@ -111,7 +111,7 @@ def generate_map(boundary, sensors, targets, map_id, seed, output_root, overwrit
     temporary_svg = dataset_dir / ".sensor.svg.tmp"
 
     # Keep the historical CSV shape, including its index column, because
-    # Problem.create_test_data reads columns 1 and 2 as x/y coordinates.
+    # Problem.create_map_data reads columns 1 and 2 as x/y coordinates.
     pd.DataFrame(problem.sensor).to_csv(temporary_csv)
 
     metadata = {
@@ -168,7 +168,16 @@ def parse_args(argv=None):
     )
     parser.add_argument("--prefix", default="MAP")
     parser.add_argument("--output-root", type=Path, default=PROJECT_ROOT / "data")
-    parser.add_argument("--manifest", type=Path, help="Also write a --maps JSON manifest.")
+    parser.add_argument(
+        "--manifest",
+        help=(
+            "Manifest file for --maps. A bare name is saved under maps/ and "
+            "gets .json appended if missing. "
+            "Default: maps/maps_<B><S><T>_<prefix>.json."
+        ),
+    )
+    parser.add_argument("--no-manifest", action="store_true",
+                        help="Only generate datasets; do not write a manifest.")
     parser.add_argument("--split", choices=("train", "validation", "test"), default="test")
     parser.add_argument("--validation-count", type=int, default=0)
     parser.add_argument("--validation-seed", type=int, default=40001)
@@ -177,16 +186,49 @@ def parse_args(argv=None):
     return parser.parse_args(argv)
 
 
+def resolve_manifest_path(args):
+    """Return where the --maps manifest goes, or None when disabled."""
+    if args.no_manifest:
+        return None
+    if args.manifest is None:
+        name = f"maps_{args.boundary}{args.sensors}{args.targets}_{args.prefix}.json"
+        return PROJECT_ROOT / "maps" / name
+    path = Path(args.manifest).expanduser()
+    if path.parent == Path("."):
+        path = PROJECT_ROOT / "maps" / path
+    if path.suffix != ".json":
+        path = path.with_name(path.name + ".json")
+    return path
+
+
+def display_path(path):
+    """Show project files relative to the root, the way --maps accepts them."""
+    path = Path(path).resolve()
+    try:
+        return str(path.relative_to(PROJECT_ROOT))
+    except ValueError:
+        return str(path)
+
+
 def main(argv=None):
     args = parse_args(argv)
     if args.boundary <= 0 or args.sensors <= 0 or args.targets <= 0:
         raise ValueError("boundary, sensors, and targets must be positive")
     if args.count <= 0 or args.validation_count < 0:
         raise ValueError("count must be positive and validation-count non-negative")
-    if args.manifest is not None and args.manifest.exists() and not args.overwrite:
-        raise FileExistsError(f"manifest already exists: {args.manifest}")
-    if args.manifest is not None and args.output_root.resolve() != PROJECT_ROOT / "data":
-        raise ValueError("manifest datasets must be saved in the project's data directory")
+    if args.manifest is not None and args.no_manifest:
+        raise ValueError("--manifest and --no-manifest cannot be used together")
+    manifest_path = resolve_manifest_path(args)
+    if manifest_path is not None and args.output_root.resolve() != PROJECT_ROOT / "data":
+        raise ValueError(
+            "manifest datasets must be saved in the project's data directory; "
+            "use --no-manifest with a custom --output-root"
+        )
+    if manifest_path is not None and manifest_path.exists() and not args.overwrite:
+        raise FileExistsError(
+            f"manifest already exists: {display_path(manifest_path)} "
+            "(choose another --manifest or pass --overwrite)"
+        )
     requests = [
         (args.split, f"{args.prefix}{index + 1:02d}", args.seed + index)
         for index in range(args.count)
@@ -217,9 +259,10 @@ def main(argv=None):
                 overwrite=args.overwrite,
             )
         )
+    print(f"generated {len(generated)} map(s):")
     for dataset_dir in generated:
-        print(dataset_dir)
-    if args.manifest is not None:
+        print("  ", display_path(dataset_dir))
+    if manifest_path is not None:
         entries = {"maps": [], "validation_maps": []}
         fingerprints = set()
         for index, dataset_dir in enumerate(generated):
@@ -234,16 +277,17 @@ def main(argv=None):
                 "boundary": args.boundary, "sensors": args.sensors,
                 "targets": args.targets,
             })
-        args.manifest.parent.mkdir(parents=True, exist_ok=True)
+        manifest_path.parent.mkdir(parents=True, exist_ok=True)
         manifest_text = json.dumps({
-            "split": args.split, "generator": "CreateTest.py",
+            "split": args.split, "generator": "CreateMapData.py",
             "minimum_coverage_required": Problem.DATA_GENERATION_MIN_COVERAGE,
             "target_layout": "fixed_grid", **entries,
         }, indent=2) + "\n"
-        temporary_manifest = args.manifest.with_suffix(args.manifest.suffix + ".tmp")
+        temporary_manifest = manifest_path.with_suffix(manifest_path.suffix + ".tmp")
         temporary_manifest.write_text(manifest_text, encoding="utf-8")
-        temporary_manifest.replace(args.manifest)
-        print("manifest", args.manifest)
+        temporary_manifest.replace(manifest_path)
+        print("manifest:", display_path(manifest_path))
+        print("use with: --maps", display_path(manifest_path))
 
 
 if __name__ == "__main__":

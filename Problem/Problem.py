@@ -96,7 +96,7 @@ class Problem:
             self.FILE = "data/" + str(B) + str(S) + str(T) + "_" + str(FILE) + "/"
             print("Read:" + self.FILE)
 
-        # 基本拓樸大小與 id 陣列。sensor/target 會在 CreateTestData 中填入座標。
+        # 基本拓樸大小與 id 陣列。sensor/target 會在 create_map_data 中填入座標。
         self.BOUNDARY = B
         self.SENSOR_NUMBER = S
         self.SENSOR_ID = np.arange(self.SENSOR_NUMBER)
@@ -191,7 +191,7 @@ class Problem:
         self.fitness_service = FitnessService(self)
 
         # 建立或載入座標，再產生 coverage_table 與 target_sensor_mask。
-        self.CreateTestData(self.FILE, update_position, Target_position)
+        self.create_map_data(self.FILE, update_position, Target_position)
         self.configure_sensing_ranges()
         self.coverage_table, self.target_sensor_mask = (
             self.calculate_coverage_matrix()
@@ -865,7 +865,7 @@ class Problem:
             self.calculate_coverage_matrix()
         )
 
-    def create_test_data(self, FILE, update_position=None, Target_position=None):
+    def create_map_data(self, FILE, update_position=None, Target_position=None):
         """建立、載入或重建 sensor/target 座標。
 
         FILE=None 時會隨機產生 sensor；有 FILE 時從 sensor.csv 載入。
@@ -985,8 +985,8 @@ class Problem:
         return self.sort_nodes_by_bs_distance()
 
     def CreateTestData(self, FILE, update_position=None, Target_position=None):
-        """舊名：create_test_data。"""
-        return self.create_test_data(FILE, update_position, Target_position)
+        """舊名：create_map_data。"""
+        return self.create_map_data(FILE, update_position, Target_position)
 
     def PreCal(self, cost=None):
         """舊名：prepare_coding_cache。"""

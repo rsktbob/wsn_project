@@ -36,7 +36,7 @@
 已執行的生成命令如下；一般情況會拒絕同名資料，只有明確加上 `--overwrite` 才會原位取代生成檔案：
 
 ```powershell
-python CreateTest.py --count 200 --seed 20001 --prefix RLTRAIN --split train --validation-count 40 --validation-seed 40001 --manifest maps/maps_100100100_train.json --overwrite
+python CreateMapData.py --count 200 --seed 20001 --prefix RLTRAIN --split train --validation-count 40 --validation-seed 40001 --manifest maps/maps_100100100_train.json --overwrite
 ```
 
 產生其他批次時改用新 `--prefix`、`--seed`、`--validation-seed` 與 manifest 路徑；可設定 `--boundary`、`--sensors`、`--targets`。訓練同一模型的這份清單目前要求規模與初始能量一致。
