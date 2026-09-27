@@ -14,7 +14,6 @@
 - `RoutingService`：routing priority、forwarding path、route capacity、斷線 sensor 檢查。
 - `EnergyService`：scheduling cost、routing cost、total cost、remaining energy、target remaining energy。
 
-`Problem.CodingProblem.CodingProblem` 保留為相容 wrapper，實際繼承並使用 `Problem`。
 
 ## Algorithm
 

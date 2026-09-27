@@ -58,7 +58,7 @@ def main():
     # mutatev2 降低 level 或關閉 sensor 後，必須使用 CCS 補回所有
     # target；已開啟的替代 sensor 則保留目前值與需求值中的較大者。
     repair_code = np.zeros(problem.SENSOR_NUMBER * 2, dtype=int)
-    for target_candidates in problem.CCS:
+    for target_candidates in problem.cover_candidates:
         assert target_candidates
         sensor_id, required_level = target_candidates[0]
         level_id = int(sensor_id) * 2

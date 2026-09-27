@@ -95,7 +95,7 @@ def build_parser():
         "--max-rounds",
         type=int,
         default=EXPERIMENT_PRESET["max_rounds"],
-        help="Maximum re-optimization rounds, matching the old Round.py outer loop.",
+        help="Maximum re-optimization rounds in lifetime mode.",
     )
     parser.add_argument(
         "--segment-slot-limit",

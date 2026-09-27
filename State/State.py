@@ -91,54 +91,5 @@ class State:
             crowding_distance=self.crowding_distance,
         )
 
-    # 舊名稱僅保留為相容入口；新程式一律使用上方具體名稱。
-    @property
-    def sch(self):
-        return self.levels
-
-    @sch.setter
-    def sch(self, value):
-        self.levels = value
-
-    @property
-    def rou(self):
-        return self.next_hops
-
-    @rou.setter
-    def rou(self, value):
-        self.next_hops = value
-
-    @property
-    def use(self):
-        return self.tx_load
-
-    @use.setter
-    def use(self, value):
-        self.tx_load = value
-
-    @property
-    def cap(self):
-        return self.remaining_capacity
-
-    @cap.setter
-    def cap(self, value):
-        self.remaining_capacity = value
-
-    @property
-    def path(self):
-        return self.paths
-
-    @path.setter
-    def path(self, value):
-        self.paths = value
-
-    @property
-    def radius(self):
-        return self.sensing_radii
-
-    @radius.setter
-    def radius(self, value):
-        self.sensing_radii = value
-
 
 __all__ = ["State"]

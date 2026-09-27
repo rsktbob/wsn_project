@@ -32,8 +32,6 @@ from Algorithm.se.SA_SETS import SA_SETS
 from Algorithm.se.SA_SETSv2 import SA_SETSv2
 from Algorithm.se.SETSv1 import SETSv1
 from Algorithm.se.SETSv2 import SETSv2
-from Algorithm.Routing.CBGWO import CBGWO
-from Algorithm.Routing.KPSOO import KPSOO
 from Algorithm.Routing.RGA import RGA
 from Algorithm.Routing.RQLearning import RQLearning
 from Algorithm.Scheduling.NBEDA import NBEDA
@@ -119,7 +117,7 @@ def main():
         SETSv2,
     )
     scheduling_algorithms = (NBEDA, SES, SGA, SNSGAII, SRIME)
-    routing_algorithms = (CBGWO, KPSOO, RGA, RQLearning)
+    routing_algorithms = (RGA, RQLearning)
 
     organized_packages = {
         "ga",
@@ -144,11 +142,9 @@ def main():
     assert issubclass(SGA, BaseGA)
     assert issubclass(RGA, BaseGA)
     assert issubclass(PSO, BasePSO)
-    assert issubclass(KPSOO, BasePSO)
     assert issubclass(EDA, BaseEDA)
     assert issubclass(NBEDA, BaseEDA)
     assert issubclass(GWO, BaseGWO)
-    assert issubclass(CBGWO, BaseGWO)
     assert issubclass(NSGAII, BaseNSGAII)
     assert issubclass(SNSGAII, BaseNSGAII)
     assert SA_SETS.__bases__ == (BaseSE,)

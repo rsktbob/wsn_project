@@ -257,7 +257,7 @@ class Problem:
         self.mobility_service = MobilityService(self)
 
         # 部分 SE/SETS/ALNS 演算法選擇或修復 sensor 時使用的最低能量門檻。
-        # 這不是全域死亡判定；真正的能量失敗條件是執行後 J - cost < 0。
+        # 這不是全域死亡判定；真正的能量失敗條件是執行後 energy - cost < 0。
         # 目前 GI-GOMEA 系列不使用 liveJ。
         self.liveJ = 0.5
 

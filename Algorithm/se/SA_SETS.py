@@ -240,7 +240,7 @@ class SA_SETS(BaseSE):
                 continue
             candidates = [
                 (int(sensor_id), int(level))
-                for sensor_id, level in problem.CCS[int(target_id)]
+                for sensor_id, level in problem.cover_candidates[int(target_id)]
                 if int(level) > 0
             ]
             alternatives = [

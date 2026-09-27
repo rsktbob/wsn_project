@@ -33,7 +33,7 @@ def create_problem():
 def digest(state):
     arrays = [
         np.asarray(getattr(state, name), dtype=np.int64).reshape(-1)
-        for name in ("sch", "rou", "use")
+        for name in ("levels", "next_hops", "tx_load")
     ]
     return hashlib.sha256(np.concatenate(arrays).tobytes()).hexdigest()
 

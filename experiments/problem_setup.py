@@ -101,7 +101,7 @@ def rebuild_problem_after_movement(problem, positions, powers, mobile_data):
 
 
 def apply_mobility(problem, state, cost):
-    """依 Round.py 的固定門檻移動修復弱區域與覆蓋盲區。"""
+    """依舊版 lifetime 迴圈的固定門檻移動修復弱區域與覆蓋盲區。"""
     remaining_energy = problem.calculate_remaining_energy(cost)
     target_remaining_energy = problem.calculate_target_remaining_energy(
         remaining_energy

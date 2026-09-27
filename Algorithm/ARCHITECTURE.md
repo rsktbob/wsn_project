@@ -46,14 +46,12 @@ Algorithm
 │  ├─ Scheduling.SGA
 │  └─ Routing.RGA
 ├─ BasePSO
-│  ├─ Combine.PSO
-│  └─ Routing.KPSOO
+│  └─ Combine.PSO
 ├─ BaseEDA
 │  ├─ Combine.EDA
 │  └─ Scheduling.NBEDA
 ├─ BaseGWO
-│  ├─ Combine.GWO
-│  └─ Routing.CBGWO
+│  └─ Combine.GWO
 ├─ BaseNSGAII
 │  ├─ Combine.NSGAII
 │  └─ Scheduling.SNSGAII

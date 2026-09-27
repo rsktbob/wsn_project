@@ -11,7 +11,6 @@ if str(PROJECT_ROOT) not in sys.path:
 from Algorithm.ga.BaseGA import BaseGA
 from Algorithm.ga.GA import GA
 from Algorithm.se.SA_SETS import SA_SETS
-from Problem.CodingProblem import CodingProblem
 from Problem.Problem import Problem
 from State.SensorEncoding import SensorEncoding
 
@@ -65,7 +64,6 @@ def build_and_evaluate(problem_cls):
 
 def main():
     build_and_evaluate(Problem)
-    build_and_evaluate(CodingProblem)
 
     assert issubclass(GA, BaseGA)
     assert hasattr(SA_SETS, "create_candidate")
