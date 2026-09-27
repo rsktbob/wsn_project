@@ -11,7 +11,6 @@ from Problem.services.evaluation_kernels import (
     decode_sensor_schedule_kernel,
 )
 
-
 # decode() 的預設編碼版本；改版時同時影響 RL checkpoint 的環境契約。
 DEFAULT_SENSOR_ENCODING = "v3"
 

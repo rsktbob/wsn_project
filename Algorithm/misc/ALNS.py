@@ -9,7 +9,7 @@ from State.SensorEncoding import SensorEncoding
 
 
 class ALNS(Algorithm):
-    """以 WSN 專用破壞與修復操作搜尋 ``CodingState``。
+    """以 WSN 專用破壞與修復操作搜尋 ``SensorEncoding``。
 
     演算法每次只評估一個完整候選解，並依操作近期帶來的改善程度更新
     選擇權重。模擬退火接受準則只允許在相同可行性等級內接受較差解，

@@ -13,7 +13,7 @@ from Algorithm.ga.GA import GA
 from Algorithm.se.SA_SETS import SA_SETS
 from Problem.CodingProblem import CodingProblem
 from Problem.Problem import Problem
-from State.CodingState import CodingState
+from State.SensorEncoding import SensorEncoding
 
 
 def build_and_evaluate(problem_cls):
@@ -22,10 +22,12 @@ def build_and_evaluate(problem_cls):
 
     problem = problem_cls(B=50, S=30, T=9, F=100, FILE=None)
     assert int(np.min(np.sum(problem.target_sensor_mask, axis=1))) >= 3
-    state = CodingState(problem)
-    state.create_random_code(problem)
-    state.decode(problem)
-    fitness = state.evaluate(problem)
+    coding = SensorEncoding.random(
+        problem.SENSOR_NUMBER,
+        problem.radius_option_counts,
+    )
+    state = coding.decode(problem)
+    fitness = problem.evaluate_state(state)
     updated_position, updated_power, mobile_id = problem.mobility_service.relocate_sensors(
         state=state,
         low_energy_targets=[],
@@ -52,7 +54,7 @@ def build_and_evaluate(problem_cls):
             problem.sensor_ring_by_id == ring_id
         ]
         assert np.all(np.diff(angles) >= 0)
-    assert len(state.code) == problem.SENSOR_NUMBER * 2
+    assert len(coding.code) == problem.SENSOR_NUMBER * 2
     assert len(fitness) == 3
     assert np.all(np.isfinite([float(value) for value in fitness]))
     assert len(updated_position) == problem.SENSOR_NUMBER
@@ -68,8 +70,6 @@ def main():
     assert issubclass(GA, BaseGA)
     assert hasattr(SA_SETS, "create_candidate")
     assert hasattr(SA_SETS, "align_region")
-    assert hasattr(CodingState, "create_random_code")
-    assert hasattr(CodingState, "decode_routes")
 
     print("smoke_ok")
 

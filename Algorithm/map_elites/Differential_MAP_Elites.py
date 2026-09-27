@@ -9,7 +9,7 @@
   執行 DE/rand/1 與 binomial crossover。
 
 WSN 的連續 chromosome 位於 [0, 1]^T，T 為 target 數量，再以 random
-key 轉為 TargetCodingState 的 0 到 9999 整數基因。
+key 轉為 TargetEncoding 的 0 到 9999 整數基因。
 """
 
 import math

@@ -10,7 +10,7 @@
    soft archive 中隨機選取。
 
 WSN 適配只發生在解碼、目標函數與行為描述子。搜尋空間仍是連續高斯
-向量，經固定常態 CDF 映射為 TargetCodingState 的 0 到 9999 整數基因。
+向量，經固定常態 CDF 映射為 TargetEncoding 的 0 到 9999 整數基因。
 """
 
 import math
@@ -375,7 +375,7 @@ class _CMAESEmitter:
 
 
 class CMA_MAE(Algorithm):
-    """以 TargetCodingState 搜尋 WSN 排程與路由的 CMA-MAE。"""
+    """以 TargetEncoding 搜尋 WSN 排程與路由的 CMA-MAE。"""
 
     def __init__(
         self,
@@ -425,7 +425,7 @@ class CMA_MAE(Algorithm):
 
     def _coding_from_theta(self, P, theta):
         # 除以初始 σ 後套用常態 CDF，使第一代 N(0, σ²I) 可均勻探索
-        # TargetCodingState 的整數 random-key 範圍。
+        # TargetEncoding 的整數 random-key 範圍。
         probability = _normal_cdf(np.asarray(theta, dtype=float) / self.sigma)
         code = np.floor(probability * 10000.0).astype(int)
         return TargetEncoding(np.clip(code, 0, 9999))

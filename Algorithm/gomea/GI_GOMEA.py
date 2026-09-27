@@ -1,4 +1,4 @@
-"""CodingState 版本的 GI-GOMEA。"""
+"""SensorEncoding 版本的 GI-GOMEA。"""
 
 from Algorithm.gomea.BaseGIGOMEA import BaseGIGOMEA
 

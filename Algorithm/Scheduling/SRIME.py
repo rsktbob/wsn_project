@@ -1,11 +1,35 @@
 import random
 import time
+from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 
 from Algorithm.core.Algorithm import Algorithm
 from Algorithm.core.budget import iterations_to_reach_budget
-from State.TargetCodingState import TargetCodingState
+from State.TargetEncoding import TargetEncoding
+
+
+@dataclass
+class _Individual:
+    """SRIME-only pairing of a continuous target chromosome and its state."""
+
+    coding: Any
+    state: Any | None = None
+    objectives: np.ndarray | None = None
+    value: float = 0.0
+    constraint_violation: float = 0.0
+
+    def copy(self):
+        return _Individual(
+            coding=self.coding.copy(),
+            state=None if self.state is None else self.state.copy(),
+            objectives=(
+                None if self.objectives is None else self.objectives.copy()
+            ),
+            value=float(self.value),
+            constraint_violation=float(self.constraint_violation),
+        )
 
 
 class SRIME(Algorithm):
@@ -34,47 +58,48 @@ class SRIME(Algorithm):
         self.route_selector = route_selector
         self.name = "SRIME_" + str(n)
 
-    def _create_state(self, P):
-        state = TargetCodingState(P, route_selector=self.route_selector)
-        state.code = np.full(P.TARGET_NUMBER, -1).astype(float)
-        for target_id in range(P.TARGET_NUMBER):
-            state.code[target_id] = self._random_gene_value(P, target_id)
-        return state
+    def _create_individual(self, P):
+        code = np.array(
+            [
+                self._random_gene_value(P, target_id)
+                for target_id in range(P.TARGET_NUMBER)
+            ],
+            dtype=float,
+        )
+        coding = TargetEncoding(code)
+        coding.route_selector = self.route_selector
+        return _Individual(coding=coding)
 
     def _random_gene_value(self, P, target_id):
         candidate_count = len(P.cover_candidates[target_id])
         if candidate_count == 0:
             return -1
-        board = TargetCodingState.RANK_PRECISION // candidate_count + 1
+        board = TargetEncoding.RANK_PRECISION // candidate_count + 1
         return random.uniform(
             0,
             max(
                 0.000001,
-                candidate_count * board * TargetCodingState.RANK_PRECISION
+                candidate_count * board * TargetEncoding.RANK_PRECISION
                 - 0.000001,
             ),
         )
 
-    def normalize_state(self, P, state):
+    def normalize_code(self, P, code):
         for target_id in range(P.TARGET_NUMBER):
             candidate_count = len(P.cover_candidates[target_id])
             if candidate_count == 0:
-                state.code[target_id] = -1
+                code[target_id] = -1
                 continue
 
-            board = TargetCodingState.RANK_PRECISION // candidate_count + 1
-            code_range = candidate_count * board * TargetCodingState.RANK_PRECISION
-            state.code[target_id] = state.code[target_id] % code_range
+            board = TargetEncoding.RANK_PRECISION // candidate_count + 1
+            code_range = candidate_count * board * TargetEncoding.RANK_PRECISION
+            code[target_id] = code[target_id] % code_range
             upper_bound = code_range - 0.000001
-            if state.code[target_id] >= code_range:
-                state.code[target_id] = upper_bound
-            if state.code[target_id] < 0:
-                state.code[target_id] = 0
-        return state
-
-    def decode_state(self, P, state):
-        state.Decode(P)
-        return state
+            if code[target_id] >= code_range:
+                code[target_id] = upper_bound
+            if code[target_id] < 0:
+                code[target_id] = 0
+        return code
 
     def _constraint_violation(self, P, state):
         cost = P.calculate_total_cost(state)
@@ -83,23 +108,27 @@ class SRIME(Algorithm):
         disconnected_count = len(P.find_disconnected(state))
         return uncovered_count + energy_failed_count + disconnected_count
 
-    def _evaluate_state(self, P, state):
-        self.normalize_state(P, state)
-        self.decode_state(P, state)
+    def _evaluate(self, P, individual):
+        self.normalize_code(P, individual.coding.code)
+        state = individual.coding.decode(P)
         self.repair_state(P, state)
-        objectives = np.array(state.Evaluate(P)).astype(float)
+        objectives = np.array(P.evaluate_state(state)).astype(float)
+        violation = self._constraint_violation(P, state)
+        value = np.sum(objectives) - self.violation_penalty * violation
         state.objectives = objectives
-        state.constraint_violation = self._constraint_violation(P, state)
-        state.value = np.sum(objectives) - (
-            self.violation_penalty * state.constraint_violation
-        )
+        state.constraint_violation = violation
+        state.value = value
+        individual.state = state
+        individual.objectives = objectives
+        individual.constraint_violation = violation
+        individual.value = value
         self.evatime += 1
         return objectives
 
     def _create_population(self, P):
-        population = [self._create_state(P) for _ in range(self.N)]
-        for state in population:
-            self._evaluate_state(P, state)
+        population = [self._create_individual(P) for _ in range(self.N)]
+        for individual in population:
+            self._evaluate(P, individual)
         return population
 
     def _is_better(self, left, right):
@@ -111,37 +140,37 @@ class SRIME(Algorithm):
 
     def _select_best(self, population):
         best = None
-        for state in population:
-            if self._is_better(state, best):
-                best = state
+        for individual in population:
+            if self._is_better(individual, best):
+                best = individual
         return best
 
-    def _update_state(self, P, state, best_state, progress):
-        child = state.Copy()
-        if child.code is None or best_state.code is None:
-            return child
+    def _update_individual(self, P, individual, best, progress):
+        child = individual.copy()
+        code = child.coding.code
+        best_code = best.coding.code
 
         mutation_rate = self.mutation_rate
         if mutation_rate is None:
-            mutation_rate = 1 / max(1, child.length)
+            mutation_rate = 1 / max(1, child.coding.length)
 
         exploration_scale = max(0.05, 1.0 - progress)
-        for gene_id in range(child.length):
+        for gene_id in range(child.coding.length):
             if random.random() < self.hard_rate * progress:
-                child.code[gene_id] = best_state.code[gene_id]
+                code[gene_id] = best_code[gene_id]
                 continue
 
             if random.random() < self.soft_rate:
-                direction = best_state.code[gene_id] - child.code[gene_id]
+                direction = best_code[gene_id] - code[gene_id]
                 noise = random.uniform(-1.0, 1.0) * exploration_scale
-                child.code[gene_id] = (
-                    child.code[gene_id] + direction * random.random() + noise
+                code[gene_id] = (
+                    code[gene_id] + direction * random.random() + noise
                 )
 
             if random.random() < mutation_rate:
-                child.code[gene_id] = self._random_gene_value(P, gene_id)
+                code[gene_id] = self._random_gene_value(P, gene_id)
 
-        self.normalize_state(P, child)
+        self.normalize_code(P, code)
         return child
 
     def _target_sensor_distance(self, P):
@@ -198,7 +227,11 @@ class SRIME(Algorithm):
             -1, P.DEVICE_NUMBER
         ).astype(float)
         state.tx_load = np.zeros(P.SENSOR_NUMBER).astype(int)
-        state.RouDecoding(P, self._build_open_sensors(P, state))
+        P.routing_service.build_routes(
+            state,
+            self._build_open_sensors(P, state),
+            route_selector=self.route_selector,
+        )
         P.resolve_state_radius(state)
         return state
 
@@ -208,7 +241,7 @@ class SRIME(Algorithm):
     def run_generations(self, P, run=1, iteration=None, sch_s=None):
         generation = self.generation if iteration is None else iteration
         self.history = np.zeros(generation)
-        best_state = None
+        best = None
 
         for run_id in range(run):
             start_time = time.time()
@@ -218,17 +251,17 @@ class SRIME(Algorithm):
 
             for generation_id in range(generation):
                 progress = (generation_id + 1) / max(1, generation)
-                next_population = [current_best.Copy()]
+                next_population = [current_best.copy()]
 
                 while len(next_population) < self.N:
                     parent = random.choice(population)
-                    child = self._update_state(
+                    child = self._update_individual(
                         P,
                         parent,
                         current_best,
                         progress,
                     )
-                    self._evaluate_state(P, child)
+                    self._evaluate(P, child)
                     next_population.append(child)
 
                 population = next_population
@@ -248,7 +281,7 @@ class SRIME(Algorithm):
 
                 self.on_iteration_finish(
                     problem=P,
-                    state=current_best,
+                    state=current_best.state,
                     iteration=generation_id,
                     run=run_id,
                     Name="Test",
@@ -259,14 +292,14 @@ class SRIME(Algorithm):
                     fitness=current_best.value,
                 )
 
-            if self._is_better(current_best, best_state):
-                best_state = current_best.Copy()
+            if self._is_better(current_best, best):
+                best = current_best.copy()
 
             self.population = population
-            self.best_state = best_state.Copy()
+            self.best_state = best.state.copy()
 
         self.history /= max(1, run)
-        return best_state
+        return best.state.copy()
 
     def search(self, P, budget, state=None):
         generation = iterations_to_reach_budget(

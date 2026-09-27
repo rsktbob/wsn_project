@@ -40,7 +40,7 @@ class Problem:
         ``cover_candidates[target]``
             可覆蓋該 target 的 ``[sensor_id, level]`` 候選清單。
 
-    Problem 不解讀演算法的原始 chromosome。CodingState、TargetCodingState
+    Problem 不解讀演算法的原始 chromosome。SensorEncoding、TargetEncoding
     可以使用不同編碼，只要最後產生相同的 ``levels``、
     ``next_hops``、``tx_load`` 即可。
     """

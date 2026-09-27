@@ -182,8 +182,6 @@ def main():
     srime = SRIME(n=4, generation=2, route_selector=None)
     best_srime = srime.run(problem, budget=8).best_state
     assert best_srime.use_continuous_radius is False
-    best_srime.Decode(problem)
-    assert best_srime.use_continuous_radius is False
     prepare_result_state(srime, problem, best_srime)
     assert best_srime.use_continuous_radius is False
     assert best_srime.sensing_radii is not None

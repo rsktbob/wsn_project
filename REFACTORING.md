@@ -16,24 +16,6 @@
 
 `Problem.CodingProblem.CodingProblem` 保留為相容 wrapper，實際繼承並使用 `Problem`。
 
-## CodingState
-
-`CodingState` 保留原本名稱，避免語意與既有使用習慣被破壞。
-
-新增較清楚的 snake_case API，例如：
-
-- `create_zero_code`
-- `create_random_code`
-- `random_gene_value`
-- `evaluate`
-- `decode`
-- `decode_routing_priority`
-- `decode_schedule`
-- `decode_routes`
-- `copy`
-
-舊方法仍保留，新的方法以 wrapper 方式委託舊方法，方便逐步遷移。
-
 ## Algorithm
 
 只有真正被多個演算法共用的模板流程才保留 `Base*`：
@@ -103,28 +85,18 @@ smoke_ok
 - 除 `Algorithm.visualization` 委託層外，演算法檔案不再直接引用 `Draw`。
 - `Base*` alias 與主要 Combine 類別的 snake_case alias 可正常 import。
 
-## 舊 State 與新 Encoding 已不再等價（2026-09-21 查證）
+## 舊 State 類別已移除（2026-09-27）
 
-重構當時的 `tests/regression_coding_split.py` 用固定染色體比對「舊 State」
-與「新 Encoding」的解碼結果必須完全相同。該遷移已完成，兩邊之後各自演進，
-等價關係被刻意打破，因此該測試已移除。實測的分歧點：
+`CodingState` 與 `TargetCodingState` 已刪除，所有演算法改走
+`SensorEncoding`／`TargetEncoding` 解碼出 `State`。原本唯一還在用
+`TargetCodingState` 的 `SRIME` 已改為 `TargetEncoding` + `State`。
 
-**sensor 側**（`CodingState` vs `SensorEncoding`）—— priority 公式不同：
+刪除前兩組實作已不等價，這會影響 `SRIME` 的結果：
 
-```python
-SensorEncoding.py   (energy_score + proximity_score) * (0.5 + gene/(RANK_PRECISION-1))
-CodingState.py      (proximity_score + energy_score) * ((gene % rank_prec)/(rank_prec-1))
-```
+**sensor 側**（`CodingState` vs `SensorEncoding`）—— priority 公式不同，
+`SensorEncoding` 多了 `0.5 +` 下限（避免 gene=0 的 sensor 完全失去排序權重）。
 
-那個 `0.5` 下限是後來加的（避免 gene=0 的 sensor 完全失去排序權重），
-`CodingState` 沒有跟上。已驗證：把 `SensorEncoding` 換回舊公式後，
-discrete／bucketed／exact 三種模式的兩邊結果完全相同。
-
-**target 側**（`TargetCodingState` vs `TargetEncoding`）—— `_target_priority`
-與 `_target_priorities` 的公式相同，`target_assignment` 也完全一致，但之後的
-`levels`、`next_hops`、`paths` 與 fitness 都不同，分歧在覆蓋解碼之後的冗餘移除
-或路由階段，尚未定位到確切位置。
-
-目前沒有演算法依賴這兩組實作彼此一致：`CodingState` 已無演算法使用
-（只剩 `tests/smoke_problem.py` 與 `plotting/rescan.py` 引用），
-`TargetCodingState` 僅由 `SRIME` 使用，其餘走 `SensorEncoding`／`TargetEncoding`。
+**target 側**（`TargetCodingState` vs `TargetEncoding`）—— priority 公式與
+`target_assignment` 相同，分歧在冗餘 sensor 移除的方向：舊版從 `open_order`
+前端開始嘗試刪除，`TargetEncoding` 從後端（低優先）開始刪除。因此 `SRIME`
+改用 `TargetEncoding` 後，結果與改版前的舊實驗不可直接比較。
