@@ -58,9 +58,15 @@ Algorithm
 ├─ BaseSE
 │  ├─ Combine.CodingSE
 │  ├─ Combine.CodingSEv2
-│  ├─ Combine.SA_SETS
-│  │  ├─ Combine.SETSv1
-│  │  └─ Combine.SA_SETS_Target
+│  ├─ se.SETS                   （家族一：identity sensor 分區，跟所有商品投資）
+│  │  └─ se.SA_SETS
+│  │     ├─ se.RegionSelectionSA_SETS → EXP3 / LinUCB / Thompson / CTIG
+│  │     ├─ se.SA_SETS_Target
+│  │     └─ se.SI_SETS             （家族二：只跟選到的區域投資）
+│  │        ├─ se.SI_SETSv2
+│  │        └─ se.RL_SETS → v2 → v3 → v4 → v5
+│  ├─ se.Ring_SETS              （家族三：區域只決定交配範圍，共用商品）
+│  │  └─ se.Ring_SETSv2
 │  ├─ Combine.SETSv2
 │  │  └─ Combine.SA_SETSv2
 │  └─ Scheduling.SES
@@ -75,7 +81,9 @@ Algorithm
 ```
 
 舊 `SETSv1`、`SETSv2` 過渡實作已移除；原 `SETSv3`、`SETSv4` 分別
-重新編號為目前的 `SETSv1`、`SETSv2`。
+重新編號為 `SETSv1`、`SETSv2`。2026-09-27 起 `SETSv1` 改名為 `SETS`，成為
+SA_SETS 的父類別；原 `SA_SETSv3`、`SA_SETSv4` 改名為 `Ring_SETS`、`Ring_SETSv2`。
+三個家族共用的 Beta 記憶與平行評估放在 `se/market_components.py`。
 
 `RLHH_SETS` 也不繼承 `SA_SETS`：它是 serial RL hyper-heuristic runner，
 只組合 SA-SETS 的 state/operator 能力，不繼承多程序市場流程。

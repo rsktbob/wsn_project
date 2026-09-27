@@ -91,8 +91,8 @@ ALGORITHM_PRESETS = {
             'mu': 0.4,
         },
     },
-    'sa_setsv3': {
-        "label": 'SA-SETSv3 (Shared-Pool Ring-Segment Operator Selection)',
+    'ring_sets': {
+        "label": 'Ring-SETS (Shared-Pool Ring-Segment Operator Selection)',
         "encoding": 'N sensing levels + N routing-priority ranks',
         "params": {
             'n': 8,
@@ -101,8 +101,8 @@ ALGORITHM_PRESETS = {
             'mu': 0.4,
         },
     },
-    'sa_setsv4': {
-        "label": 'SA-SETSv4 (SA-SETSv3 + C4 PriorityEncoding)',
+    'ring_setsv2': {
+        "label": 'Ring-SETSv2 (Ring-SETS + C4 PriorityEncoding)',
         "encoding": 'N activation priorities + N routing priorities (C4)',
         "params": {
             'n': 8,
@@ -208,8 +208,8 @@ ALGORITHM_PRESETS = {
             'cvt_iterations': 5,
         },
     },
-    'setsv1': {
-        "label": 'SETSv1',
+    'sets': {
+        "label": 'SETS',
         "params": {
             'n': 8,
             'h': 4,

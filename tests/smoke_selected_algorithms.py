@@ -8,7 +8,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 CASES = [
     ("SA-SETS", "tests/smoke_sa_sets.py"),
-    ("SA-SETSv3", "tests/smoke_sa_setsv3.py"),
+    ("Ring-SETS", "tests/smoke_ring_sets.py"),
     ("GI-GOMEA-WSN", "tests/smoke_gi_gomea.py"),
     ("CMA-MAE", "tests/smoke_cma_mae.py"),
     (

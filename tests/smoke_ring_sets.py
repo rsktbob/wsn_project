@@ -1,4 +1,4 @@
-"""Smoke checks for SA-SETSv3's shared goods pool + segment-only scoring."""
+"""Smoke checks for Ring-SETS' shared goods pool + segment-only scoring."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from Algorithm.se.SA_SETSv3 import SA_SETSv3
+from Algorithm.se.Ring_SETS import Ring_SETS
 from Problem.Problem import Problem
 from experiment_algorithms import build_algorithm, parse_args
 
@@ -19,7 +19,7 @@ from experiment_algorithms import build_algorithm, parse_args
 def test_shared_pool_initialization():
     """Goods are one flat pool of size w, not an (h, w) grid per region."""
     problem = Problem(B=50, S=32, T=9, F=100, FILE=None)
-    algorithm = SA_SETSv3(problem, n=4, h=4, w=3, mu=1.0, seed=7)
+    algorithm = Ring_SETS(problem, n=4, h=4, w=3, mu=1.0, seed=7)
     algorithm.initialize_market(problem)
 
     assert len(algorithm.goods) == 3
@@ -35,7 +35,7 @@ def test_shared_pool_initialization():
 def test_ring_scopes():
     """Operators stay inside the selected ring segment (80/20 local/cross)."""
     problem = Problem(B=50, S=32, T=9, F=100, FILE=None)
-    algorithm = SA_SETSv3(problem, n=4, h=4, w=1, mu=1.0, seed=7)
+    algorithm = Ring_SETS(problem, n=4, h=4, w=1, mu=1.0, seed=7)
     assert algorithm.region_sensor_bounds == ((0, 8), (8, 16), (16, 24), (24, 32))
 
     local_seen = False
@@ -56,7 +56,7 @@ def test_ring_scopes():
 def test_all_searchers_trade_against_the_same_shared_goods():
     """Every searcher this round is a visitor for every good slot."""
     problem = Problem(B=50, S=32, T=9, F=100, FILE=None)
-    algorithm = SA_SETSv3(problem, n=4, h=4, w=1, mu=0.0, seed=7)
+    algorithm = Ring_SETS(problem, n=4, h=4, w=1, mu=0.0, seed=7)
     algorithm.initialize_market(problem)
     algorithm.searcher_fitness[:] = 0.0
     algorithm.goods_fitness[:] = 0.0
@@ -92,9 +92,9 @@ def test_all_searchers_trade_against_the_same_shared_goods():
 
 
 def test_registry_and_small_search():
-    args = parse_args(["--algorithm", "sa_setsv3", "--evaluate", "40"])
+    args = parse_args(["--algorithm", "ring_sets", "--evaluate", "40"])
     problem = Problem(B=50, S=32, T=9, F=100, FILE=None)
-    algorithm = build_algorithm("sa_setsv3", problem, args, seed=7)
+    algorithm = build_algorithm("ring_sets", problem, args, seed=7)
     result = algorithm.run(problem, budget=40)
     assert result.best_state is not None
     assert result.evaluations >= 40
@@ -106,7 +106,7 @@ def main():
     test_ring_scopes()
     test_all_searchers_trade_against_the_same_shared_goods()
     test_registry_and_small_search()
-    print("smoke_sa_setsv3_ok")
+    print("smoke_ring_sets_ok")
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 
 from Algorithm.se.SA_SETSv2 import SA_SETSv2
-from Algorithm.se.SA_SETS import beta_cdf
+from Algorithm.se.market_components import beta_cdf
 from Algorithm.se.SETSv2 import SETSv2
 from Problem.Problem import Problem
 from State.SensorEncoding import SensorEncoding

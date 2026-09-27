@@ -1,6 +1,6 @@
-"""SA_SETSv3's market with the C4 PriorityEncoding.
+"""Ring_SETS' market with the C4 PriorityEncoding.
 
-The market, regions and operators are exactly those of :class:`SA_SETSv3`:
+The market, regions and operators are exactly those of :class:`Ring_SETS`:
 a region only decides which ring segment a searcher's crossover/mutation may
 touch this round (investment behaviour), not a separate part of the solution
 space. Only the chromosome changes: each sensor carries two priority genes
@@ -13,7 +13,7 @@ PriorityEncoding setting found in the GA lifetime experiments.
 
 from __future__ import annotations
 
-from Algorithm.se.SA_SETSv3 import SA_SETSv3
+from Algorithm.se.Ring_SETS import Ring_SETS
 from State.PriorityEncoding import PriorityEncoding
 
 
@@ -24,16 +24,16 @@ class PriorityEncodingC4(PriorityEncoding):
     ROUTING_BASE = "energy"
 
 
-class SA_SETSv4(SA_SETSv3):
-    """SA_SETSv3 searching over C4 priority chromosomes.
+class Ring_SETSv2(Ring_SETS):
+    """Ring_SETS searching over C4 priority chromosomes.
 
     The two genes of a sensor stay adjacent, so the ring-segment crossover
-    (sensor span × 2) swaps whole sensors exactly as in SA_SETSv3.
+    (sensor span × 2) swaps whole sensors exactly as in Ring_SETS.
     """
 
     def __init__(self, problem, n=8, h=4, w=2, mu=0.4, seed=None):
         super().__init__(problem, n=n, h=h, w=w, mu=mu, seed=seed)
-        self.name = f"SA_SETSv4_{self.n}_{self.h}_{self.w}_{self.mutation_rate}"
+        self.name = f"Ring_SETSv2_{self.n}_{self.h}_{self.w}_{self.mutation_rate}"
 
     def create_candidate(self, problem, region=None):
         """Uniform random priorities; the decoder already reaches full coverage."""
@@ -59,4 +59,4 @@ class SA_SETSv4(SA_SETSv3):
         return candidate
 
 
-__all__ = ["PriorityEncodingC4", "SA_SETSv4"]
+__all__ = ["PriorityEncodingC4", "Ring_SETSv2"]

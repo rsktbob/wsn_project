@@ -10,6 +10,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 
 from Algorithm.se.SA_SETS import SA_SETS
+from Algorithm.se.market_components import PooledEvaluation
 from Algorithm.se.SI_SETS import SI_SETS
 from Problem.Problem import Problem
 
@@ -33,7 +34,8 @@ def main():
         problem, n=4, h=4, w=1, mu=0.4, seed=31
     )
 
-    assert SI_SETS.__bases__ == (SA_SETS,)
+    # 分區沿用 SA_SETS，平行評估來自共用的 PooledEvaluation。
+    assert SI_SETS.__bases__ == (PooledEvaluation, SA_SETS)
     for method_name in (
         "select_identity_sensors",
         "create_candidate",

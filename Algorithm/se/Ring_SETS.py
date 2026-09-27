@@ -1,15 +1,17 @@
-"""Ring-segment operator selection SA-SETS with one shared goods pool.
+"""Ring-SETS：沒有固定分區，區域只決定交配與突變能動的 sensor 範圍。
 
-Sensors are split, in ring-major order, into ``h`` contiguous segments. Each
-searcher picks one segment per round; that segment only limits which sensor
-span crossover and mutation may touch (80% within the segment, 20% the whole
-segment plus a non-empty adjacent fragment). It does not own any goods: every
-searcher trades against the same shared pool of ``w`` goods every round.
+SE 三個家族的第三個（另外兩個是 SETS 與 SI_SETS）：
 
-A segment's attractiveness is scored purely by how much recent visits to it
-have improved the visiting searcher (``child1``). ``region`` keeps its
-attribute names (``self.h``, ``self.selected_regions``) for compatibility
-with the shared SE flow.
+* 分區：sensor 依環狀順序（ring-major）切成 ``h`` 段連續範圍。區域不綁定
+  任何解的特徵，只決定這一回合的投資範圍：80% 只動該段，20% 動整段
+  再加上相鄰段的一部分。突變使用同一個範圍。
+* 投資：所有 searcher 每回合都和同一組共用的 ``w`` 個商品交換。
+* 更新：角色分離的菁英更新。``child1`` 以 searcher 為底，只能取代
+  該 searcher；``child2`` 以 good 為底，只有最好的一個能取代該 good，
+  兩者都必須嚴格變好。
+* 區域選擇：只看最近造訪該段時 ``child1`` 的平均表現（Beta CDF 修正）。
+
+``region`` 沿用 ``self.h``、``self.selected_regions`` 等名稱，以配合 SE 共用流程。
 """
 
 from __future__ import annotations
@@ -17,14 +19,17 @@ from __future__ import annotations
 import numpy as np
 
 from Algorithm.se.BaseSE import BaseSE
-from Algorithm.se.SA_SETS import beta_cdf
-from Algorithm.se.SI_SETSv2 import SI_SETSv2
+from Algorithm.se.market_components import (
+    AdaptiveBetaMemory,
+    PooledEvaluation,
+    beta_cdf,
+)
 from State.Encoding import swap_segment
 from State.SensorEncoding import SensorEncoding
 
 
-class SA_SETSv3(SI_SETSv2):
-    """SA-SETS with ring-local operators and a shared elitist goods market.
+class Ring_SETS(PooledEvaluation, AdaptiveBetaMemory, BaseSE):
+    """SE with ring-segment operator scopes and one shared elitist goods pool.
 
     For ``h=4`` and 100 ring-ordered sensors, segments are ``[0:25)``,
     ``[25:50)``, ``[50:75)``, and ``[75:100)``. On every visit, both
@@ -36,19 +41,33 @@ class SA_SETSv3(SI_SETSv2):
       only ``b`` may accept it.
 
     Both updates are elitist. Mutation follows the same chosen sensor span.
+    Unlike SETS, ``h`` need not be a power of two.
     """
 
     LOCAL_OPERATOR_PROBABILITY = 0.80
+    IMPROVEMENT_TOLERANCE = 1e-12
 
     def __init__(self, problem, n=8, h=4, w=2, mu=0.4, seed=None):
-        super().__init__(problem, n=n, h=h, w=w, mu=mu, seed=seed)
+        super().__init__(
+            problem,
+            n=n,
+            h=h,
+            w=w,
+            mu=mu,
+            code_length=problem.SENSOR_NUMBER * 2,
+            seed=seed,
+        )
         if problem.SENSOR_NUMBER < self.h:
-            raise ValueError("SA_SETSv3 requires at least one sensor per region")
+            raise ValueError("Ring_SETS requires at least one sensor per region")
+        self.adaptive_step = 0.001
+        self.current_adaptive_step = self.adaptive_step
+        self._pool = None
+        self.goods = []
+        self.goods_fitness = np.empty(self.w, dtype=float)
         self.region_sensor_bounds = self._build_region_sensor_bounds(
             problem.SENSOR_NUMBER
         )
         self.segment_quality = np.empty((self.h, self.n), dtype=float)
-        self.name = f"SA_SETSv3_{self.n}_{self.h}_{self.w}_{self.mutation_rate}"
 
     def _build_region_sensor_bounds(self, sensor_count):
         """Split ring-major sensor ids into contiguous, near-equal regions."""
@@ -63,8 +82,7 @@ class SA_SETSv3(SI_SETSv2):
 
     def initialize_market(self, problem, initial_state=None):
         """Create searchers and one shared goods pool (no per-segment pools)."""
-        self.identity_sensors = []
-        BaseSE.initialize_market(self, problem, initial_state)
+        super().initialize_market(problem, initial_state)
         self.goods = [self.create_candidate(problem) for _ in range(self.w)]
         self.goods_fitness = self.evaluate_many(problem, self.goods)
 
@@ -254,4 +272,5 @@ class SA_SETSv3(SI_SETSv2):
         return probability
 
 
-__all__ = ["SA_SETSv3"]
+
+__all__ = ["Ring_SETS"]

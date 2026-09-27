@@ -140,7 +140,7 @@ def main():
     assert "state_type" not in algorithm_params("gi_gomea_target", args)
     assert algorithm_params("nsga", args)["generation"] == 1
     assert algorithm_params("srime", args)["generation"] == 2
-    assert "setsv1" in ALGORITHM_NAMES
+    assert "sets" in ALGORITHM_NAMES
     assert "setsv2" in ALGORITHM_NAMES
     assert "setsv3" not in ALGORITHM_NAMES
     assert "setsv4" not in ALGORITHM_NAMES

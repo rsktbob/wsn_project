@@ -7,7 +7,7 @@ import math
 import numpy as np
 
 from Algorithm.se.BaseSE import BaseSE
-from Algorithm.se.SA_SETS import beta_cdf
+from Algorithm.se.market_components import beta_cdf
 from Algorithm.core.budget import iterations_to_reach_budget
 from State.SensorEncoding import SensorEncoding
 

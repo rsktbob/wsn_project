@@ -1,26 +1,18 @@
-"""Selective-investment SETS with parallel candidate evaluation.
+"""SI-SETS：分區與 SA-SETS 相同，但每個 searcher 只和自己選到的區域商品投資。
 
-Uses the same :class:`~Algorithm.se.persistent_worker_pool.PersistentWorkerPool`
-as ``ParallelSEMarket`` (SA_SETS's market), just with a stateless worker
-handler and searcher-row task routing instead of SA_SETS's region-owned
-workers -- SI-SETS' batches are per-searcher and unevenly sized round to
-round, which doesn't fit ParallelSEMarket's "broadcast to h fixed region
-workers" protocol (see ``evaluate_investments`` below for the routing).
+SE 三個家族的第二個。沒去的區域沿用上次觀察到的投資品質；投資由
+``PooledEvaluation`` 的 h 個無狀態子程序平行評估。
 """
 
 from __future__ import annotations
 
-import functools
-
 import numpy as np
 
-from Algorithm.se.persistent_worker_pool import PersistentWorkerPool
-from Algorithm.se.selective_evaluation import build_evaluate_handler
-
-from Algorithm.se.SA_SETS import SA_SETS, beta_cdf
+from Algorithm.se.market_components import PooledEvaluation, beta_cdf
+from Algorithm.se.SA_SETS import SA_SETS
 
 
-class SI_SETS(SA_SETS):
+class SI_SETS(PooledEvaluation, SA_SETS):
     """Choose a goods pool first, then invest only in that pool.
 
     Each region owns a persistent goods pool and the same identity-sensor
@@ -61,66 +53,6 @@ class SI_SETS(SA_SETS):
             self.n,
             axis=1,
         )
-
-    def arrange_resources(self, problem):
-        """用 h 個子程序評估投資。"""
-        self._pool = PersistentWorkerPool()
-        build_handler = functools.partial(build_evaluate_handler, problem)
-        self._pool.start(self.h, build_handler, self.next_seed)
-
-    def close_market(self):
-        """搜尋結束或發生例外時關閉評估子程序。"""
-        if self._pool is not None:
-            self._pool.close()
-            self._pool = None
-
-    def _route_to_pool(self, investments):
-        """Round-robin each searcher's row across the h persistent workers.
-
-        Unlike SA_SETS's region workers, these evaluators are stateless and
-        own no region, so there is no affinity requirement -- any worker can
-        take any row. The pool has no shared task queue of its own (that is
-        what ProcessPoolExecutor gave up when we moved off it), so this
-        loop does the load-balancing: send every row to worker
-        ``row_index % h``, then, per worker, drain exactly as many
-        responses as were sent to it, and finally replay the assignment
-        order to hand results back in the original row order.
-        """
-        worker_count = len(self._pool.connections)
-        assignments = [
-            row_index % worker_count for row_index in range(len(investments))
-        ]
-        for row, worker_id in zip(investments, assignments):
-            self._pool.send(worker_id, row)
-        pending = [0] * worker_count
-        for worker_id in assignments:
-            pending[worker_id] += 1
-        buffered = [[] for _ in range(worker_count)]
-        for worker_id, count in enumerate(pending):
-            for _ in range(count):
-                buffered[worker_id].append(self._pool.recv(worker_id))
-        cursors = [0] * worker_count
-        for worker_id in assignments:
-            yield buffered[worker_id][cursors[worker_id]]
-            cursors[worker_id] += 1
-
-    def evaluate_investments(self, problem, investments):
-        """評估每一批投資，再按原 searcher/good 順序合併，保留同分規則。"""
-        results_per_row = self._route_to_pool(investments)
-
-        scores = []
-        for row, results in enumerate(results_per_row):
-            row_scores = []
-            for col, (candidate, state, objectives, target_red) in enumerate(results):
-                investments[row][col] = candidate
-                fitness = float(np.sum(objectives))
-                self.evatime += 1
-                self.update_best(problem, state, objectives, fitness,
-                                 candidate=candidate)
-                problem.target_red = target_red
-                row_scores.append(fitness)
-            scores.append(row_scores)
-        return np.asarray(scores, dtype=float)
 
     def vision_search(self, problem):
         """Invest only in each searcher's already-selected goods pool."""
@@ -221,20 +153,6 @@ class SI_SETS(SA_SETS):
                     expected_value[region, searcher_id],
                 )
         return probability
-
-    def update_search_memory(self, problem, evaluation_start):
-        """Retain SA-SETS' adaptive Beta memory and historical-best rule."""
-        step = self.current_adaptive_step
-        for selected_region in self.selected_regions:
-            selected_region = int(selected_region)
-            self.ta[selected_region] += step
-            for region in range(self.h):
-                if region != selected_region:
-                    self.tb[region] += step
-
-        history_end = min(int(self.evatime), len(self.history))
-        if history_end > evaluation_start:
-            self.history[evaluation_start:history_end] = self.fitness
 
 
 __all__ = ["SI_SETS"]
