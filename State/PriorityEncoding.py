@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import numpy as np
 
+from Problem.services.evaluation_kernels import (
+    NUMBA_AVAILABLE,
+    decode_priority_schedule_kernel,
+)
 from State.Encoding import Encoding
 from State.State import State
 
@@ -34,6 +38,13 @@ class PriorityEncoding(Encoding):
     ROUTING_BASE = "sum"
     ROUTING_ENERGY_WEIGHT = 0.2
     ROUTING_DISTANCE_WEIGHT = 0.2
+    # level 的選法：
+    #   "gain"       = 新增覆蓋最多的最小 level（不看耗能）
+    #   "efficiency" = 新增覆蓋 / 該 level 感測耗能最高者；之後以
+    #                  「新增覆蓋 / (增加耗能 / 剩餘電量)」全域修補未覆蓋 target
+    #   "total"      = 同 efficiency，但開啟一顆關閉中的 sensor 另外計入
+    #                  把自身資料送回 BS 的通訊耗能（generated_load × C_s）
+    LEVEL_RULE = "gain"
 
     def __init__(self, code, *, split_priority=True):
         super().__init__(code)
@@ -101,29 +112,48 @@ class PriorityEncoding(Encoding):
         problem._priority_delivery_cost = cost
         return cost
 
+    @classmethod
+    def _delivery_efficiency(cls, problem):
+        """C_min / C_s；無法送回 BS 者為 0。只和位置有關，快取在 problem 上。"""
+        cached = getattr(problem, "_priority_delivery_efficiency", None)
+        if cached is not None:
+            return cached
+        cost = cls._delivery_cost(problem)
+        finite = np.isfinite(cost)
+        efficiency = np.zeros_like(cost)
+        if np.any(finite):
+            efficiency[finite] = np.min(cost[finite]) / cost[finite]
+        problem._priority_delivery_efficiency = efficiency
+        return efficiency
+
+    @classmethod
+    def _bs_closeness(cls, problem):
+        """1 − d_s / d_max。只和位置有關，快取在 problem 上。"""
+        cached = getattr(problem, "_priority_bs_closeness", None)
+        if cached is not None:
+            return cached
+        to_bs = cls._bs_distance(problem)
+        max_distance = float(np.max(to_bs))
+        closeness = (
+            1.0 - to_bs / max_distance
+            if max_distance > 0
+            else np.zeros_like(to_bs)
+        )
+        problem._priority_bs_closeness = closeness
+        return closeness
+
     def _activation_base(self, problem):
         if self.ACTIVATION_BASE == "sum":
             return problem.energy_score + problem.proximity_score
         if self.ACTIVATION_BASE == "cost":
-            cost = self._delivery_cost(problem)
-            finite = np.isfinite(cost)
-            efficiency = np.zeros_like(cost)
-            if np.any(finite):
-                efficiency[finite] = np.min(cost[finite]) / cost[finite]
-            return problem.energy_score * efficiency
+            return problem.energy_score * self._delivery_efficiency(problem)
         raise ValueError(f"unknown ACTIVATION_BASE {self.ACTIVATION_BASE!r}")
 
     def _routing_base(self, problem):
         if self.ROUTING_BASE == "sum":
             return problem.energy_score + problem.proximity_score
         if self.ROUTING_BASE in ("linear", "energy"):
-            to_bs = self._bs_distance(problem)
-            max_distance = float(np.max(to_bs))
-            closeness = (
-                1.0 - to_bs / max_distance
-                if max_distance > 0
-                else np.zeros_like(to_bs)
-            )
+            closeness = self._bs_closeness(problem)
             if self.ROUTING_BASE == "linear":
                 return (
                     closeness
@@ -134,6 +164,101 @@ class PriorityEncoding(Encoding):
                 + self.ROUTING_DISTANCE_WEIGHT * closeness
             )
         raise ValueError(f"unknown ROUTING_BASE {self.ROUTING_BASE!r}")
+
+    @staticmethod
+    def _repair_by_drain(problem, state, coverage, costs, open_cost, uncovered,
+                         opened):
+        """補上 efficiency／total 規則留下的覆蓋缺口，優先用「相對電量」最省的升級。
+
+        每次在所有 (sensor, 更高 level) 中挑
+        新增覆蓋 / (增加耗能 / E_s) 最大者，直到沒有可再新增的覆蓋。
+        增加耗能 = 感測耗能差，關閉中的 sensor 另加 open_cost。除以剩餘電量
+        讓低電量 sensor 不容易被加重負擔。
+        """
+        sensor_count = problem.SENSOR_NUMBER
+        option_counts = np.asarray(problem.radius_option_counts, dtype=int)
+        level_count = costs.shape[1]
+        valid = np.arange(level_count)[None, :] < option_counts[:, None]
+        energy = np.maximum(np.asarray(problem.energy, dtype=float), 1e-12)
+        coverage_int = coverage[:, :sensor_count, :level_count].astype(int)
+        while uncovered.any():
+            gain = np.einsum("t,tsl->sl", uncovered.astype(int), coverage_int)
+            current = np.asarray(state.levels[:sensor_count], dtype=int)
+            higher = np.arange(level_count)[None, :] > current[:, None]
+            delta = costs - costs[np.arange(sensor_count), current][:, None]
+            delta = delta + np.where(current == 0, open_cost, 0.0)[:, None]
+            usable = valid & higher & (gain > 0)
+            if not usable.any():
+                break  # 剩下的 target 本來就無法覆蓋
+            drain = np.maximum(delta, 1e-15) / energy[:, None]
+            score = np.where(usable, gain / drain, -np.inf)
+            sensor_id, level = np.unravel_index(int(np.argmax(score)), score.shape)
+            sensor_id, level = int(sensor_id), int(level)
+            if current[sensor_id] == 0:
+                opened.append(sensor_id)
+            state.levels[sensor_id] = level
+            uncovered &= ~coverage[:, sensor_id, level]
+
+    def _schedule_python(self, problem, state, schedule_order):
+        """選 level 並移除冗餘；回傳保留的 sensor id（依開啟順序）。
+
+        gain 規則在有 numba 時改走 ``decode_priority_schedule_kernel``，
+        兩者結果相同；efficiency／total 只有這個版本。
+        """
+        coverage = np.asarray(problem.coverage_table) > 0
+        option_counts = np.asarray(problem.radius_option_counts, dtype=int)
+        uncovered = np.ones(problem.TARGET_NUMBER, dtype=bool)
+
+        efficiency = self.LEVEL_RULE != "gain"
+        costs = np.asarray(problem.sensing_costs, dtype=float)
+        if self.LEVEL_RULE == "total":
+            open_cost = np.asarray(problem.generated_load, dtype=float) * (
+                self._delivery_cost(problem)
+            )
+            open_cost = np.where(np.isfinite(open_cost), open_cost, 0.0)
+        else:
+            open_cost = np.zeros(problem.SENSOR_NUMBER)
+
+        opened = []
+        for sensor_id in schedule_order:
+            sensor_id = int(sensor_id)
+            # 每個 level 能新增覆蓋的 target 數；level 0 是關閉。
+            gains = uncovered.astype(int) @ coverage[
+                :, sensor_id, 1:option_counts[sensor_id]
+            ].astype(int)
+            if gains.size == 0 or gains.max() == 0:
+                continue
+            if efficiency:
+                # 每單位感測耗能的新增覆蓋；平手取較小 level。
+                score = gains / (
+                    costs[sensor_id, 1:option_counts[sensor_id]]
+                    + open_cost[sensor_id]
+                )
+                level = int(np.argmax(np.where(gains > 0, score, -1.0))) + 1
+            else:
+                level = int(np.argmax(gains)) + 1  # argmax 取第一個 → 最小 level
+            uncovered &= ~coverage[:, sensor_id, level]
+            state.levels[sensor_id] = level
+            opened.append(sensor_id)
+
+        if efficiency:
+            self._repair_by_drain(
+                problem, state, coverage, costs, open_cost, uncovered, opened
+            )
+
+        # 與 SensorEncoding v2/v3 相同：從排程順序尾端移除冗餘。
+        coverage_count = np.zeros(problem.TARGET_NUMBER, dtype=int)
+        for sensor_id in opened:
+            coverage_count += coverage[:, sensor_id, state.levels[sensor_id]]
+        retained_reversed = []
+        for sensor_id in reversed(opened):
+            covered = coverage[:, sensor_id, state.levels[sensor_id]]
+            if np.any(covered) and np.all(coverage_count[covered] >= 2):
+                coverage_count[covered] -= 1
+                state.levels[sensor_id] = 0
+            else:
+                retained_reversed.append(sensor_id)
+        return np.asarray(retained_reversed[::-1], dtype=np.int64)
 
     def decode(self, problem):
         if self.code is None:
@@ -150,45 +275,27 @@ class PriorityEncoding(Encoding):
             self._activation_base(problem), code[::genes_per_sensor]
         )
         state = State.empty(problem)
-        coverage = np.asarray(problem.coverage_table) > 0
-        option_counts = np.asarray(problem.radius_option_counts, dtype=int)
-        uncovered = np.ones(problem.TARGET_NUMBER, dtype=bool)
-
-        opened = []
-        for sensor_id in schedule_order:
-            sensor_id = int(sensor_id)
-            # 每個 level 能新增覆蓋的 target 數；level 0 是關閉。
-            gains = uncovered.astype(int) @ coverage[
-                :, sensor_id, 1:option_counts[sensor_id]
-            ].astype(int)
-            if gains.size == 0 or gains.max() == 0:
-                continue
-            level = int(np.argmax(gains)) + 1  # argmax 取第一個 → 最小 level
-            uncovered &= ~coverage[:, sensor_id, level]
-            state.levels[sensor_id] = level
-            opened.append(sensor_id)
-
-        # 與 SensorEncoding v2/v3 相同：從排程順序尾端移除冗餘。
-        coverage_count = np.zeros(problem.TARGET_NUMBER, dtype=int)
-        for sensor_id in opened:
-            coverage_count += coverage[:, sensor_id, state.levels[sensor_id]]
-        retained = []
-        for sensor_id in reversed(opened):
-            covered = coverage[:, sensor_id, state.levels[sensor_id]]
-            if np.any(covered) and np.all(coverage_count[covered] >= 2):
-                coverage_count[covered] -= 1
-                state.levels[sensor_id] = 0
-            else:
-                retained.append(sensor_id)
+        if self.LEVEL_RULE not in ("gain", "efficiency", "total"):
+            raise ValueError(f"unknown LEVEL_RULE {self.LEVEL_RULE!r}")
+        if NUMBA_AVAILABLE and self.LEVEL_RULE == "gain":
+            retained = decode_priority_schedule_kernel(
+                np.asarray(problem.coverage_table),
+                np.asarray(problem.radius_option_counts, dtype=np.int64),
+                np.asarray(schedule_order, dtype=np.int64),
+                state.levels,
+            )
+        else:
+            retained = self._schedule_python(problem, state, schedule_order)
 
         if self.split_priority:
             rank = np.empty(problem.SENSOR_NUMBER, dtype=int)
             rank[self._order(self._routing_base(problem), code[1::2])] = np.arange(
                 problem.SENSOR_NUMBER
             )
-            routing_ids = sorted(retained, key=lambda s: rank[s])
+            # rank 各不相同，排序結果唯一。
+            routing_ids = retained[np.argsort(rank[retained])]
         else:
-            routing_ids = list(reversed(retained))  # 排程順序
+            routing_ids = retained  # 排程順序
 
         problem.routing_service.build_routes(
             state, routing_ids, disable_failed=False

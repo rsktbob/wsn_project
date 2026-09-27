@@ -151,6 +151,93 @@ def decode_sensor_schedule_kernel(
 
 
 @njit(cache=True, nogil=True)
+def decode_priority_schedule_kernel(
+    coverage_table,
+    option_counts,
+    schedule_order,
+    levels,
+):
+    """PriorityEncoding 的 gain 規則：貪婪選 level 後反向移除冗餘。
+
+    依 ``schedule_order`` 處理每顆 sensor，選「新增覆蓋最多的最小 level」，
+    沒有新增覆蓋就不開。之後從開啟順序尾端移除冗餘 sensor。levels 直接
+    寫入；回傳保留下來的 sensor id（依開啟順序）。
+    """
+    target_count = coverage_table.shape[0]
+    sensor_count = coverage_table.shape[1]
+    levels.fill(0)
+    uncovered = np.ones(target_count, dtype=np.uint8)
+    open_ids = np.empty(sensor_count, dtype=np.int64)
+    open_count = 0
+    gains = np.zeros(coverage_table.shape[2], dtype=np.int64)
+
+    for order_id in range(schedule_order.shape[0]):
+        sensor_id = int(schedule_order[order_id])
+        level_count = int(option_counts[sensor_id])
+        # target 在外、level 在內：coverage_table[t, s, :] 在記憶體中連續。
+        gains[:level_count] = 0
+        for target_id in range(target_count):
+            if uncovered[target_id] == 0:
+                continue
+            for level in range(1, level_count):
+                if coverage_table[target_id, sensor_id, level] > 0:
+                    gains[level] += 1
+        best_level = 0
+        best_gain = 0
+        # level 0 是關閉；嚴格大於才更新，平手保留較小 level。
+        for level in range(1, level_count):
+            if gains[level] > best_gain:
+                best_gain = gains[level]
+                best_level = level
+        if best_gain == 0:
+            continue
+
+        for target_id in range(target_count):
+            if coverage_table[target_id, sensor_id, best_level] > 0:
+                uncovered[target_id] = 0
+        levels[sensor_id] = best_level
+        open_ids[open_count] = sensor_id
+        open_count += 1
+
+    coverage_count = np.zeros(target_count, dtype=np.int64)
+    for open_id in range(open_count):
+        sensor_id = open_ids[open_id]
+        level = levels[sensor_id]
+        for target_id in range(target_count):
+            if coverage_table[target_id, sensor_id, level] > 0:
+                coverage_count[target_id] += 1
+
+    retained = np.ones(open_count, dtype=np.uint8)
+    for open_id in range(open_count - 1, -1, -1):
+        sensor_id = open_ids[open_id]
+        level = levels[sensor_id]
+        has_target = False
+        removable = True
+        for target_id in range(target_count):
+            if coverage_table[target_id, sensor_id, level] <= 0:
+                continue
+            has_target = True
+            if coverage_count[target_id] < 2:
+                removable = False
+                break
+        if not has_target or not removable:
+            continue
+        retained[open_id] = 0
+        levels[sensor_id] = 0
+        for target_id in range(target_count):
+            if coverage_table[target_id, sensor_id, level] > 0:
+                coverage_count[target_id] -= 1
+
+    retained_count = 0
+    for open_id in range(open_count):
+        if retained[open_id] == 0:
+            continue
+        open_ids[retained_count] = open_ids[open_id]
+        retained_count += 1
+    return open_ids[:retained_count]
+
+
+@njit(cache=True, nogil=True)
 def build_routes_kernel(
     levels,
     routing_ids,
@@ -460,6 +547,12 @@ def warm_evaluation_kernels():
         True,
         schedule.copy(),
     )
+    decode_priority_schedule_kernel(
+        coverage,
+        np.ones(1, dtype=np.int64),
+        schedule,
+        schedule.copy(),
+    )
     build_routes_kernel(
         schedule.copy(),
         schedule,
@@ -496,6 +589,7 @@ __all__ = [
     "build_routes_kernel",
     "count_covered_targets_kernel",
     "decode_sensor_schedule_kernel",
+    "decode_priority_schedule_kernel",
     "find_disconnected_kernel",
     "find_uncovered_targets_kernel",
     "first_out_of_range_kernel",

@@ -26,6 +26,7 @@
   "smoke_numba_evaluation.py": "pass",
   "smoke_paper_sets.py": "pass",
   "smoke_problem.py": "pass",
+  "smoke_priority_decode_kernel.py": "pass",
   "smoke_remaining_search_contract.py": "pass",
   "smoke_rime.py": "pass",
   "smoke_rl_sets.py": "pass",
