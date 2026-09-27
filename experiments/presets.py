@@ -92,7 +92,7 @@ ALGORITHM_PRESETS = {
         },
     },
     'sa_setsv3': {
-        "label": 'SA-SETSv3 (Ring-local Elitist Investment)',
+        "label": 'SA-SETSv3 (Shared-Pool Ring-Segment Operator Selection)',
         "encoding": 'N sensing levels + N routing-priority ranks',
         "params": {
             'n': 8,
@@ -102,8 +102,8 @@ ALGORITHM_PRESETS = {
         },
     },
     'sa_setsv4': {
-        "label": 'SA-SETSv4 (Shared-Pool Ring-Segment Operator Selection)',
-        "encoding": 'N sensing levels + N routing-priority ranks',
+        "label": 'SA-SETSv4 (SA-SETSv3 + C4 PriorityEncoding)',
+        "encoding": 'N activation priorities + N routing priorities (C4)',
         "params": {
             'n': 8,
             'h': 4,
