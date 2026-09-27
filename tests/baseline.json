@@ -3,6 +3,7 @@
   "regression_algorithm_contract.py": "pass",
   "regression_algorithm_results.py": "pass",
   "regression_evaluation_budget.py": "pass",
+  "smoke_algorithm_catalog.py": "pass",
   "smoke_algorithm_architecture.py": "pass",
   "smoke_alns.py": "pass",
   "smoke_classic_algorithms.py": "pass",
