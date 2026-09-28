@@ -100,13 +100,12 @@ class PooledEvaluation:
         scores = []
         for row, results in enumerate(results_per_row):
             row_scores = []
-            for col, (candidate, state, objectives, target_red) in enumerate(results):
+            for col, (candidate, state, objectives) in enumerate(results):
                 investments[row][col] = candidate
                 fitness = float(np.sum(objectives))
                 self.evatime += 1
                 self.update_best(problem, state, objectives, fitness,
                                  candidate=candidate)
-                problem.target_red = target_red
                 row_scores.append(fitness)
             scores.append(row_scores)
         return np.asarray(scores, dtype=float)

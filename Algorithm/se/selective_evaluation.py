@@ -14,8 +14,7 @@ def evaluate_batch(candidates):
         state = candidate.decode(_problem)
         objectives = np.asarray(_problem.evaluate_state(state), dtype=float)
         state.objectives = objectives.copy()
-        results.append((candidate, state, objectives,
-                        getattr(_problem, "target_red", None)))
+        results.append((candidate, state, objectives))
     return results
 
 

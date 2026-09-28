@@ -340,14 +340,13 @@ class RL_SETS(SI_SETS):
         for row_id, results in enumerate(results_per_row):
             scores = []
             metrics = []
-            for child_id, (candidate, state, objectives, target_red) in enumerate(results):
+            for child_id, (candidate, state, objectives) in enumerate(results):
                 rows[row_id][child_id] = candidate
                 fitness = float(np.sum(objectives))
                 self.evatime += 1
                 self.update_best(
                     problem, state, objectives, fitness, candidate=candidate
                 )
-                problem.target_red = target_red
                 scores.append(fitness)
                 metrics.append(self._summarize_state(problem, state, fitness))
             score_rows.append(scores)
