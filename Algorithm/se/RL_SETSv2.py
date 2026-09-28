@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import numpy as np
 
-from Algorithm.se.RL_SETS import RL_SETS
+from Algorithm.se.RL_SETS import RL_SETS, check_environment_contract
+from Algorithm.se.rl_sets_components import EnergyConstraintMetrics
 
 
-class RL_SETSv2(RL_SETS):
+class RL_SETSv2(EnergyConstraintMetrics, RL_SETS):
     """RL-SETSv2 with explicit investor and good offspring roles.
 
     Child 1 keeps the searcher as its base and competes only for that
@@ -19,12 +20,6 @@ class RL_SETSv2(RL_SETS):
     REWARD_VERSION = "constraint_first_energy_improvement/1"
     ENERGY_REWARD_LIMIT = 0.5
     CONSTRAINT_REWARD = 1.0
-    REWARD_EPSILON = 1e-15
-
-    _GLOBAL_DEPLETION = 5
-    _WORST_TARGET_DEPLETION = 6
-    _CONSTRAINT_VIOLATION = 7
-    _FEASIBLE = 8
 
     def __init__(self, problem, *args, **kwargs):
         super().__init__(problem, *args, **kwargs)
@@ -45,93 +40,7 @@ class RL_SETSv2(RL_SETS):
             raise ValueError("RL_SETSv2 checkpoint action schema changed")
         if metadata.get("reward_version") != self.REWARD_VERSION:
             raise ValueError("RL_SETSv2 checkpoint reward version changed")
-        from Algorithm.se.RL_SETS import check_environment_contract
-
         check_environment_contract(metadata.get("environment"), problem)
-
-    def _summarize_state(self, problem, state, fitness):
-        """Cache observation fields plus energy and constraint reward fields."""
-        sensor_count = max(1, int(problem.SENSOR_NUMBER))
-        target_count = max(1, int(problem.TARGET_NUMBER))
-        sensing_radii = np.asarray(problem.state_radius(state), dtype=float)
-        active_count = int(np.count_nonzero(sensing_radii > 0.0))
-        uncovered_count = len(problem.find_uncovered_targets(state))
-        disconnected_count = len(
-            problem.find_disconnected(state, sensing_radii=sensing_radii)
-        )
-
-        energy = np.asarray(problem.energy, dtype=float)
-        cost = np.asarray(
-            problem.calculate_total_cost(state, sensing_radii=sensing_radii),
-            dtype=float,
-        )
-        positive_cost = np.maximum(cost, 0.0)
-        total_energy = float(np.sum(np.maximum(energy, 0.0)))
-        global_depletion = float(
-            np.clip(
-                np.sum(positive_cost) / max(total_energy, self.REWARD_EPSILON),
-                0.0,
-                1.0,
-            )
-        )
-
-        target_energy = np.asarray(
-            problem.target_sensor_mask @ energy, dtype=float
-        )
-        target_cost = np.asarray(
-            problem.target_sensor_mask @ positive_cost, dtype=float
-        )
-        if len(target_energy):
-            target_depletion = np.ones_like(target_energy, dtype=float)
-            np.divide(
-                target_cost,
-                target_energy,
-                out=target_depletion,
-                where=target_energy > self.REWARD_EPSILON,
-            )
-            worst_target_depletion = float(
-                np.clip(np.max(target_depletion), 0.0, 1.0)
-            )
-        else:
-            worst_target_depletion = 0.0
-
-        remaining_energy = energy - cost
-        energy_failed = np.any(
-            (~np.isfinite(remaining_energy)) | (remaining_energy < 0.0)
-        )
-        coverage_deficit = uncovered_count / target_count
-        disconnected_ratio = disconnected_count / max(1, active_count)
-        finite_deficit = np.where(
-            np.isfinite(remaining_energy),
-            np.maximum(-remaining_energy, 0.0),
-            np.maximum(energy, 0.0),
-        )
-        energy_deficit = float(
-            np.sum(finite_deficit) / max(total_energy, self.REWARD_EPSILON)
-        )
-        violation = float(
-            coverage_deficit + disconnected_ratio + energy_deficit
-        )
-        feasible = (
-            uncovered_count == 0
-            and disconnected_count == 0
-            and not bool(energy_failed)
-        )
-
-        return np.asarray(
-            [
-                float(fitness),
-                1.0 - coverage_deficit,
-                global_depletion,
-                active_count / sensor_count,
-                disconnected_ratio,
-                global_depletion,
-                worst_target_depletion,
-                violation,
-                float(feasible),
-            ],
-            dtype=float,
-        )
 
     def _transition_reward(self, parent_metrics, child_metrics):
         """Reward one role-specific parent-to-child transition."""

@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import numpy as np
 
-from Algorithm.se.RL_SETSv2 import RL_SETSv2
+from Algorithm.se.RL_SETS import RL_SETS, check_environment_contract
+from Algorithm.se.rl_sets_components import (
+    EnergyConstraintMetrics,
+    EnvironmentObservation,
+)
 from State.Encoding import swap_segment
 from State.SensorEncoding import SensorEncoding
-from Algorithm.se.RL_SETS import check_environment_contract
 
 
-class RL_SETSv3(RL_SETSv2):
+class RL_SETSv3(EnvironmentObservation, EnergyConstraintMetrics, RL_SETS):
     """Choose ordinary or heavy-tailed mutation after pairwise crossover.
 
     Both actions retain the same crossover and mutation probability.  The
@@ -18,7 +21,7 @@ class RL_SETSv3(RL_SETSv2):
     best visiting child2 competes with its good.  Neither role may deteriorate.
     """
 
-    OBSERVATION_NAMES = RL_SETSv2.OBSERVATION_NAMES + (
+    OBSERVATION_NAMES = RL_SETS.OBSERVATION_NAMES + (
         "global_remaining_energy_ratio",
         "sensor_remaining_energy_std",
         "low_energy_sensor_ratio",
@@ -37,16 +40,11 @@ class RL_SETSv3(RL_SETSv2):
     INFEASIBLE_PROPOSAL_PENALTY = 0.05
 
     def __init__(self, problem, *args, **kwargs):
-        self._observation_problem = problem
         super().__init__(problem, *args, **kwargs)
         self.name = (
             f"RL_SETSv3_{self.n}_{self.h}_{self.w}_{self.mutation_rate}"
         )
         self.agent.checkpoint_metadata = self._checkpoint_metadata(problem)
-
-    def initialize_market(self, problem, initial_state=None):
-        self._observation_problem = problem
-        super().initialize_market(problem, initial_state)
 
     def _check_checkpoint(self, problem):
         metadata = self.agent.checkpoint_metadata
@@ -59,42 +57,6 @@ class RL_SETSv3(RL_SETSv2):
         if metadata.get("reward_version") != self.REWARD_VERSION:
             raise ValueError("RL_SETSv3 checkpoint reward version changed")
         check_environment_contract(metadata.get("environment"), problem)
-
-    def _environment_features(self, problem):
-        """Return four fixed-size lifetime energy summaries in [0, 1]."""
-        energy = np.maximum(np.asarray(problem.energy, dtype=float), 0.0)
-        initial = max(float(problem.initial_energy), self.REWARD_EPSILON)
-        sensor_ratios = np.clip(energy / initial, 0.0, 1.0)
-
-        target_initial = np.asarray(
-            problem.target_sensor_mask @ np.full_like(energy, initial),
-            dtype=float,
-        )
-        target_current = np.asarray(
-            problem.target_sensor_mask @ energy,
-            dtype=float,
-        )
-        target_ratios = np.zeros_like(target_current, dtype=float)
-        np.divide(
-            target_current,
-            target_initial,
-            out=target_ratios,
-            where=target_initial > self.REWARD_EPSILON,
-        )
-        vulnerable_target = (
-            float(np.quantile(np.clip(target_ratios, 0.0, 1.0), 0.1))
-            if len(target_ratios)
-            else 0.0
-        )
-        return np.asarray(
-            [
-                float(np.mean(sensor_ratios)),
-                float(np.clip(np.std(sensor_ratios), 0.0, 1.0)),
-                float(np.mean(sensor_ratios < 0.2)),
-                vulnerable_target,
-            ],
-            dtype=np.float32,
-        )
 
     def _build_observations(self):
         local = np.zeros((self.n, 14), dtype=np.float32)

@@ -4,13 +4,24 @@ from __future__ import annotations
 
 import numpy as np
 
-from Algorithm.se.RL_SETSv3 import RL_SETSv3
+from Algorithm.se.RL_SETS import RL_SETS, check_environment_contract
+from Algorithm.se.rl_sets_components import (
+    EnvironmentObservation,
+    LifetimeMetrics,
+    RandomPolicyOption,
+    ScaledPerturbation,
+)
 from State.Encoding import swap_segment
 from State.SensorEncoding import SensorEncoding
-from Algorithm.se.RL_SETS import check_environment_contract
 
 
-class RL_SETSv4(RL_SETSv3):
+class RL_SETSv4(
+    RandomPolicyOption,
+    ScaledPerturbation,
+    LifetimeMetrics,
+    EnvironmentObservation,
+    RL_SETS,
+):
     """Select small, medium or large crossover-plus-mutation investments.
 
     Region selection and elitist role updates are the same as SI-SETSv2.  The
@@ -47,13 +58,11 @@ class RL_SETSv4(RL_SETSv3):
     CHECKPOINT_SCHEMA = "rl_setsv6/1"
     REWARD_VERSION = "signed_energy_lifetime_improvement/1"
 
-    _PREDICTED_LIFETIME = 9
     LIFETIME_NORMALIZATION = 5000.0
     CROSSOVER_FRACTIONS = ((0.05, 0.10), (0.20, 0.30), (0.45, 0.60))
     MUTATION_FRACTIONS = ((0.01, 0.02), (0.05, 0.08), (0.15, 0.20))
 
-    def __init__(self, problem, *args, random_policy=False, **kwargs):
-        self.random_policy = bool(random_policy)
+    def __init__(self, problem, *args, **kwargs):
         super().__init__(problem, *args, **kwargs)
         self.name = (
             f"RL_SETSv4_{self.n}_{self.h}_{self.w}_{self.mutation_rate}"
@@ -71,24 +80,6 @@ class RL_SETSv4(RL_SETSv3):
         if metadata.get("reward_version") != self.REWARD_VERSION:
             raise ValueError("RL_SETSv4 checkpoint reward version changed")
         check_environment_contract(metadata.get("environment"), problem)
-
-    def _summarize_state(self, problem, state, fitness):
-        base = super()._summarize_state(problem, state, fitness)
-        sensing_radii = np.asarray(problem.state_radius(state), dtype=float)
-        cost = np.asarray(
-            problem.calculate_total_cost(state, sensing_radii=sensing_radii),
-            dtype=float,
-        )
-        energy = np.maximum(np.asarray(problem.energy, dtype=float), 0.0)
-        active = np.isfinite(cost) & (cost > self.REWARD_EPSILON)
-        if np.any(active):
-            predicted_lifetime = float(np.min(energy[active] / cost[active]))
-            if not np.isfinite(predicted_lifetime):
-                predicted_lifetime = 0.0
-            predicted_lifetime = max(0.0, predicted_lifetime)
-        else:
-            predicted_lifetime = 0.0
-        return np.concatenate((base, np.asarray([predicted_lifetime])))
 
     def _lifetime_value(self, value):
         value = max(0.0, float(value))
@@ -150,10 +141,6 @@ class RL_SETSv4(RL_SETSv3):
             observations, nan=0.0, posinf=1.0, neginf=0.0
         )
 
-    def _sensor_count_for_fraction(self, sensor_count, bounds):
-        fraction = self.random.uniform(*bounds)
-        return min(sensor_count, max(1, int(np.ceil(sensor_count * fraction))))
-
     def _crossover_for_action(self, searcher, good, action):
         sensor_count = self.code_length // 2
         count = self._sensor_count_for_fraction(
@@ -163,16 +150,6 @@ class RL_SETSv4(RL_SETSv3):
         return swap_segment(
             searcher, good, start * 2, (start + count) * 2
         )
-
-    def _adjacent_value(self, current, option_count):
-        if option_count <= 1:
-            return current
-        choices = []
-        if current > 0:
-            choices.append(current - 1)
-        if current + 1 < option_count:
-            choices.append(current + 1)
-        return self.random.choice(choices)
 
     def _mutate_scale(self, problem, candidate, action):
         sensor_count = int(problem.SENSOR_NUMBER)
@@ -271,20 +248,6 @@ class RL_SETSv4(RL_SETSv3):
                 1.0,
             )
         )
-
-    def _select_actions(self, observations, masks):
-        """Use an untrained uniform policy only for the explicit baseline."""
-        if not self.random_policy:
-            return self.agent.select_actions(observations, masks)
-        return np.asarray(
-            [self.random.randrange(len(self.ACTION_NAMES)) for _ in observations],
-            dtype=int,
-        )
-
-    def policy_statistics(self):
-        statistics = super().policy_statistics()
-        statistics["random_policy"] = self.random_policy
-        return statistics
 
     def vision_search(self, problem):
         """Evaluate both roles, learn from all proposals, update elitistically."""

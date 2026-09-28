@@ -5,22 +5,34 @@ Formerly ``RL_SETSv61``. The original identity-crossover design (plain
 (nothing inherited from them), so the surviving lineage -- what used to be
 v3/v4/v5/v6/v6.1 -- was renumbered down by two to close the gap:
 old v3 -> new RL_SETS, old v4 -> new RL_SETSv2, old v5 -> new RL_SETSv3,
-old v6 -> new RL_SETSv4, old v6.1 -> new RL_SETSv5 (this class). The
-inheritance chain (RL_SETSv5 -> RL_SETSv4 -> ... -> RL_SETS -> SI_SETS) is
-unchanged, only every class's exposed name shifted.
+old v6 -> new RL_SETSv4, old v6.1 -> new RL_SETSv5 (this class).
+
+Since 2026-09-28 every version inherits ``RL_SETS`` directly; the parts
+shared with RL_SETSv4 are explicit mixins in ``rl_sets_components``.
 """
 
 from __future__ import annotations
 
 import numpy as np
 
-from Algorithm.se.RL_SETSv4 import RL_SETSv4
+from Algorithm.se.RL_SETS import RL_SETS, check_environment_contract
+from Algorithm.se.rl_sets_components import (
+    EnvironmentObservation,
+    LifetimeMetrics,
+    RandomPolicyOption,
+    ScaledPerturbation,
+)
 from State.Encoding import swap_segment
 from State.SensorEncoding import SensorEncoding
-from Algorithm.se.RL_SETS import check_environment_contract
 
 
-class RL_SETSv5(RL_SETSv4):
+class RL_SETSv5(
+    RandomPolicyOption,
+    ScaledPerturbation,
+    LifetimeMetrics,
+    EnvironmentObservation,
+    RL_SETS,
+):
     """Choose crossover and mutation strength independently with D3QN.
 
     The centre action is the original SA-SETS perturbation.  Rewards follow

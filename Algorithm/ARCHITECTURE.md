@@ -64,7 +64,8 @@ Algorithm
 │  │     ├─ se.SA_SETS_Target
 │  │     └─ se.SI_SETS             （家族二：只跟選到的區域投資）
 │  │        ├─ se.SI_SETSv2
-│  │        └─ se.RL_SETS → v2 → v3 → v4 → v5
+│  │        └─ se.RL_SETS
+│  │           └─ se.RL_SETSv2 / v3 / v4 / v5（各自直接繼承 RL_SETS）
 │  ├─ se.Ring_SETS              （家族三：區域只決定交配範圍，共用商品）
 │  │  └─ se.Ring_SETSv2
 │  ├─ Combine.SETSv2
@@ -84,6 +85,18 @@ Algorithm
 重新編號為 `SETSv1`、`SETSv2`。2026-09-27 起 `SETSv1` 改名為 `SETS`，成為
 SA_SETS 的父類別；原 `SA_SETSv3`、`SA_SETSv4` 改名為 `Ring_SETS`、`Ring_SETSv2`。
 三個家族共用的 Beta 記憶與平行評估放在 `se/market_components.py`。
+
+RL_SETSv2~v5 不再一版接一版繼承（2026-09-28 起）：每一版都直接繼承
+`RL_SETS`，版本之間真正共用的部分以 mixin 放在 `se/rl_sets_components.py`，
+並明確列在類別定義上。修改某一版不會改變其他版本的行為。
+
+| mixin | 內容 | 使用版本 |
+| --- | --- | --- |
+| `EnergyConstraintMetrics` | 能量耗損與限制違反摘要 | v2、v3、v4、v5 |
+| `LifetimeMetrics` | 加上預估壽命摘要 | v4、v5 |
+| `EnvironmentObservation` | 全域能量觀察特徵 | v3、v4、v5（v5 覆寫特徵內容） |
+| `ScaledPerturbation` | 依比例的 sensor 數、相鄰值突變 | v4、v5 |
+| `RandomPolicyOption` | `random_policy` 均勻隨機基準 | v4、v5 |
 
 `RLHH_SETS` 也不繼承 `SA_SETS`：它是 serial RL hyper-heuristic runner，
 只組合 SA-SETS 的 state/operator 能力，不繼承多程序市場流程。
