@@ -6,9 +6,11 @@ no idea what a worker computes, or whether it keeps any state across
 rounds -- that is entirely up to the ``build_handler`` callable each caller
 supplies to :meth:`PersistentWorkerPool.start`.
 
-``ParallelSEMarket`` and ``PooledEvaluation`` use this pool for fitness
-workers. Full-region RNG contexts and goods now stay in the parent process;
-the pool remains independent of market policies.
+``ParallelSEMarket`` (SA_SETS and everything built on ``BaseSE``) and
+``SI_SETS`` both use this same pool for the actual "open h processes, talk
+to them over Pipes" mechanics; they differ only in what handler each worker
+runs and how requests get routed to workers, which is exactly the part that
+*should* differ between a region-owning worker and a stateless evaluator.
 """
 
 from __future__ import annotations

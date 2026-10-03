@@ -5,8 +5,7 @@ from __future__ import annotations
 import numpy as np
 
 from Algorithm.core.Algorithm import Algorithm
-from Algorithm.se.parallel_market import ParallelSEMarket
-from Algorithm.se.population_updates import searchers_from_goods, goods_from_children
+from Algorithm.se import ParallelSEMarket
 
 
 class BaseSE(Algorithm):
@@ -53,8 +52,7 @@ class BaseSE(Algorithm):
             f"{self.__class__.__name__}_{self.n}_{self.h}_{self.w}_"
             f"{self.mutation_rate}"
         )
-        self.goods = []
-        self.goods_fitness = np.empty((self.h, self.w), dtype=float)
+        self.market = ParallelSEMarket(self)
         self.searchers = []
         self.searcher_fitness = np.array([], dtype=float)
         self.selected_regions = np.array([], dtype=int)
@@ -75,32 +73,26 @@ class BaseSE(Algorithm):
         """Use a searcher and one regional good to make an investment."""
         raise NotImplementedError
 
-    def create_investments(self, problem, goods, active_regions=None):
-        """Generate full-region children only; never evaluate or replace parents.
-
-        Persistent per-region RNGs preserve the original full-market stream.
-        The paper SETSv2 flow has no regional contexts and uses its own RNG.
-        """
-        operators = getattr(self, "_region_operators", None)
-        build = getattr(self, "build_market_contexts", None)
-        contexts = build(problem) if callable(build) else None
-        if contexts is not None and len(contexts) != self.h:
-            raise ValueError("market contexts must contain one item per region")
-        children = []
-        for region_id in range(self.h):
-            operator = operators[region_id] if operators is not None else self
-            loader = getattr(operator, "load_market_context", None)
-            if callable(loader):
-                loader(region_id, None if contexts is None else contexts[region_id])
-            begin = getattr(operator, "begin_investment_round", None)
-            if callable(begin):
-                begin(region_id, self.searchers, goods[region_id], self.goods_fitness[region_id])
-            children.append([
-                [operator.align_region(problem,
-                    operator.invest(problem, searcher, good), region_id)
-                 for good in goods[region_id]] for searcher in self.searchers
-            ])
-        return children
+    def create_investments(self, problem, goods):
+        """Create the common ``region x searcher x good`` investment grid."""
+        return [
+            [
+                [
+                    self.align_region(
+                        problem,
+                        self.invest(
+                            problem,
+                            self.searchers[searcher_id],
+                            goods[region][good_id],
+                        ),
+                        region,
+                    )
+                    for good_id in range(self.w)
+                ]
+                for searcher_id in range(self.n)
+            ]
+            for region in range(self.h)
+        ]
 
     def select_regions(self, probabilities):
         """Select one region per searcher by the shared SE tournament rule."""
@@ -128,56 +120,52 @@ class BaseSE(Algorithm):
         self.searcher_fitness = self.evaluate_many(problem, self.searchers)
 
     def arrange_resources(self, problem):
-        """Prepare regional RNGs/goods and evaluation-only workers."""
-        self.market = ParallelSEMarket(self)
+        """Create the region workers that own each region's goods."""
         self.market.start(problem)
-        self._region_operators = self.market.regions
-        self.goods = self.market.goods
-        self.goods_fitness = self.market.goods_fitness
-
-    def evaluate_many(self, problem, candidates, *, batch_size=None):
-        """Flat evaluation interface for initialization and regional batches."""
-        if batch_size is None:
-            return super().evaluate_many(problem, candidates)
-        return self.market.evaluate_many(problem, candidates, batch_size=batch_size)
-
-    def summarize_round(self, active_regions, scores):
-        """Full-region methods observed every region in the current round."""
-        return scores
-
-    def update_searchers(self, children, scores, selected, goods_before):
-        searchers_from_goods(self, self.goods, goods_before, selected)
-
-    def update_goods(self, children, scores, active_regions):
-        for region_id, operator in enumerate(self._region_operators):
-            goods_from_children(self.goods[region_id], self.goods_fitness[region_id],
-                children[region_id], scores[region_id], range(self.n),
-                accept=getattr(operator, "accept_good_replacement", None))
 
     def vision_search(self, problem):
-        """One shared round: generate -> evaluate -> select -> replace."""
-        if hasattr(self, "adaptive_step"):
-            progress = min(1.0, self.evatime / max(1, self.evaluation_limit))
-            self.current_adaptive_step = self.adaptive_step * (1.0 - progress)
-        active_regions = self.selected_regions.copy()
-        goods_before = self.goods_fitness.copy()
-        goods_snapshot = np.asarray(self.goods, dtype=object)
-        children = self.create_investments(problem, self.goods, active_regions)
-        grid = np.asarray(children, dtype=object)
-        shape = grid.shape
-        flat = list(grid.flat)
-        scores = self.evaluate_many(
-            problem, flat, batch_size=int(np.prod(shape[1:]))
-        ).reshape(shape)
-        children = np.asarray(flat, dtype=object).reshape(shape).tolist()
-        quality = self.summarize_round(active_regions, scores)
-        selected = self.select_regions(self.region_probabilities(goods_before, quality))
-        self.update_searchers(children, scores, selected, goods_before)
-        self.update_goods(children, scores, active_regions)
+        """Evaluate all region investments and choose each searcher's region."""
+        build_contexts = getattr(self, "build_market_contexts", None)
+        market_contexts = (
+            build_contexts(problem) if callable(build_contexts) else None
+        )
+        (
+            goods,
+            goods_fitness,
+            investment_fitness,
+            evaluations,
+        ) = self.market.search(
+            self.searchers,
+            contexts=market_contexts,
+        )
+        self.evatime += evaluations
+
+        probabilities = self.region_probabilities(
+            goods_fitness,
+            investment_fitness,
+        )
+        selected = self.select_regions(probabilities)
+        for searcher_id, region in enumerate(selected):
+            good_id = int(np.argmax(goods_fitness[region]))
+            if (
+                goods_fitness[region, good_id]
+                > self.searcher_fitness[searcher_id]
+            ):
+                self.searchers[searcher_id] = goods[region, good_id].copy()
+                self.searcher_fitness[searcher_id] = goods_fitness[
+                    region, good_id
+                ]
         self.selected_regions = selected
-        finish = getattr(self, "on_market_round_finish", None)
-        if callable(finish):
-            finish(problem, goods_snapshot, goods_before, scores, selected)
+
+        finish_round = getattr(self, "on_market_round_finish", None)
+        if callable(finish_round):
+            finish_round(
+                problem,
+                goods,
+                goods_fitness,
+                investment_fitness,
+                selected,
+            )
 
     def region_probabilities(self, goods_fitness, investment_fitness):
         """Compute the original SE investment potential for every region."""
@@ -208,8 +196,8 @@ class BaseSE(Algorithm):
             self.history[evaluation_start:history_end] = self.fitness
 
     def close_market(self):
-        """Release full-region evaluation workers."""
-        self.market.close()
+        """Always stop region workers, including after an exception."""
+        self.market.close(self.searchers)
 
     def search(self, problem, budget, state=None):
         """Run the SE market and return its selected decoded WSN state."""

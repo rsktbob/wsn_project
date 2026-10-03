@@ -99,14 +99,3 @@ smoke_ok
 `target_assignment` 相同，分歧在冗餘 sensor 移除的方向：舊版從 `open_order`
 前端開始嘗試刪除，`TargetEncoding` 從後端（低優先）開始刪除。因此 `SRIME`
 改用 `TargetEncoding` 後，結果與改版前的舊實驗不可直接比較。
-
-
-## 2026-10-02 SE 全區／指定範圍流程分離
-
-新增 `BaseSA`、`BaseSI`，SI 脫離 SA，SA 商品更新移至投資者更新後；worker 專注評估。
-詳細流程與限定 A2 回歸結果見 [SE 流程重構說明](docs/SE_FLOW_REFACTOR_20261002.md)。
-
-
-## 2026-10-03 SE 共用每輪流程
-
-移除 `BaseSA`、`BaseSI` 與 `market.search()`；SA／SI／SI v2／Ring 共用 `BaseSE.vision_search()`，各步驟同名覆寫。SI 保持獨立於 SA。詳見 [現行架構及 A2 驗證](docs/SE_SHARED_FLOW_20261003.md)。
