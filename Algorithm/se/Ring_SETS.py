@@ -19,10 +19,9 @@ from __future__ import annotations
 import numpy as np
 
 from Algorithm.se.BaseSE import BaseSE
+from Algorithm.se.population_updates import searchers_from_children, goods_from_children
 from Algorithm.se.market_components import (
-    AdaptiveBetaMemory,
-    PooledEvaluation,
-    beta_cdf,
+    beta_cdf, PooledEvaluation, AdaptiveBetaMemory, create_selected_investments,
 )
 from State.Encoding import swap_segment
 from State.SensorEncoding import SensorEncoding
@@ -82,7 +81,7 @@ class Ring_SETS(PooledEvaluation, AdaptiveBetaMemory, BaseSE):
 
     def initialize_market(self, problem, initial_state=None):
         """Create searchers and one shared goods pool (no per-segment pools)."""
-        super().initialize_market(problem, initial_state)
+        BaseSE.initialize_market(self, problem, initial_state)
         self.goods = [self.create_candidate(problem) for _ in range(self.w)]
         self.goods_fitness = self.evaluate_many(problem, self.goods)
 
@@ -182,75 +181,31 @@ class Ring_SETS(PooledEvaluation, AdaptiveBetaMemory, BaseSE):
                 )
         return candidate
 
-    def vision_search(self, problem):
-        """Trade every searcher against the shared pool; score segments only
-        by how well operating on them has paid off for the visiting searcher.
-        """
-        progress = min(1.0, self.evatime / max(1, self.evaluation_limit))
-        self.current_adaptive_step = self.adaptive_step * (1.0 - progress)
+    def goods_for_region(self, region, goods):
+        return goods
 
-        active_segments = self.selected_regions.copy()
-        goods_fitness_before = self.goods_fitness.copy()
-        searcher_fitness_before = self.searcher_fitness.copy()
-        children = []
+    def create_investments(self, problem, goods, active_regions=None):
+        return create_selected_investments(self, problem, goods, active_regions)
 
-        for searcher_id, segment in enumerate(active_segments):
-            segment = int(segment)
-            row = []
-            for good_id in range(self.w):
-                child1, child2 = self.make_children(
-                    problem,
-                    self.searchers[searcher_id],
-                    self.goods[good_id],
-                    region=segment,
-                )
-                row.append(child1)
-                row.append(child2)
-            children.append(row)
+    def make_offspring(self, problem, searcher, good, region):
+        return self.make_children(problem, searcher, good, region)
 
-        child_fitness = self.evaluate_investments(problem, children)
-        child1_fitness = child_fitness[:, 0::2]
-        child2_fitness = child_fitness[:, 1::2]
+    def summarize_round(self, active_regions, scores):
+        for searcher_id, region in enumerate(active_regions):
+            self.segment_quality[int(region), searcher_id] = float(
+                np.mean(scores[searcher_id, 0::2]))
+        return self.segment_quality
 
-        # A segment's attractiveness is how well it improved the searcher who
-        # just visited it -- there is no goods-pool quality or market-share
-        # term to blend in, because goods are no longer partitioned by
-        # segment.
-        for searcher_id, segment in enumerate(active_segments):
-            self.segment_quality[segment, searcher_id] = float(
-                np.mean(child1_fitness[searcher_id])
-            )
+    def region_probabilities(self, goods_fitness, quality):
+        return self.segment_probabilities(quality)
 
-        probabilities = self.segment_probabilities(self.segment_quality)
-        selected = self.select_regions(probabilities)
+    def update_searchers(self, children, scores, selected, goods_before):
+        searchers_from_children(self, [row[0::2] for row in children], scores[:, 0::2])
 
-        # A searcher considers only its own child1 proposals and remains
-        # unchanged unless the best proposal improves its previous fitness.
-        for searcher_id in range(self.n):
-            good_id = int(np.argmax(child1_fitness[searcher_id]))
-            score = float(child1_fitness[searcher_id, good_id])
-            if score > searcher_fitness_before[searcher_id]:
-                self.searchers[searcher_id] = children[searcher_id][
-                    good_id * 2
-                ].copy()
-                self.searcher_fitness[searcher_id] = score
-
-        # The pool is shared: every searcher this round is a candidate
-        # visitor for every good slot, regardless of which segment it
-        # operated on. A good accepts the best child2 only when it improves
-        # the pre-investment good by more than the elitist tolerance.
-        for good_id in range(self.w):
-            best_searcher = int(np.argmax(child2_fitness[:, good_id]))
-            winner_score = float(child2_fitness[best_searcher, good_id])
-            if (
-                winner_score
-                <= goods_fitness_before[good_id] + self.IMPROVEMENT_TOLERANCE
-            ):
-                continue
-            self.goods[good_id] = children[best_searcher][good_id * 2 + 1].copy()
-            self.goods_fitness[good_id] = winner_score
-
-        self.selected_regions = selected
+    def update_goods(self, children, scores, active_regions):
+        goods_from_children(self.goods, self.goods_fitness,
+            [row[1::2] for row in children], scores[:, 1::2], range(self.n),
+            tolerance=self.IMPROVEMENT_TOLERANCE)
 
     def segment_probabilities(self, segment_quality):
         """Score each ring segment purely by its recent investment payoff.

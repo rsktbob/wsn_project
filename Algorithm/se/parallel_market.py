@@ -1,222 +1,101 @@
-"""Process-backed regional market used by the original SE implementations.
+"""Full-region RNG resources and batch evaluation; no search/generation flow.
 
-Built on :class:`~Algorithm.se.persistent_worker_pool.PersistentWorkerPool`,
-which owns only process lifecycle and Pipe exchange. Everything here is the
-SA_SETS-specific *policy*: each worker permanently owns one region's goods
-pool and runs the full invest+evaluate step locally, so only compact
-summaries (searchers in, fitness results out) cross the process boundary.
+Goods, operators, replacement decisions and per-region RNGs live in the
+parent. Each local region context retains the former worker's random stream
+and best archive, preserving generated candidates and first-winner ties.
 """
-
 from __future__ import annotations
-
+import copy
 import functools
-
 import numpy as np
-
+from Algorithm.core.Algorithm import Algorithm
 from Algorithm.se.persistent_worker_pool import PersistentWorkerPool
-
-
-def _build_region_handler(algorithm, problem, worker_id, seed):
-    """Own one region's goods pool for the worker process's whole life."""
-    region = worker_id
-    algorithm._seed_random_streams(seed)
-    algorithm.evatime = 0
-
-    goods = [
-        algorithm.create_candidate(problem, region=region)
-        for _ in range(algorithm.w)
-    ]
-    goods_fitness = algorithm.evaluate_many(problem, goods)
-
-    def handle(request):
-        nonlocal goods, goods_fitness
-        searchers, searcher_fitness, market_context = request
-
-        load_context = getattr(algorithm, "load_market_context", None)
-        if callable(load_context):
-            load_context(region, market_context)
-
-        begin_round = getattr(algorithm, "begin_investment_round", None)
-        if callable(begin_round):
-            begin_round(region, searchers, goods, goods_fitness)
-
-        investments = [
-            [
-                algorithm.align_region(
-                    problem,
-                    algorithm.invest(
-                        problem,
-                        searcher,
-                        goods[good_id],
-                    ),
-                    region,
-                )
-                for good_id in range(algorithm.w)
-            ]
-            for searcher in searchers
-        ]
-        investment_fitness = np.asarray(
-            [
-                algorithm.evaluate_many(problem, candidates)
-                for candidates in investments
-            ],
-            dtype=float,
-        )
-
-        record_outcomes = getattr(
-            algorithm,
-            "record_investment_outcomes",
-            None,
-        )
-        if callable(record_outcomes):
-            record_outcomes(
-                goods_fitness,
-                investment_fitness,
-                searcher_fitness,
-            )
-        export_feedback = getattr(algorithm, "export_market_feedback", None)
-        market_feedback = (
-            export_feedback() if callable(export_feedback) else None
-        )
-
-        # Snapshot goods/goods_fitness now: the response must reflect this
-        # round's pre-update state even though it isn't pickled by the pool
-        # until after this function returns, and the loop below mutates
-        # both of these in place for the next round.
-        result = (
-            list(goods),
-            goods_fitness.copy(),
-            investment_fitness,
-            int(algorithm.evatime),
-            algorithm.best_state,
-            algorithm.best_objectives,
-            algorithm.fitness,
-            algorithm.coverage,
-            algorithm.best_candidate,
-        )
-        response = (
-            result if market_feedback is None else result + (market_feedback,)
-        )
-        algorithm.evatime = 0
-
-        # Preserve the original SE rule: each good is replaced by the best
-        # investment generated for that good in the current round.
-        for good_id in range(algorithm.w):
-            searcher_id = int(np.argmax(investment_fitness[:, good_id]))
-            accept_replacement = getattr(
-                algorithm,
-                "accept_good_replacement",
-                None,
-            )
-            if callable(accept_replacement) and not accept_replacement(
-                goods_fitness[good_id],
-                investment_fitness[searcher_id, good_id],
-            ):
-                continue
-            goods[good_id] = investments[searcher_id][good_id].copy()
-            goods_fitness[good_id] = investment_fitness[
-                searcher_id, good_id
-            ]
-
-        return response
-
-    return handle
+from Algorithm.se.selective_evaluation import build_evaluate_handler
 
 
 class ParallelSEMarket:
-    """Manage process lifecycle and exchange one SE market round."""
-
     def __init__(self, algorithm):
         self.algorithm = algorithm
         self.pool = PersistentWorkerPool()
         self.problem = None
+        self.regions = []
+        self.goods = []
+        self.goods_fitness = []
 
     def __getstate__(self):
-        """Exclude live process handles when the algorithm is pickled."""
-        return {
-            "algorithm": None,
-            "pool": PersistentWorkerPool(),
-            "problem": None,
-        }
+        return {"algorithm": None, "pool": PersistentWorkerPool(),
+                "problem": None, "regions": [], "goods": [], "goods_fitness": []}
 
     def start(self, problem):
         self.problem = problem
-        algorithm = self.algorithm
-        # A plain local closure can't be pickled to hand off to a spawned
-        # worker process on Windows; functools.partial over the module-level
-        # _build_region_handler is picklable as long as algorithm/problem
-        # are (they already have to be, to reach this point at all).
-        build_handler = functools.partial(
-            _build_region_handler, algorithm, problem
-        )
-        self.pool.start(algorithm.h, build_handler, algorithm.next_seed)
+        self.regions, self.goods, self.goods_fitness = [], [], []
+        self.algorithm._region_operators = None
+        for _ in range(self.algorithm.h):
+            region = copy.deepcopy(self.algorithm)
+            region._seed_random_streams(self.algorithm.next_seed())
+            region.evatime = 0
+            self.regions.append(region)
+            region_id = len(self.regions) - 1
+            goods = [region.create_candidate(problem, region=region_id)
+                     for _ in range(region.w)]
+            # Former workers evaluated these before their first request.
+            # Keep their FE and best results local until the first round merge.
+            scores = Algorithm.evaluate_many(region, problem, goods)
+            self.goods.append(goods)
+            self.goods_fitness.append(scores)
+        self.goods_fitness = np.asarray(self.goods_fitness)
+        # Region RNG seeds have already been consumed above. Evaluation is
+        # deterministic and does not consume another algorithm RNG stream.
+        self.pool.start(self.algorithm.h,
+                        functools.partial(build_evaluate_handler, problem),
+                        lambda: 0)
 
-    def search(self, searchers, contexts=None):
-        """Run one market round, optionally passing one context per region."""
-        region_count = len(self.pool.connections)
-        if contexts is not None and len(contexts) != region_count:
-            raise ValueError("market contexts must contain one item per region")
-        needs_feedback = callable(
-            getattr(self.algorithm, "record_investment_outcomes", None)
-        )
-        requests = []
-        for region in range(region_count):
-            searcher_fitness = (
-                self.algorithm.searcher_fitness if needs_feedback else None
-            )
-            market_context = contexts[region] if contexts is not None else None
-            requests.append((searchers, searcher_fitness, market_context))
-        self.pool.send_all(requests)
-        responses = self.pool.recv_all()
+    def evaluate_many(self, problem, candidates, *, batch_size):
+        """Evaluate supplied regional batches and preserve archive merge order."""
+        size = int(batch_size)
+        if size <= 0 or len(candidates) != len(self.regions) * size:
+            raise ValueError("expected one equal candidate batch per region")
+        if size % self.algorithm.w:
+            raise ValueError("regional batch must contain complete goods rows")
+        searcher_count = size // self.algorithm.w
+        batches = [candidates[i:i + size] for i in range(0, len(candidates), size)]
+        custom_evaluator = type(self.algorithm).evaluate is not Algorithm.evaluate
+        if custom_evaluator:
+            responses = [None] * len(self.regions)
+        else:
+            self.pool.send_all(batches)
+            responses = self.pool.recv_all()
+        all_scores, evaluations = [], 0
+        for region_id, (region, results) in enumerate(zip(self.regions, responses)):
+            scores = []
+            if custom_evaluator:
+                scores = Algorithm.evaluate_many(region, problem, batches[region_id]).tolist()
+            for index, (candidate, state, objectives) in enumerate(results or []):
+                candidates[region_id * size + index] = candidate
+                score = float(np.sum(objectives))
+                region.evatime += 1
+                region.update_best(problem, state, objectives, score, candidate=candidate)
+                scores.append(score)
+            region_scores = np.asarray(scores).reshape(searcher_count, region.w)
+            all_scores.append(region_scores)
+            record = getattr(region, "record_investment_outcomes", None)
+            if callable(record):
+                record(self.goods_fitness[region_id], region_scores,
+                       self.algorithm.searcher_fitness)
+            export = getattr(region, "export_market_feedback", None)
+            merge = getattr(self.algorithm, "merge_market_feedback", None)
+            if callable(merge):
+                merge(region_id, export() if callable(export) else None)
+            evaluations += int(region.evatime)
+            region.evatime = 0
+            if region.best_state is not None:
+                self.algorithm.update_best(problem, region.best_state,
+                    region.best_objectives, region.fitness, region.coverage,
+                    candidate=region.best_candidate)
+        self.algorithm.evatime += evaluations
+        return np.asarray(all_scores).reshape(-1)
 
-        goods = []
-        goods_fitness = []
-        investment_fitness = []
-        evaluations = 0
-        for region, result in enumerate(responses):
-            (
-                region_goods,
-                region_good_fitness,
-                region_investments,
-                count,
-                best_state,
-                best_objectives,
-                worker_fitness,
-                best_coverage,
-                best_candidate,
-            ) = result[:9]
-            market_feedback = result[9] if len(result) > 9 else None
-            goods.append(region_goods)
-            goods_fitness.append(region_good_fitness)
-            investment_fitness.append(region_investments)
-            evaluations += int(count)
-            if best_state is not None:
-                # The worker already consumed the evaluation.  Merge its
-                # process-local result without evaluating or counting again.
-                self.algorithm.update_best(
-                    self.problem,
-                    best_state,
-                    best_objectives,
-                    worker_fitness,
-                    best_coverage,
-                    candidate=best_candidate,
-                )
-            merge_feedback = getattr(
-                self.algorithm,
-                "merge_market_feedback",
-                None,
-            )
-            if callable(merge_feedback) and market_feedback is not None:
-                merge_feedback(region, market_feedback)
-
-        return (
-            np.asarray(goods, dtype=object),
-            np.asarray(goods_fitness, dtype=float),
-            np.asarray(investment_fitness, dtype=float),
-            evaluations,
-        )
-
-    def close(self, searchers):
+    def close(self, searchers=None):
         self.pool.close()
 
 

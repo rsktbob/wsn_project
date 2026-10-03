@@ -25,7 +25,7 @@ def beta_cdf(a, b, x):
 
 
 class AdaptiveBetaMemory:
-    """SA-SETS 的區域記憶：被選到的區域加 ta，其餘區域加 tb。
+    """SA/SI 共用的區域記憶：被選到的區域加 ta，其餘區域加 tb。
 
     步長 ``current_adaptive_step`` 由各家族的 ``vision_search`` 依搜尋進度
     遞減後設定。
@@ -49,8 +49,8 @@ class AdaptiveBetaMemory:
 class PooledEvaluation:
     """用 h 個子程序評估投資列，結果依原本的 searcher/good 順序合併。
 
-    與 SETS 的 ``ParallelSEMarket``（每個子程序擁有一個區域的商品）不同，
-    這些子程序不保存狀態，任何一列投資都可以交給任何一個子程序。
+    商品及更新決策由主程序保存；子程序只評估候選解。
+    任何一列投資都可以交給任何一個子程序。
     使用者需在 ``__init__`` 設定 ``self._pool = None``。
     """
 
@@ -93,22 +93,51 @@ class PooledEvaluation:
             yield buffered[worker_id][cursors[worker_id]]
             cursors[worker_id] += 1
 
-    def evaluate_investments(self, problem, investments):
-        """評估每一批投資，再按原 searcher/good 順序合併，保留同分規則。"""
-        results_per_row = self._route_to_pool(investments)
+    def evaluate_many(self, problem, candidates, *, batch_size=None):
+        """Evaluate a flat mutable list; preserve input and first-winner order.
 
+        Initialization runs before the pool exists and uses Algorithm's
+        sequential implementation. batch_size retains transaction row boundaries.
+        """
+        if getattr(self, "_pool", None) is None:
+            return super().evaluate_many(problem, candidates)
+        if len(candidates) == 0:
+            return np.empty(0, dtype=float)
+        size = len(candidates) if batch_size is None else int(batch_size)
+        if size <= 0:
+            raise ValueError("batch_size must be positive")
+        rows = [candidates[i:i + size] for i in range(0, len(candidates), size)]
         scores = []
-        for row, results in enumerate(results_per_row):
-            row_scores = []
-            for col, (candidate, state, objectives) in enumerate(results):
-                investments[row][col] = candidate
+        index = 0
+        for results in self._route_to_pool(rows):
+            for candidate, state, objectives in results:
+                candidates[index] = candidate
                 fitness = float(np.sum(objectives))
                 self.evatime += 1
-                self.update_best(problem, state, objectives, fitness,
-                                 candidate=candidate)
-                row_scores.append(fitness)
-            scores.append(row_scores)
+                self.update_best(problem, state, objectives, fitness, candidate=candidate)
+                scores.append(fitness)
+                index += 1
         return np.asarray(scores, dtype=float)
+
+    def evaluate_investments(self, problem, investments):
+        """Compatibility adapter for existing external callers; flow uses evaluate_many."""
+        if not investments:
+            return np.empty((0, 0), dtype=float)
+        width = len(investments[0])
+        flat = [candidate for row in investments for candidate in row]
+        scores = self.evaluate_many(problem, flat, batch_size=width)
+        for i in range(len(investments)):
+            investments[i][:] = flat[i * width:(i + 1) * width]
+        return scores.reshape(len(investments), width)
 
 
 __all__ = ["AdaptiveBetaMemory", "PooledEvaluation", "beta_cdf"]
+
+
+def create_selected_investments(algorithm, problem, goods, active_regions):
+    """Generate selected-scope rows; selection/fitness/replacement stay outside."""
+    return [
+        [child for good in algorithm.goods_for_region(region, goods)
+         for child in algorithm.make_offspring(problem, algorithm.searchers[i], good, int(region))]
+        for i, region in enumerate(active_regions)
+    ]

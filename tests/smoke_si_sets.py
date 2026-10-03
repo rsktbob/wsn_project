@@ -10,7 +10,8 @@ if str(PROJECT_ROOT) not in sys.path:
 
 
 from Algorithm.se.SA_SETS import SA_SETS
-from Algorithm.se.market_components import PooledEvaluation
+from Algorithm.se.BaseSE import BaseSE
+from Algorithm.core.Algorithm import Algorithm
 from Algorithm.se.SI_SETS import SI_SETS
 from Problem.Problem import Problem
 
@@ -21,11 +22,8 @@ class SequentialSI(SI_SETS):
     def arrange_resources(self, problem):
         pass
 
-    def evaluate_investments(self, problem, investments):
-        return np.asarray([
-            self.evaluate_many(problem, candidates)
-            for candidates in investments
-        ])
+    def evaluate_many(self, problem, candidates, *, batch_size=None):
+        return Algorithm.evaluate_many(self, problem, candidates)
 
 
 def main():
@@ -34,8 +32,9 @@ def main():
         problem, n=4, h=4, w=1, mu=0.4, seed=31
     )
 
-    # 分區沿用 SA_SETS，平行評估來自共用的 PooledEvaluation。
-    assert SI_SETS.__bases__ == (PooledEvaluation, SA_SETS)
+    # Shared operators, independent selected-scope flow.
+    assert issubclass(SI_SETS, BaseSE)
+    assert not issubclass(SI_SETS, SA_SETS)
     for method_name in (
         "select_identity_sensors",
         "create_candidate",
@@ -61,7 +60,7 @@ def main():
     assert algorithm.evatime == 20
     assert algorithm.investment_quality.shape == (4, 4)
     assert algorithm.goods_fitness.shape == (4, 1)
-    assert algorithm.market.pool.processes == []
+    assert algorithm._pool is None
 
     repeated = SI_SETS(
         problem,

@@ -74,8 +74,8 @@ def test_all_searchers_trade_against_the_same_shared_goods():
         return child1, child2
 
     algorithm.make_children = make_children
-    algorithm.evaluate_investments = lambda _problem, children: np.array(
-        [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [7.0, 8.0]]
+    algorithm.evaluate_many = lambda _problem, children, **kwargs: np.array(
+        [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
     )
     algorithm.segment_probabilities = lambda quality: np.ones((4, 4))
     algorithm.select_regions = lambda probabilities: np.array([0, 1, 2, 3])

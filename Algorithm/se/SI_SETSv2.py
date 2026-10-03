@@ -6,6 +6,7 @@ import numpy as np
 
 from Algorithm.se.SI_SETS import SI_SETS
 from State.Encoding import swap_segment
+from Algorithm.se.population_updates import searchers_from_children, goods_from_children
 
 
 class SI_SETSv2(SI_SETS):
@@ -43,84 +44,22 @@ class SI_SETSv2(SI_SETS):
                 self.mutate_candidate(problem, child)
         return child1, child2
 
-    def vision_search(self, problem):
-        """Evaluate two roles and apply the RL-SETSv4 update without RL."""
-        progress = min(1.0, self.evatime / max(1, self.evaluation_limit))
-        self.current_adaptive_step = self.adaptive_step * (1.0 - progress)
+    def make_offspring(self, problem, searcher, good, region):
+        return tuple(self.align_region(problem, child, region)
+                     for child in self.make_children(problem, searcher, good, region))
 
-        active_regions = self.selected_regions.copy()
-        goods_fitness_before = self.goods_fitness.copy()
-        searcher_fitness_before = self.searcher_fitness.copy()
-        children = []
+    def summarize_round(self, active_regions, scores):
+        return super().summarize_round(active_regions, scores[:, 0::2])
 
-        for searcher_id, region in enumerate(active_regions):
-            region = int(region)
-            row = []
-            for good_id in range(self.w):
-                child1, child2 = self.make_children(
-                    problem,
-                    self.searchers[searcher_id],
-                    self.goods[region][good_id],
-                    region=region,
-                )
-                row.append(self.align_region(problem, child1, region))
-                row.append(self.align_region(problem, child2, region))
-            children.append(row)
+    def update_searchers(self, children, scores, selected, goods_before):
+        searchers_from_children(self, [row[0::2] for row in children], scores[:, 0::2])
 
-        child_fitness = self.evaluate_investments(problem, children)
-        child1_fitness = child_fitness[:, 0::2]
-        child2_fitness = child_fitness[:, 1::2]
-
-        # Match RL-SETSv4: region attractiveness measures how well child1
-        # improves the visiting searcher side of the interaction.
-        for searcher_id, region in enumerate(active_regions):
-            self.investment_quality[int(region), searcher_id] = float(
-                np.mean(child1_fitness[searcher_id])
-            )
-
-        probabilities = self.region_probabilities(
-            goods_fitness_before,
-            self.investment_quality,
-        )
-        selected = self.select_regions(probabilities)
-
-        # A searcher considers only its own child1 proposals and remains
-        # unchanged unless the best proposal improves its previous fitness.
-        for searcher_id in range(self.n):
-            good_id = int(np.argmax(child1_fitness[searcher_id]))
-            score = float(child1_fitness[searcher_id, good_id])
-            if score > searcher_fitness_before[searcher_id]:
-                self.searchers[searcher_id] = children[searcher_id][
-                    good_id * 2
-                ].copy()
-                self.searcher_fitness[searcher_id] = score
-
-        # A visited good accepts the best child2 only when it improves the
-        # pre-investment good; otherwise the old good remains in the market.
+    def update_goods(self, children, scores, active_regions):
+        child2 = [row[1::2] for row in children]
         for region in range(self.h):
-            visitors = np.flatnonzero(active_regions == region)
-            if not len(visitors):
-                continue
-            for good_id in range(self.w):
-                winner = int(
-                    max(
-                        visitors,
-                        key=lambda index: child2_fitness[int(index), good_id],
-                    )
-                )
-                winner_score = float(child2_fitness[winner, good_id])
-                if (
-                    winner_score
-                    <= goods_fitness_before[region, good_id]
-                    + self.IMPROVEMENT_TOLERANCE
-                ):
-                    continue
-                self.goods[region][good_id] = children[winner][
-                    good_id * 2 + 1
-                ].copy()
-                self.goods_fitness[region, good_id] = winner_score
-
-        self.selected_regions = selected
+            goods_from_children(self.goods[region], self.goods_fitness[region],
+                child2, scores[:, 1::2], np.flatnonzero(active_regions == region),
+                tolerance=self.IMPROVEMENT_TOLERANCE)
 
 
 __all__ = ["SI_SETSv2"]
