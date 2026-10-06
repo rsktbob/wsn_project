@@ -17,6 +17,9 @@ class BaseSE(Algorithm):
     in this base class.
     """
 
+    # 菁英更新判斷「嚴格變好」時容許的浮點誤差。
+    IMPROVEMENT_TOLERANCE = 1e-12
+
     def __init__(
         self,
         problem,

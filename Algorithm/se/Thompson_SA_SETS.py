@@ -15,7 +15,6 @@ class Thompson_SA_SETS(RegionSelectionSA_SETS):
     Beta CDF to a hand-built region score as the original algorithm does.
     """
 
-    IMPROVEMENT_TOLERANCE = 1e-12
 
     def __init__(self, problem, n=8, h=4, w=2, mu=0.4, seed=None):
         super().__init__(problem, n=n, h=h, w=w, mu=mu, seed=seed)

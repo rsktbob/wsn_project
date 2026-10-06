@@ -8,9 +8,7 @@ builder of their own below.
 """
 
 import copy
-from pathlib import Path
 
-import numpy as np
 
 from Algorithm.core import iterations_to_reach_budget
 
@@ -37,19 +35,13 @@ def srime_generation(evaluate, population_size):
     )
 
 
-RANDOM_POLICY_ALGORITHMS = frozenset(("rl_setsv4", "rl_setsv5"))
-
-
 def configured_algorithm_params(name, args):
     """The preset parameters, with the run's command line applied."""
     params = copy.deepcopy(ALGORITHM_PRESETS[name]["params"])
     if name in RL_SETS_ALGORITHMS:
-        # Formal experiments are always frozen. rl_setsv4/v5 also permit an
-        # explicit no-checkpoint uniform-random policy baseline.
+        # Formal experiments are always frozen.
         params["training"] = False
         params["model_path"] = getattr(args, "rl_model", None)
-        if name in RANDOM_POLICY_ALGORITHMS:
-            params["random_policy"] = not bool(params["model_path"])
     return params
 
 
@@ -69,21 +61,6 @@ def algorithm_params(name, args):
             evaluate_budget(args), params["n"]
         )
     return params
-
-
-def _build_rl_sets(algorithm_type, problem, params, args, seed):
-    if not params["model_path"]:
-        raise ValueError(
-            "rl_sets requires --rl-model pointing to a trained checkpoint"
-        )
-    model_path = Path(params["model_path"]).expanduser()
-    with np.load(model_path, allow_pickle=False) as archive:
-        if "v2_metadata_json" in archive:
-            raise ValueError(
-                "this checkpoint uses the retired RL_SETSv2 format and is "
-                "not compatible with the current rl_sets checkpoint schema"
-            )
-    return algorithm_type(problem, seed=seed, **params)
 
 
 def _build_pso(algorithm_type, problem, params, args, seed):
@@ -125,7 +102,6 @@ def _build_srime(algorithm_type, problem, params, args, seed):
 
 
 SPECIAL_BUILDERS = {
-    "rl_sets": _build_rl_sets,
     "pso": _build_pso,
     "nsga": _build_nsga,
     "snsga_rqlearning": _build_snsga_rqlearning,
@@ -143,11 +119,7 @@ def build_algorithm(name, problem, args, seed):
     special = SPECIAL_BUILDERS.get(name)
     if special is not None:
         return special(algorithm_type, problem, params, args, seed)
-    if (
-        name in RL_SETS_ALGORITHMS
-        and name not in RANDOM_POLICY_ALGORITHMS
-        and not params["model_path"]
-    ):
+    if name in RL_SETS_ALGORITHMS and not params["model_path"]:
         raise ValueError(
             f"{name} requires --rl-model pointing to a trained checkpoint"
         )

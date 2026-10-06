@@ -4,7 +4,7 @@ import math
 import numpy as np
 
 from Algorithm.se.SA_SETS import SA_SETS
-from State.Encoding import swap_segment
+from Algorithm.se.sensor_operators import draw_mutation_count
 from State.TargetEncoding import TargetEncoding
 
 
@@ -178,9 +178,9 @@ class SA_SETS_Target(SA_SETS):
                 )
         return state
 
-    def _mutate(self, P, state):
+    def mutate_candidate(self, P, state):
         """突變 candidate、priority rank，或直接重抽完整 target gene。"""
-        mutation_count = self.random.choice([1] * 90 + [2] * 5 + [3] * 5)
+        mutation_count = draw_mutation_count(self.random)
         target_ids = [
             self.random.randrange(P.TARGET_NUMBER)
             for _ in range(mutation_count)
@@ -245,17 +245,10 @@ class SA_SETS_Target(SA_SETS):
 
     def invest(self, P, searcher, good):
         """完成 Target 版本的 crossover 與可選 mutation。"""
-        difference = 2
-        midpoint = self.code_length // 2
-        left = self.random.randint(difference, midpoint - difference)
-        right = self.random.randint(
-            midpoint - difference,
-            self.code_length - difference,
-        )
-        first, second = swap_segment(searcher, good, left, right)
+        first, second = self.crossover(searcher, good)
         investment = first if self.random.random() < 0.5 else second
         if self.random.random() < self.mutation_rate:
-            investment = self._mutate(P, investment)
+            investment = self.mutate_candidate(P, investment)
         return investment
 
 

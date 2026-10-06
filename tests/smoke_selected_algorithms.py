@@ -27,9 +27,6 @@ CASES = [
     ("GA", "tests/smoke_ga.py"),
     ("NSGA-II", "tests/smoke_nsga.py"),
     ("SNSGAII + RQLearning", "tests/smoke_snsga_rqlearning.py"),
-    ("RL-SETS-D3QN", "tests/smoke_rl_sets.py"),
-    ("RL-SETSv5-D3QN", "tests/smoke_rl_setsv5.py"),
-    ("RL-SETS trainer", "tests/smoke_train_rl_sets.py"),
 ]
 
 

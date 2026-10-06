@@ -20,7 +20,6 @@ class ContextualThompsonIG_SA_SETS(RegionSelectionSA_SETS):
 
     BASE_FEATURE_COUNT = 5
     FEATURE_COUNT = 7
-    IMPROVEMENT_TOLERANCE = 1e-12
 
     def __init__(
         self, problem, n=8, h=4, w=2, mu=0.4, *, immediate_weight=0.5,

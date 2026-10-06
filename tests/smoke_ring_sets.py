@@ -1,4 +1,4 @@
-"""Smoke checks for Ring-SETS' shared goods pool + segment-only scoring."""
+"""Smoke checks for Ring-SETS' shared goods pool + random segment choice."""
 
 from __future__ import annotations
 
@@ -25,11 +25,17 @@ def test_shared_pool_initialization():
     assert len(algorithm.goods) == 3
     assert algorithm.goods_fitness.shape == (3,)
 
-    # No segment has a track record yet, so every segment starts from the
-    # same neutral guess: the shared pool's own average fitness.
-    initial_quality = float(np.mean(algorithm.goods_fitness))
-    assert algorithm.segment_quality.shape == (4, 4)
-    assert np.allclose(algorithm.segment_quality, initial_quality)
+
+def test_random_region_selection():
+    """Every segment is drawn uniformly; no Beta memory is consulted."""
+    problem = Problem(B=50, S=32, T=9, F=100, FILE=None)
+    algorithm = Ring_SETS(problem, n=4, h=4, w=1, mu=1.0, seed=7)
+    counts = np.zeros(4, dtype=int)
+    for _ in range(500):
+        selected = algorithm.select_regions()
+        assert selected.shape == (4,)
+        np.add.at(counts, selected, 1)
+    assert counts.min() > 400
 
 
 def test_ring_scopes():
@@ -77,8 +83,7 @@ def test_all_searchers_trade_against_the_same_shared_goods():
     algorithm.evaluate_investments = lambda _problem, children: np.array(
         [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [7.0, 8.0]]
     )
-    algorithm.segment_probabilities = lambda quality: np.ones((4, 4))
-    algorithm.select_regions = lambda probabilities: np.array([0, 1, 2, 3])
+    algorithm.select_regions = lambda: np.array([0, 1, 2, 3])
     algorithm.vision_search(problem)
 
     # All 4 searchers traded against the same single shared good object.
@@ -103,6 +108,7 @@ def test_registry_and_small_search():
 
 def main():
     test_shared_pool_initialization()
+    test_random_region_selection()
     test_ring_scopes()
     test_all_searchers_trade_against_the_same_shared_goods()
     test_registry_and_small_search()

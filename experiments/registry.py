@@ -8,6 +8,10 @@ take the preset parameters -- one row in :mod:`experiments.builder`.
 import importlib
 
 ALGORITHM_IMPORTS = {
+    "qea3": ("Algorithm.qea.QEA3", "QEA3"),
+    "qea": ("Algorithm.qea.QEA", "QEA"),
+    "qea_random": ("Algorithm.qea.QEA", "QEA"),
+    "qea_classical": ("Algorithm.qea.QEA", "QEA"),
     "alns": ("Algorithm.misc.ALNS", "ALNS"),
     "eopt": ("Algorithm.misc.EOPT", "EOPT"),
     "sa_sets": ("Algorithm.se.SA_SETS", "SA_SETS"),
@@ -19,14 +23,16 @@ ALGORITHM_IMPORTS = {
         "ContextualThompsonIG_SA_SETS",
     ),
     "ring_sets": ("Algorithm.se.Ring_SETS", "Ring_SETS"),
-    "ring_setsv2": ("Algorithm.se.Ring_SETSv2", "Ring_SETSv2"),
-    "rl_sets": ("Algorithm.se.RL_SETS", "RL_SETS"),
-    "rl_setsv2": ("Algorithm.se.RL_SETSv2", "RL_SETSv2"),
-    "rl_setsv3": ("Algorithm.se.RL_SETSv3", "RL_SETSv3"),
-    "rl_setsv4": ("Algorithm.se.RL_SETSv4", "RL_SETSv4"),
-    "rl_setsv5": ("Algorithm.se.RL_SETSv5", "RL_SETSv5"),
+    "ring_setspriority": ("Algorithm.se.Ring_SETSpriority", "Ring_SETSpriority"),
+    "linucb_ring_sets": ("Algorithm.se.LinUCB_Ring_SETS", "LinUCB_Ring_SETS"),
+    "linucb_ring_setspriority": ("Algorithm.se.LinUCB_Ring_SETSpriority", "LinUCB_Ring_SETSpriority"),
+    "rl_ring_sets": ("Algorithm.se.RL_Ring_SETS", "RL_Ring_SETS"),
+    "rl_ring_setspriority": ("Algorithm.se.RL_Ring_SETSpriority", "RL_Ring_SETSpriority"),
+    "linucb_ring_setsv2": ("Algorithm.se.LinUCB_Ring_SETSv2", "LinUCB_Ring_SETSv2"),
+    "linucb_ring_setspriorityv2": ("Algorithm.se.LinUCB_Ring_SETSpriorityv2", "LinUCB_Ring_SETSpriorityv2"),
+    "rl_ring_setsv2": ("Algorithm.se.RL_Ring_SETSv2", "RL_Ring_SETSv2"),
+    "rl_ring_setspriorityv2": ("Algorithm.se.RL_Ring_SETSpriorityv2", "RL_Ring_SETSpriorityv2"),
     "si_sets": ("Algorithm.se.SI_SETS", "SI_SETS"),
-    "si_setsv2": ("Algorithm.se.SI_SETSv2", "SI_SETSv2"),
     "sa_sets_target": ("Algorithm.se.SA_SETS_Target", "SA_SETS_Target"),
     "gi_gomea": ("Algorithm.gomea.GI_GOMEA", "GI_GOMEA"),
     "gpu_gomea": ("Algorithm.gomea.GPU_GOMEA", "GPU_GOMEA"),
@@ -37,8 +43,6 @@ ALGORITHM_IMPORTS = {
         "Differential_MAP_Elites",
     ),
     "sets": ("Algorithm.se.SETS", "SETS"),
-    "setsv2": ("Algorithm.se.SETSv2", "SETSv2"),
-    "sa_setsv2": ("Algorithm.se.SA_SETSv2", "SA_SETSv2"),
     "codingse": ("Algorithm.se.CodingSE", "CodingSE"),
     "codingsev2": ("Algorithm.se.CodingSEv2", "CodingSEv2"),
     "ga": ("Algorithm.ga.GA", "GA"),
@@ -57,11 +61,12 @@ ALGORITHM_IMPORTS = {
 ALGORITHM_NAMES = tuple(ALGORITHM_IMPORTS)
 ALGORITHM_CHOICES = ("all",) + ALGORITHM_NAMES
 
-# RL-SETS versions read a frozen .npz policy, so they only run when the caller
+# RL algorithms read a frozen .npz policy, so they only run when the caller
 # supplies --rl-model. They are therefore excluded from --algorithm all.
-RL_SETS_ALGORITHMS = frozenset(
-    ("rl_sets", "rl_setsv2", "rl_setsv3", "rl_setsv4", "rl_setsv5")
-)
+# (The old RL-SETS v1–v5 series was moved to legacy/ on 2026-10-04.)
+RL_SETS_ALGORITHMS = frozenset((
+    "rl_ring_sets", "rl_ring_setspriority", "rl_ring_setsv2", "rl_ring_setspriorityv2",
+))
 ALL_RUNNABLE_ALGORITHMS = tuple(
     name for name in ALGORITHM_NAMES if name not in RL_SETS_ALGORITHMS
 )

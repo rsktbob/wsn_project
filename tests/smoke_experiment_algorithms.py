@@ -15,9 +15,10 @@ from Algorithm.Scheduling.SRIME import SRIME
 from Algorithm.gomea.GI_GOMEA import GI_GOMEA
 from Algorithm.gomea.GPU_GOMEA import GPU_GOMEA
 from Algorithm.gomea.GI_GOMEA_Target import GI_GOMEA_Target
-from Algorithm.se.RL_SETS import RL_SETS
-from Algorithm.se.RL_SETSv2 import RL_SETSv2
-from Algorithm.se.RL_SETSv3 import RL_SETSv3
+from Algorithm.se.RL_Ring_SETS import RL_Ring_SETS
+from Algorithm.se.RL_Ring_SETSpriority import RL_Ring_SETSpriority
+from Algorithm.se.RL_Ring_SETSv2 import RL_Ring_SETSv2
+from Algorithm.se.RL_Ring_SETSpriorityv2 import RL_Ring_SETSpriorityv2
 from Problem.Problem import Problem
 from Problem.services import (
     FitnessService,
@@ -69,22 +70,13 @@ def main():
     assert cuda_params["cuda_device"] == 0
     assert cuda_params["require_cuda"] is False
 
-    # RL-SETS is tested separately with a real checkpoint; the registry-wide
-    # construction below may use small temporary ones. rl_setsv4/rl_setsv5
-    # support a no-checkpoint uniform-random policy, so they need none.
-    model_problem = Problem(B=50, S=30, T=9, F=100, FILE=None)
-    model_algorithm = RL_SETS(
-        model_problem,
-        n=4,
-        h=4,
-        w=1,
-        training=True,
-        seed=7,
-    )
-    model_path = PROJECT_ROOT / "tests" / "_experiment_rl_sets.npz"
-    model_algorithm.save_model(model_path)
-    checkpoint_paths = {"rl_sets": model_path}
-    for name, cls in (("rl_setsv2", RL_SETSv2), ("rl_setsv3", RL_SETSv3)):
+    # RL algorithms need a checkpoint; the registry-wide construction below
+    # uses small temporary ones.
+    checkpoint_paths = {}
+    for name, cls in (
+        ("rl_ring_sets", RL_Ring_SETS), ("rl_ring_setspriority", RL_Ring_SETSpriority),
+        ("rl_ring_setsv2", RL_Ring_SETSv2), ("rl_ring_setspriorityv2", RL_Ring_SETSpriorityv2),
+    ):
         checkpoint_problem = Problem(B=50, S=30, T=9, F=100, FILE=None)
         checkpoint_algorithm = cls(
             checkpoint_problem, n=4, h=4, w=1, training=True, seed=7,
@@ -92,7 +84,7 @@ def main():
         checkpoint_path = PROJECT_ROOT / "tests" / f"_experiment_{name}.npz"
         checkpoint_algorithm.save_model(checkpoint_path)
         checkpoint_paths[name] = checkpoint_path
-    args = SimpleNamespace(evaluate=100, rl_model=str(model_path))
+    args = SimpleNamespace(evaluate=100, rl_model=None)
     assert set(ALGORITHM_NAMES) == set(ALGORITHM_PRESETS)
 
     problem = Problem(B=50, S=30, T=9, F=100, FILE=None)
@@ -115,16 +107,11 @@ def main():
     assert _map_position((0, 0), problem.BOUNDARY) == PLOT_BOX[:2]
     energy_plot.unlink()
     algorithms = {}
-    no_checkpoint_args = SimpleNamespace(evaluate=100, rl_model=None)
     for name in ALGORITHM_NAMES:
         if name in checkpoint_paths:
             name_args = SimpleNamespace(
                 evaluate=100, rl_model=str(checkpoint_paths[name])
             )
-        elif name in ("rl_setsv4", "rl_setsv5"):
-            # No checkpoint trained for these: exercise their no-checkpoint
-            # uniform-random policy fallback instead.
-            name_args = no_checkpoint_args
         else:
             name_args = args
         algorithms[name] = build_algorithm(name, problem, name_args, seed=7)
@@ -133,22 +120,21 @@ def main():
     assert type(algorithms["gpu_gomea"]) is GPU_GOMEA
     assert type(algorithms["gi_gomea_target"]) is GI_GOMEA_Target
     assert type(algorithms["srime"]) is SRIME
-    assert type(algorithms["rl_sets"]) is RL_SETS
-    assert type(algorithms["rl_setsv2"]) is RL_SETSv2
-    assert type(algorithms["rl_setsv3"]) is RL_SETSv3
+    assert type(algorithms["rl_ring_sets"]) is RL_Ring_SETS
+    assert type(algorithms["rl_ring_setspriority"]) is RL_Ring_SETSpriority
+    assert "rl_sets" not in ALGORITHM_NAMES
     assert "state_type" not in algorithm_params("gi_gomea", args)
     assert "state_type" not in algorithm_params("gi_gomea_target", args)
     assert algorithm_params("nsga", args)["generation"] == 1
     assert algorithm_params("srime", args)["generation"] == 2
     assert "sets" in ALGORITHM_NAMES
-    assert "setsv2" in ALGORITHM_NAMES
+    assert "setsv2" not in ALGORITHM_NAMES
+    assert "sa_setsv2" not in ALGORITHM_NAMES
     assert "setsv3" not in ALGORITHM_NAMES
     assert "setsv4" not in ALGORITHM_NAMES
     assert "wasa_sets" not in ALGORITHM_NAMES
-    model_path.unlink()
     for checkpoint_path in checkpoint_paths.values():
-        if checkpoint_path != model_path:
-            checkpoint_path.unlink()
+        checkpoint_path.unlink()
 
     # CS uses a 15-member preset with four workers. This exercises the
     # non-divisible population split and verifies that all 15 states count.

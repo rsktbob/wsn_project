@@ -9,7 +9,8 @@ SE 三個家族的第三個（另外兩個是 SETS 與 SI_SETS）：
 * 更新：角色分離的菁英更新。``child1`` 以 searcher 為底，只能取代
   該 searcher；``child2`` 以 good 為底，只有最好的一個能取代該 good，
   兩者都必須嚴格變好。
-* 區域選擇：只看最近造訪該段時 ``child1`` 的平均表現（Beta CDF 修正）。
+* 區域選擇：每回合每個 searcher 均勻隨機選一段。原本的 Beta CDF 選區
+  在後期主要反映造訪次數而非 fitness，消融也測不出差異，所以拿掉。
 
 ``region`` 沿用 ``self.h``、``self.selected_regions`` 等名稱，以配合 SE 共用流程。
 """
@@ -20,15 +21,16 @@ import numpy as np
 
 from Algorithm.se.BaseSE import BaseSE
 from Algorithm.se.market_components import (
-    AdaptiveBetaMemory,
     PooledEvaluation,
-    beta_cdf,
+    accept_good_children,
+    accept_searcher_children,
 )
+from Algorithm.se.sensor_operators import CCSInitialization, draw_mutation_count
 from State.Encoding import swap_segment
 from State.SensorEncoding import SensorEncoding
 
 
-class Ring_SETS(PooledEvaluation, AdaptiveBetaMemory, BaseSE):
+class Ring_SETS(CCSInitialization, PooledEvaluation, BaseSE):
     """SE with ring-segment operator scopes and one shared elitist goods pool.
 
     For ``h=4`` and 100 ring-ordered sensors, segments are ``[0:25)``,
@@ -45,9 +47,8 @@ class Ring_SETS(PooledEvaluation, AdaptiveBetaMemory, BaseSE):
     """
 
     LOCAL_OPERATOR_PROBABILITY = 0.80
-    IMPROVEMENT_TOLERANCE = 1e-12
 
-    def __init__(self, problem, n=8, h=4, w=2, mu=0.4, seed=None):
+    def __init__(self, problem, n=8, h=4, w=8, mu=0.4, seed=None):
         super().__init__(
             problem,
             n=n,
@@ -59,15 +60,11 @@ class Ring_SETS(PooledEvaluation, AdaptiveBetaMemory, BaseSE):
         )
         if problem.SENSOR_NUMBER < self.h:
             raise ValueError("Ring_SETS requires at least one sensor per region")
-        self.adaptive_step = 0.001
-        self.current_adaptive_step = self.adaptive_step
-        self._pool = None
         self.goods = []
         self.goods_fitness = np.empty(self.w, dtype=float)
         self.region_sensor_bounds = self._build_region_sensor_bounds(
             problem.SENSOR_NUMBER
         )
-        self.segment_quality = np.empty((self.h, self.n), dtype=float)
 
     def _build_region_sensor_bounds(self, sensor_count):
         """Split ring-major sensor ids into contiguous, near-equal regions."""
@@ -85,26 +82,6 @@ class Ring_SETS(PooledEvaluation, AdaptiveBetaMemory, BaseSE):
         super().initialize_market(problem, initial_state)
         self.goods = [self.create_candidate(problem) for _ in range(self.w)]
         self.goods_fitness = self.evaluate_many(problem, self.goods)
-
-        # No segment has a track record yet, so every segment starts from the
-        # same neutral guess: the shared pool's current average quality.
-        initial_quality = float(np.mean(self.goods_fitness))
-        self.segment_quality = np.full(
-            (self.h, self.n), initial_quality, dtype=float
-        )
-
-    def create_candidate(self, problem, region=None):
-        """Create the V2 coverage/routing chromosome without hard alignment."""
-        candidate = SensorEncoding.random(
-            problem.SENSOR_NUMBER,
-            problem.radius_option_counts,
-            rng=self.rng,
-        )
-        for target_candidates in problem.cover_candidates:
-            if target_candidates:
-                sensor_id, level = self.random.choice(target_candidates)
-                candidate.code[int(sensor_id) * 2] = int(level)
-        return candidate
 
     def align_region(self, problem, candidate, region):
         """Ring membership guides operators only; never force sensing levels."""
@@ -167,7 +144,7 @@ class Ring_SETS(PooledEvaluation, AdaptiveBetaMemory, BaseSE):
     def mutate_candidate(self, problem, candidate, sensor_span):
         """Mutate one to three sensor pairs inside the chosen ring scope."""
         _, left_sensor, right_sensor = sensor_span
-        mutation_count = self.random.choice([1] * 90 + [2] * 5 + [3] * 5)
+        mutation_count = draw_mutation_count(self.random)
         for _ in range(mutation_count):
             sensor_id = self.random.randrange(left_sensor, right_sensor)
             sensing_id = sensor_id * 2
@@ -182,13 +159,15 @@ class Ring_SETS(PooledEvaluation, AdaptiveBetaMemory, BaseSE):
                 )
         return candidate
 
-    def vision_search(self, problem):
-        """Trade every searcher against the shared pool; score segments only
-        by how well operating on them has paid off for the visiting searcher.
-        """
-        progress = min(1.0, self.evatime / max(1, self.evaluation_limit))
-        self.current_adaptive_step = self.adaptive_step * (1.0 - progress)
+    def select_regions(self, probabilities=None):
+        """Draw each searcher's next segment uniformly at random."""
+        return np.array(
+            [self.random.randrange(self.h) for _ in range(self.n)],
+            dtype=int,
+        )
 
+    def vision_search(self, problem):
+        """Trade every searcher against the shared pool in its chosen segment."""
         active_segments = self.selected_regions.copy()
         goods_fitness_before = self.goods_fitness.copy()
         searcher_fitness_before = self.searcher_fitness.copy()
@@ -212,65 +191,33 @@ class Ring_SETS(PooledEvaluation, AdaptiveBetaMemory, BaseSE):
         child1_fitness = child_fitness[:, 0::2]
         child2_fitness = child_fitness[:, 1::2]
 
-        # A segment's attractiveness is how well it improved the searcher who
-        # just visited it -- there is no goods-pool quality or market-share
-        # term to blend in, because goods are no longer partitioned by
-        # segment.
-        for searcher_id, segment in enumerate(active_segments):
-            self.segment_quality[segment, searcher_id] = float(
-                np.mean(child1_fitness[searcher_id])
-            )
-
-        probabilities = self.segment_probabilities(self.segment_quality)
-        selected = self.select_regions(probabilities)
-
         # A searcher considers only its own child1 proposals and remains
         # unchanged unless the best proposal improves its previous fitness.
-        for searcher_id in range(self.n):
-            good_id = int(np.argmax(child1_fitness[searcher_id]))
-            score = float(child1_fitness[searcher_id, good_id])
-            if score > searcher_fitness_before[searcher_id]:
-                self.searchers[searcher_id] = children[searcher_id][
-                    good_id * 2
-                ].copy()
-                self.searcher_fitness[searcher_id] = score
+        accept_searcher_children(
+            self, children, child1_fitness, searcher_fitness_before
+        )
 
         # The pool is shared: every searcher this round is a candidate
         # visitor for every good slot, regardless of which segment it
         # operated on. A good accepts the best child2 only when it improves
         # the pre-investment good by more than the elitist tolerance.
-        for good_id in range(self.w):
-            best_searcher = int(np.argmax(child2_fitness[:, good_id]))
-            winner_score = float(child2_fitness[best_searcher, good_id])
-            if (
-                winner_score
-                <= goods_fitness_before[good_id] + self.IMPROVEMENT_TOLERANCE
-            ):
-                continue
-            self.goods[good_id] = children[best_searcher][good_id * 2 + 1].copy()
-            self.goods_fitness[good_id] = winner_score
+        accept_good_children(
+            self.goods,
+            self.goods_fitness,
+            goods_fitness_before,
+            children,
+            child2_fitness,
+            range(self.n),
+            self.IMPROVEMENT_TOLERANCE,
+        )
 
-        self.selected_regions = selected
+        self.selected_regions = self.select_regions()
 
-    def segment_probabilities(self, segment_quality):
-        """Score each ring segment purely by its recent investment payoff.
-
-        Unlike :meth:`SI_SETS.region_probabilities`, there is no
-        ``best_goods`` or ``region_share`` term here: those measured a
-        per-region goods pool that no longer exists. The Beta-CDF fairness
-        correction (``ta``/``tb``) is unchanged, so segments that have not
-        been visited recently still get a rising exploration bonus.
-        """
-        probability = np.empty((self.h, self.n), dtype=float)
-        for segment in range(self.h):
-            for searcher_id in range(self.n):
-                probability[segment, searcher_id] = beta_cdf(
-                    self.ta[segment],
-                    self.tb[segment],
-                    segment_quality[segment, searcher_id],
-                )
-        return probability
-
+    def update_search_memory(self, problem, evaluation_start):
+        """No region memory to update; only record this round's history."""
+        history_end = min(int(self.evatime), len(self.history))
+        if history_end > evaluation_start:
+            self.history[evaluation_start:history_end] = self.fitness
 
 
 __all__ = ["Ring_SETS"]

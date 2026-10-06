@@ -36,12 +36,9 @@ EXPERIMENT_PRESET = {
     "segment_slot_limit": 5000,
 }
 
-# rl_setsv4/v5 observe lifetime-scaled features and were tuned at a smaller
-# budget, so they run at this budget unless --evaluate says otherwise.
-EVALUATE_OVERRIDES = {
-    "rl_setsv4": 5000,
-    "rl_setsv5": 5000,
-}
+# Per-algorithm budget used when that algorithm runs alone without --evaluate.
+# (rl_setsv4/v5 used 5000 here before the RL-SETS series moved to legacy/.)
+EVALUATE_OVERRIDES = {}
 
 MOVING_TARGET_ENERGY_THRESHOLD = 10.0
 

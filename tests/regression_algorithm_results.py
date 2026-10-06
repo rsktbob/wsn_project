@@ -18,8 +18,6 @@ from Algorithm.gomea.GI_GOMEA import GI_GOMEA
 from Algorithm.gomea.GI_GOMEA_Target import GI_GOMEA_Target
 from Algorithm.nsga.NSGAII import NSGAII
 from Algorithm.se.SA_SETS import SA_SETS
-from Algorithm.se.SA_SETSv2 import SA_SETSv2
-from Algorithm.se.SETSv2 import SETSv2
 from Algorithm.Scheduling.SRIME import SRIME
 from Problem.Problem import Problem
 
@@ -139,33 +137,6 @@ def check_gi_gomea(
     assert algorithm.gene_invariance_error() == 0
 
 
-def check_paper_sets(algorithm_class):
-    reset_seed(19)
-    problem = Problem(B=50, S=24, T=9, F=10, FILE=None)
-    algorithm = algorithm_class(
-        problem,
-        n=2,
-        h=4,
-        w=1,
-        player=2,
-        crossover_rate=1.0,
-        mutation_rate=1.0,
-        seed=19,
-    )
-    result = algorithm.run(
-        problem,
-        budget=algorithm.evaluations_per_iteration * 2,
-    )
-    best = result.best_state
-
-    assert_fitness(
-        problem.evaluate_state(best),
-        [0.14991732454545453, 0.24989222499999997, 0.6],
-    )
-    assert algorithm.evatime == 28
-    assert algorithm.iterations_completed == 2
-
-
 def check_srime():
     reset_seed()
     problem = create_problem()
@@ -196,8 +167,6 @@ def main():
         "b965c5c2317168405bb781c184c493ba1d73cbc5c4bc1e8169523c8e5d695fcb",
         [0.14999477325, 0.2499949642857143, 0.6],
     )
-    check_paper_sets(SETSv2)
-    check_paper_sets(SA_SETSv2)
     check_srime()
     print("regression_algorithm_results_ok")
 

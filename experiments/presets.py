@@ -6,19 +6,50 @@ constructor. Two things deliberately live outside it:
 * ``parameter_basis`` -- the prose justification quoted in the experiment
   report. It is documentation, not configuration, so it is stored in
   ``parameter_basis.json`` next to this module.
-* RL-SETS training hyper-parameters (replay buffer, batch size, learning rate,
+* RL training hyper-parameters (replay buffer, batch size, learning rate,
   epsilon schedule, ...). This runner always evaluates a frozen policy, so
   those values changed nothing here while still appearing in the report as if
-  they were experiment settings. ``train_rl_sets.py`` owns them and already
+  they were experiment settings. ``train_rl_ring_sets.py`` owns them and
   defines its own defaults for every one of them.
 """
 
-import copy
 import json
 
 from experiments import PROJECT_ROOT
 
 ALGORITHM_PRESETS = {
+    'qea3': {
+        'label': 'QEA3-WSN (local pairs + periodic global migration)',
+        'encoding': 'SensorEncoding: sensing levels + routing-priority ranks',
+        'params': {
+            'n': 30,
+            'rotation': 0.031415926535897934,
+            'probability_floor': 0.01,
+            'global_period': 100,
+        },
+    },
+    'qea': {'label': 'Global-QEA',
+     'encoding': 'SensorEncoding: sensing levels + routing-priority ranks',
+     'params': {'n': 30,
+                'rotation': 0.031415926535897934,
+                'probability_floor': 0.01,
+                'update_rule': 'rotation',
+                'learning_rate': 0.05}},
+    'qea_random': {'label': 'QEA uniform random control',
+     'encoding': 'SensorEncoding: sensing levels + routing-priority ranks',
+     'params': {'n': 30,
+                'rotation': 0.031415926535897934,
+                'probability_floor': 0.01,
+                'update_rule': 'none',
+                'learning_rate': 0.05}},
+    'qea_classical': {'label': 'QEA classical probability control',
+     'encoding': 'SensorEncoding: sensing levels + routing-priority ranks',
+     'params': {'n': 30,
+                'rotation': 0.031415926535897934,
+                'probability_floor': 0.01,
+                'update_rule': 'classical',
+                'learning_rate': 0.05}},
+
     'alns': {
         "label": 'ALNS',
         "params": {
@@ -97,34 +128,13 @@ ALGORITHM_PRESETS = {
         "params": {
             'n': 8,
             'h': 4,
-            'w': 2,
+            'w': 8,
             'mu': 0.4,
         },
     },
-    'ring_setsv2': {
-        "label": 'Ring-SETSv2 (Ring-SETS + C4 PriorityEncoding)',
+    'ring_setspriority': {
+        "label": 'Ring-SETSpriority (Ring-SETS + C4 PriorityEncoding)',
         "encoding": 'N activation priorities + N routing priorities (C4)',
-        "params": {
-            'n': 8,
-            'h': 4,
-            'w': 2,
-            'mu': 0.4,
-        },
-    },
-    'rl_sets': {
-        "label": 'RL-SETS (Selective Investment)',
-        "params": {
-            'n': 8,
-            'h': 4,
-            'w': 2,
-            'mu': 0.4,
-            # Network width has to match the checkpoint that is loaded, so it
-            # stays here even though the rest of the D3QN settings do not.
-            'hidden_size': 64,
-        },
-    },
-    'si_sets': {
-        "label": 'SI-SETS',
         "params": {
             'n': 8,
             'h': 4,
@@ -132,12 +142,97 @@ ALGORITHM_PRESETS = {
             'mu': 0.4,
         },
     },
-    'si_setsv2': {
-        "label": 'SI-SETSv2 (Elitist Role-separated Update)',
+    'linucb_ring_sets': {
+        "label": 'LinUCB-Ring-SETS (per-pair LinUCB segment choice)',
+        "encoding": 'N sensing levels + N routing-priority ranks',
         "params": {
             'n': 8,
             'h': 4,
-            'w': 2,
+            'w': 8,
+            'mu': 0.4,
+        },
+    },
+    'linucb_ring_setspriority': {
+        "label": 'LinUCB-Ring-SETSpriority (per-pair LinUCB segment choice, C4)',
+        "encoding": 'N activation priorities + N routing priorities (C4)',
+        "params": {
+            'n': 8,
+            'h': 4,
+            'w': 8,
+            'mu': 0.4,
+        },
+    },
+    'rl_ring_sets': {
+        "label": 'RL-Ring-SETS (per-pair D3QN segment choice)',
+        "encoding": 'N sensing levels + N routing-priority ranks',
+        "params": {
+            'n': 8,
+            'h': 4,
+            'w': 8,
+            'mu': 0.4,
+            # Network width has to match the checkpoint that is loaded.
+            'hidden_size': 64,
+        },
+    },
+    'rl_ring_setspriority': {
+        "label": 'RL-Ring-SETSpriority (per-pair D3QN segment choice, C4)',
+        "encoding": 'N activation priorities + N routing priorities (C4)',
+        "params": {
+            'n': 8,
+            'h': 4,
+            'w': 8,
+            'mu': 0.4,
+            'hidden_size': 64,
+        },
+    },
+    'linucb_ring_setsv2': {
+        "label": 'LinUCB-Ring-SETSv2 (v2 features, tiered reward)',
+        "encoding": 'N sensing levels + N routing-priority ranks',
+        "params": {
+            'n': 8,
+            'h': 4,
+            'w': 8,
+            'mu': 0.4,
+        },
+    },
+    'linucb_ring_setspriorityv2': {
+        "label": 'LinUCB-Ring-SETSpriorityv2 (v2 features, tiered reward, C4)',
+        "encoding": 'N activation priorities + N routing priorities (C4)',
+        "params": {
+            'n': 8,
+            'h': 4,
+            'w': 8,
+            'mu': 0.4,
+        },
+    },
+    'rl_ring_setsv2': {
+        "label": 'RL-Ring-SETSv2 (v2 features, tiered reward, gamma 0)',
+        "encoding": 'N sensing levels + N routing-priority ranks',
+        "params": {
+            'n': 8,
+            'h': 4,
+            'w': 8,
+            'mu': 0.4,
+            'hidden_size': 64,
+        },
+    },
+    'rl_ring_setspriorityv2': {
+        "label": 'RL-Ring-SETSpriorityv2 (v2 features, tiered reward, gamma 0, C4)',
+        "encoding": 'N activation priorities + N routing priorities (C4)',
+        "params": {
+            'n': 8,
+            'h': 4,
+            'w': 8,
+            'mu': 0.4,
+            'hidden_size': 64,
+        },
+    },
+    'si_sets': {
+        "label": 'SI-SETS (Elitist Role-separated Update)',
+        "params": {
+            'n': 8,
+            'h': 4,
+            'w': 8,
             'mu': 0.4,
         },
     },
@@ -215,32 +310,6 @@ ALGORITHM_PRESETS = {
             'h': 4,
             'w': 2,
             'mu': 0.4,
-        },
-    },
-    'setsv2': {
-        "label": 'SETSv2 (2022 paper)',
-        "params": {
-            'n': 8,
-            'h': 4,
-            'w': 2,
-            'player': 2,
-            'crossover_rate': 1.0,
-            'mutation_rate': 0.4,
-            'adaptive_constant': 0.001,
-        },
-    },
-    'sa_setsv2': {
-        "label": 'SA-SETSv2 (2023 paper)',
-        "params": {
-            'n': 8,
-            'h': 4,
-            'w': 2,
-            'player': 2,
-            'crossover_rate': 1.0,
-            'mutation_rate': 0.4,
-            'adaptive_constant': 0.001,
-            'energy_weight': 0.5,
-            'distance_weight': 0.5,
         },
     },
     'codingse': {
@@ -380,27 +449,6 @@ ALGORITHM_PRESETS = {
     },
 }
 
-
-# RL-SETS versions share one market and differ only in policy details, so they
-# are derived from the rl_sets preset instead of being repeated in full.
-def _derive_rl_preset(name, label, **overrides):
-    preset = copy.deepcopy(ALGORITHM_PRESETS["rl_sets"])
-    preset["label"] = label
-    preset["params"].update(overrides)
-    ALGORITHM_PRESETS[name] = preset
-
-
-_derive_rl_preset("rl_setsv2", "RL-SETSv2 (Role-separated Investment)")
-_derive_rl_preset("rl_setsv3", "RL-SETSv3 (Elitist Lévy Selection)")
-_derive_rl_preset("rl_setsv4", "RL-SETSv4 (Lifetime-aware Scale Selection)")
-_derive_rl_preset(
-    # RL_SETSv5 stores lifetime_normalization in its checkpoint metadata and
-    # refuses a model trained under a different value, so it stays an
-    # evaluation parameter rather than a training one.
-    "rl_setsv5",
-    "RL-SETSv5 (Factorized SA-centred Selection)",
-    lifetime_normalization=5000.0,
-)
 
 _BASIS_PATH = PROJECT_ROOT / "experiments" / "parameter_basis.json"
 with _BASIS_PATH.open("r", encoding="utf-8") as _basis_file:

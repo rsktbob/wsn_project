@@ -24,37 +24,20 @@ class FitnessServiceV3:
 
         incomplete (some targets uncovered, still connected and
         energy-feasible):
-            fitness = -uncovered_percent + INCOMPLETE_QUALITY_WEIGHT * quality
+            fitness = INCOMPLETE_QUALITY_WEIGHT * quality - uncovered_percent
+                      - INCOMPLETE_QUALITY_WEIGHT                        # in [-1.5, 0)
 
         infeasible (a disconnected active sensor, or a sensor with
         negative remaining energy):
-            fitness = INVALID_BASE_SCORE - disconnected_ratio - energy_deficit_ratio
+            fitness = INVALID_BASE_SCORE - uncovered_percent
+                      - disconnected_ratio - energy_deficit_ratio        # below -2
 
-    Why these constants, not arbitrary tuning:
-
-    * ``INCOMPLETE_QUALITY_WEIGHT`` (0.5) is the incomplete tier's exact
-      ceiling: at best (one target away from full coverage, perfect
-      quality) an incomplete state's score approaches 0.5 from below. This
-      is an intentional design choice, not a tuning accident -- an
-      almost-complete, well-managed state is allowed to outscore a
-      *mediocre* feasible one (quality < 0.5), but can never outscore an
-      *above-average* feasible one (quality >= 0.5). It rewards states
-      that are one mutation away from full coverage without letting
-      quality dominate the search's coverage goal.
-    * ``INVALID_BASE_SCORE`` (-1.0) equals the incomplete tier's own worst
-      possible value (uncovered_percent=1, quality=0), so infeasible
-      states start exactly where incomplete states bottom out. Reaching
-      the infeasible branch requires either ``disconnected_count > 0`` or
-      a negative-energy sensor, which forces ``disconnected_ratio`` or
-      ``energy_deficit_ratio`` to be strictly positive -- so every
-      infeasible score is strictly below every incomplete score, with no
-      separate safety margin needed.
-
-    feasible > incomplete is intentionally *not* strict: a near-complete,
-    well-managed state can beat a poorly-managed complete one. incomplete
-    > infeasible *is* strict: disconnection or an energy deficit means the
-    schedule is not physically realizable, which is a different kind of
-    problem than "hasn't covered everything yet".
+    The incomplete tier equals ``-uncovered_percent - 0.5 * (1 - quality)``:
+    the uncovered ratio plus half of the energy loss.  Subtracting the
+    weight shifts the whole tier below zero, so every feasible state beats
+    every incomplete one while the ordering inside the tier is unchanged.
+    The tiers never overlap: incomplete states are at least -1.5, and the
+    infeasible base of -2 is below that.
     """
 
     OBJECTIVE_NAMES = (
@@ -65,7 +48,7 @@ class FitnessServiceV3:
     DEFAULT_WEIGHTS = (0.3, 0.7)
     EPSILON = 1e-15
     INCOMPLETE_QUALITY_WEIGHT = 0.5
-    INVALID_BASE_SCORE = -1.0
+    INVALID_BASE_SCORE = -2.0
 
     def __init__(self, problem, w1=0.3, w2=0.7):
         self.problem = problem
@@ -164,6 +147,7 @@ class FitnessServiceV3:
             )
             desired_fitness = (
                 self.INVALID_BASE_SCORE
+                - uncovered_percent
                 - disconnected_ratio
                 - energy_deficit_ratio
             )
@@ -172,8 +156,9 @@ class FitnessServiceV3:
                 print("disconnected sensors", disconnected_ids)
         elif uncovered_count:
             desired_fitness = (
-                -uncovered_percent
-                + self.INCOMPLETE_QUALITY_WEIGHT * quality
+                self.INCOMPLETE_QUALITY_WEIGHT * quality
+                - uncovered_percent
+                - self.INCOMPLETE_QUALITY_WEIGHT
             )
         else:
             desired_fitness = quality

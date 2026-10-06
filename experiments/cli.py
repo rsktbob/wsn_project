@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 
-from experiments.builder import RANDOM_POLICY_ALGORITHMS, configured_algorithm_params
+from experiments.builder import configured_algorithm_params
 from experiments.config import (
     DEFAULT_FITNESS_SERVICE,
     DEFAULT_ROUTING_SERVICE,
@@ -83,12 +83,12 @@ def build_parser():
         default=None,
         help=(
             "Evaluation budget for each optimizer call "
-            f"(default: {EXPERIMENT_PRESET['evaluate']}; "
-            + ", ".join(
-                f"{name}: {budget}"
+            f"(default: {EXPERIMENT_PRESET['evaluate']}"
+            + "".join(
+                f"; {name}: {budget} when run on its own"
                 for name, budget in EVALUATE_OVERRIDES.items()
             )
-            + " when run on their own)."
+            + ")."
         ),
     )
     parser.add_argument(
@@ -265,13 +265,13 @@ def parse_args(argv=None):
     selected_rl = selected & RL_SETS_ALGORITHMS
     if len(selected_rl) > 1:
         parser.error(
-            "RL-SETS versions use incompatible checkpoints; "
+            "RL algorithms use incompatible checkpoints; "
             "run each version as a separate experiment"
         )
     for name in sorted(selected_rl):
         model = configured_algorithm_params(name, args)["model_path"]
-        if not model and name not in RANDOM_POLICY_ALGORITHMS:
-            parser.error(f"{name} requires --rl-model; train one with train_rl_sets.py")
+        if not model:
+            parser.error(f"{name} requires --rl-model; train one with train_rl_ring_sets.py")
         if model and not Path(model).expanduser().is_file():
             parser.error(f"{name} model does not exist: {model}")
     return args

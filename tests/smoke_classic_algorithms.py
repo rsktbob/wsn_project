@@ -56,7 +56,7 @@ def run_case(name):
     if name == "codingse":
         # Exercise the branch that opens a closed CHS sensor for region bit 1.
         # This guards against mixing the loop names ``index`` and ``i``.
-        algorithm.identity_sensors = algorithm._select_identity_sensors(
+        algorithm.identity_sensors = algorithm.select_identity_sensors(
             problem
         )
         region_state = algorithm.create_candidate(problem)

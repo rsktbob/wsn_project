@@ -43,3 +43,6 @@ Models/*
 
 # 圖檔不做全域忽略：輸出圖都落在上面已忽略的 experiment_results/ 與 tmp/，
 # 全域擋 *.png 只會讓之後要進版控的論文圖表被默默略過。
+
+# 研究原型的實驗產物
+Algorithm/experiment/results

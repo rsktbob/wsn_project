@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 
 from Algorithm.se.BaseSE import BaseSE
+from Algorithm.se.sensor_operators import draw_mutation_count
 from State.Encoding import swap_segment
 from State.SensorEncoding import SensorEncoding
 
@@ -29,7 +30,7 @@ class CodingSE(BaseSE):
         self.identity_sensors = []
         problem.prepare_coding_cache()
 
-    def _select_identity_sensors(self, problem):
+    def select_identity_sensors(self, problem):
         return [
             sensor_id
             for sensor_id in range(problem.SENSOR_NUMBER)
@@ -37,7 +38,7 @@ class CodingSE(BaseSE):
         ][: self.identity_bit_count]
 
     def initialize_market(self, problem, initial_state=None):
-        self.identity_sensors = self._select_identity_sensors(problem)
+        self.identity_sensors = self.select_identity_sensors(problem)
         if len(self.identity_sensors) != self.identity_bit_count:
             raise RuntimeError("not enough live sensors for CodingSE regions")
         super().initialize_market(problem, initial_state)
@@ -79,9 +80,7 @@ class CodingSE(BaseSE):
         investment = first if self.random.random() < 0.5 else second
 
         if self.random.random() < self.mutation_rate:
-            mutation_count = self.random.choice(
-                [1] * 90 + [2] * 5 + [3] * 5
-            )
+            mutation_count = draw_mutation_count(self.random)
             upper_bound = max(
                 problem.LEVEL,
                 SensorEncoding.RANK_PRECISION,

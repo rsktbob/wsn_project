@@ -18,7 +18,6 @@ from Algorithm.ga.GA import GA
 from Algorithm.misc.GWO import GWO
 from Algorithm.nsga.NSGAII import NSGAII
 from Algorithm.misc.PSO import PSO
-from Algorithm.se.SETSv2 import SETSv2
 from Algorithm.Scheduling.SRIME import SRIME
 from Problem.Problem import Problem
 
@@ -54,14 +53,6 @@ def main():
         8,
         10,
     )
-
-    # Paper-style SETS evaluates one complete market iteration atomically.
-    np.random.seed(17)
-    random.seed(17)
-    problem = create_problem()
-    sets = SETSv2(problem, n=2, h=4, w=1, player=2)
-    result = sets.run(problem, budget=sets.evaluations_per_iteration + 1)
-    assert result.evaluations == sets.evaluations_per_iteration * 2
 
     print("regression_evaluation_budget_ok")
 

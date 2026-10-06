@@ -12,11 +12,11 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from CreateMapData import generate_map, geometry_fingerprint
-from train_rl_sets import parse_args, build_training_problem, audit_training_maps
+from train_rl_ring_sets import parse_args, build_training_problem, audit_training_maps
 
 
 def main():
-    args = parse_args([])
+    args = parse_args(["--validation-map-count", "40"])
     assert len(args.map_specs) == 200 and len(args.validation_specs) == 40
     fingerprints = set()
     coverage_min = []

@@ -61,15 +61,12 @@ Algorithm
 │  ├─ se.SETS                   （家族一：identity sensor 分區，跟所有商品投資）
 │  │  └─ se.SA_SETS
 │  │     ├─ se.RegionSelectionSA_SETS → EXP3 / LinUCB / Thompson / CTIG
-│  │     ├─ se.SA_SETS_Target
-│  │     └─ se.SI_SETS             （家族二：只跟選到的區域投資）
-│  │        ├─ se.SI_SETSv2
-│  │        └─ se.RL_SETS
-│  │           └─ se.RL_SETSv2 / v3 / v4 / v5（各自直接繼承 RL_SETS）
+│  │     └─ se.SA_SETS_Target
+│  ├─ se.SI_SETS                （家族二：只跟選到的區域投資；流程不同，不繼承 SA_SETS）
 │  ├─ se.Ring_SETS              （家族三：區域只決定交配範圍，共用商品）
-│  │  └─ se.Ring_SETSv2
-│  ├─ Combine.SETSv2
-│  │  └─ Combine.SA_SETSv2
+│  │  ├─ se.Ring_SETSpriority
+│  │  ├─ se.LinUCB_Ring_SETS / LinUCB_Ring_SETSpriority（每組交易用 LinUCB 選區段）
+│  │  └─ se.RL_Ring_SETS / RL_Ring_SETSpriority（每組交易用 D3QN 選區段）
 │  └─ Scheduling.SES
 ├─ BaseGIGOMEA
 │  ├─ Combine.GI_GOMEA
@@ -83,12 +80,19 @@ Algorithm
 
 舊 `SETSv1`、`SETSv2` 過渡實作已移除；原 `SETSv3`、`SETSv4` 分別
 重新編號為 `SETSv1`、`SETSv2`。2026-09-27 起 `SETSv1` 改名為 `SETS`，成為
-SA_SETS 的父類別；原 `SA_SETSv3`、`SA_SETSv4` 改名為 `Ring_SETS`、`Ring_SETSv2`。
-三個家族共用的 Beta 記憶與平行評估放在 `se/market_components.py`。
+SA_SETS 的父類別；原 `SA_SETSv3`、`SA_SETSv4` 改名為 `Ring_SETS`、`Ring_SETSv2`，2026-10-04 起 `Ring_SETSv2`（及其 LinUCB／RL 版）再改名為 `Ring_SETSpriority`（C4 PriorityEncoding 版）。
+三個家族共用的 Beta 記憶、平行評估與角色分離更新放在 `se/market_components.py`；
+sensor 分區、初始解與交配突變放在 `se/sensor_operators.py`（以 mixin 給 SETS、SA_SETS、
+SI_SETS 共用）。2026-10-03 起 SI_SETS 直接繼承 BaseSE；論文版 `SETSv2`、`SA_SETSv2` 已刪除；原 `SI_SETS`（單子代、無條件換 goods）刪除，`SI_SETSv2` 改名為 `SI_SETS`。
 
-RL_SETSv2~v5 不再一版接一版繼承（2026-09-28 起）：每一版都直接繼承
-`RL_SETS`，版本之間真正共用的部分以 mixin 放在 `se/rl_sets_components.py`，
-並明確列在類別定義上。修改某一版不會改變其他版本的行為。
+逐組選區段的 Ring 變體（2026-10-04）：共用部分在 `se/ring_segment_policy.py`
+（每組交易的候選範圍與特徵、LinUCB、區段共用權重的 D3QN），訓練用
+`train_rl_ring_sets.py`。
+
+RL_SETS v1–v5、`rl_sets_components.py`、`train_rl_sets.py` 及其測試與文件，
+2026-10-04 起移到專案根目錄的 `legacy/`，不再註冊、不在測試套件內；
+`environment_contract` 已搬到 `se/ring_segment_policy.py`（內容不變）。
+以下 mixin 表只描述 legacy 裡的舊版本。
 
 | mixin | 內容 | 使用版本 |
 | --- | --- | --- |

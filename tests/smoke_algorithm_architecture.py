@@ -29,9 +29,7 @@ from Algorithm.nsga.NSGAII import NSGAII
 from Algorithm.misc.NSOA import NSOA
 from Algorithm.misc.PSO import PSO
 from Algorithm.se.SA_SETS import SA_SETS
-from Algorithm.se.SA_SETSv2 import SA_SETSv2
 from Algorithm.se.SETS import SETS
-from Algorithm.se.SETSv2 import SETSv2
 from Algorithm.se.SI_SETS import SI_SETS
 from Algorithm.se.Ring_SETS import Ring_SETS
 from Algorithm.Routing.RGA import RGA
@@ -114,9 +112,7 @@ def main():
         NSOA,
         PSO,
         SA_SETS,
-        SA_SETSv2,
         SETS,
-        SETSv2,
     )
     scheduling_algorithms = (NBEDA, SES, SGA, SNSGAII, SRIME)
     routing_algorithms = (RGA, RQLearning)
@@ -149,13 +145,12 @@ def main():
     assert issubclass(GWO, BaseGWO)
     assert issubclass(NSGAII, BaseNSGAII)
     assert issubclass(SNSGAII, BaseNSGAII)
-    assert SA_SETS.__bases__ == (SETS,)
+    assert issubclass(SA_SETS, SETS)
     assert SES.__bases__ == (BaseSE,)
     assert issubclass(SETS, BaseSE)
-    assert issubclass(SI_SETS, SA_SETS)
+    # SI_SETS 的每回合流程和 SA_SETS 不同，直接繼承 BaseSE。
+    assert issubclass(SI_SETS, BaseSE) and not issubclass(SI_SETS, SETS)
     assert issubclass(Ring_SETS, BaseSE) and not issubclass(Ring_SETS, SETS)
-    assert SETSv2.__bases__ == (BaseSE,)
-    assert issubclass(SA_SETSv2, SETSv2)
     assert CS.__bases__ == (Algorithm,)
     assert SRIME.__bases__ == (Algorithm,)
 

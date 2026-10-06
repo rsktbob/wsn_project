@@ -4,8 +4,11 @@
 家族的繼承鏈上，由需要的家族以 mixin 引入：
 
 * ``beta_cdf``：區域吸引力使用的 regularized Beta CDF。
-* ``AdaptiveBetaMemory``：每回合依選區結果以遞減步長更新 Beta 記憶。
+* ``AdaptiveBetaMemory``：每回合依選區結果以遞減步長更新 Beta 記憶，
+  並把區域期望值轉成 Beta CDF 機率。
 * ``PooledEvaluation``：以 h 個無狀態子程序平行評估每個 searcher 的投資列。
+* ``accept_searcher_children``／``accept_good_children``：角色分離的菁英更新
+  （child1 只能取代 searcher、child2 只能取代 good）。
 """
 
 from __future__ import annotations
@@ -27,9 +30,51 @@ def beta_cdf(a, b, x):
 class AdaptiveBetaMemory:
     """SA-SETS 的區域記憶：被選到的區域加 ta，其餘區域加 tb。
 
-    步長 ``current_adaptive_step`` 由各家族的 ``vision_search`` 依搜尋進度
-    遞減後設定。
+    步長 ``current_adaptive_step`` 由各家族的 ``vision_search`` 呼叫
+    ``update_adaptive_step()`` 依搜尋進度遞減。
     """
+
+    ADAPTIVE_STEP = 0.001
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.adaptive_step = self.ADAPTIVE_STEP
+        self.current_adaptive_step = self.adaptive_step
+
+    def update_adaptive_step(self):
+        """Shrink the Beta step linearly with search progress; return progress."""
+        progress = min(1.0, self.evatime / max(1, self.evaluation_limit))
+        self.current_adaptive_step = self.adaptive_step * (1.0 - progress)
+        return progress
+
+    def beta_probabilities(self, expected_value):
+        """Map each region/searcher expected value through its Beta CDF."""
+        probability = np.empty((self.h, self.n), dtype=float)
+        for region in range(self.h):
+            for searcher_id in range(self.n):
+                probability[region, searcher_id] = beta_cdf(
+                    self.ta[region],
+                    self.tb[region],
+                    expected_value[region, searcher_id],
+                )
+        return probability
+
+    def market_probabilities(self, goods_fitness, investment_quality):
+        """SA-SETS region value: best good × investment × market share."""
+        average_goods = np.mean(goods_fitness, axis=1)
+        best_goods = np.max(goods_fitness, axis=1)
+        total = float(np.sum(average_goods))
+        if abs(total) <= np.finfo(float).eps:
+            region_share = np.full(self.h, 1.0 / self.h)
+        else:
+            region_share = average_goods / total
+
+        expected_value = (
+            best_goods[:, None]
+            * investment_quality
+            * region_share[:, None]
+        )
+        return self.beta_probabilities(expected_value)
 
     def update_search_memory(self, problem, evaluation_start):
         """Adapt Beta beliefs and retain the best searcher of this round."""
@@ -51,8 +96,9 @@ class PooledEvaluation:
 
     與 SETS 的 ``ParallelSEMarket``（每個子程序擁有一個區域的商品）不同，
     這些子程序不保存狀態，任何一列投資都可以交給任何一個子程序。
-    使用者需在 ``__init__`` 設定 ``self._pool = None``。
     """
+
+    _pool = None
 
     def arrange_resources(self, problem):
         """用 h 個子程序評估投資。"""
@@ -111,4 +157,49 @@ class PooledEvaluation:
         return np.asarray(scores, dtype=float)
 
 
-__all__ = ["AdaptiveBetaMemory", "PooledEvaluation", "beta_cdf"]
+def accept_searcher_children(algorithm, children, child1_fitness,
+                             searcher_fitness_before):
+    """Each searcher may take only its own best child1, and only if better.
+
+    ``children[s]`` interleaves ``[child1, child2]`` per good.
+    """
+    for searcher_id in range(algorithm.n):
+        good_id = int(np.argmax(child1_fitness[searcher_id]))
+        score = float(child1_fitness[searcher_id, good_id])
+        if score > searcher_fitness_before[searcher_id]:
+            algorithm.searchers[searcher_id] = children[searcher_id][
+                good_id * 2
+            ].copy()
+            algorithm.searcher_fitness[searcher_id] = score
+
+
+def accept_good_children(goods, goods_fitness, goods_fitness_before, children,
+                         child2_fitness, visitors, tolerance):
+    """Each good takes its visitors' best child2 only when it strictly improves.
+
+    ``goods``/``goods_fitness`` are one pool and are updated in place; ties
+    go to the first visitor.
+    """
+    if not len(visitors):
+        return
+    for good_id in range(len(goods)):
+        winner = int(
+            max(
+                visitors,
+                key=lambda index: child2_fitness[int(index), good_id],
+            )
+        )
+        winner_score = float(child2_fitness[winner, good_id])
+        if winner_score <= goods_fitness_before[good_id] + tolerance:
+            continue
+        goods[good_id] = children[winner][good_id * 2 + 1].copy()
+        goods_fitness[good_id] = winner_score
+
+
+__all__ = [
+    "AdaptiveBetaMemory",
+    "PooledEvaluation",
+    "accept_good_children",
+    "accept_searcher_children",
+    "beta_cdf",
+]

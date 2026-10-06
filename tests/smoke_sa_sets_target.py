@@ -58,7 +58,7 @@ def main():
         )
 
     assert_finite_fitness(algorithm.evaluate(problem, state))
-    transitioned = algorithm._mutate(problem, state.copy())
+    transitioned = algorithm.mutate_candidate(problem, state.copy())
     assert np.all(transitioned.code >= 0)
     assert np.all(transitioned.code < algorithm.TARGET_GENE_DOMAIN)
     assert_finite_fitness(algorithm.evaluate(problem, transitioned))
