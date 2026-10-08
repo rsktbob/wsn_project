@@ -32,27 +32,33 @@ class Ring_SETSpriority(Ring_SETS):
     (sensor span × 2) swaps whole sensors exactly as in Ring_SETS.
     """
 
+    # 路由基因突變顆數 = 開啟基因突變顆數 × 3
+    ROUTING_MUTATION_MULTIPLIER = 3
+
     def create_candidate(self, problem, region=None):
         """Uniform random priorities; the decoder already reaches full coverage."""
         return PriorityEncodingC4.random(problem.SENSOR_NUMBER, rng=self.rng)
 
     def mutate_candidate(self, problem, candidate, sensor_span):
-        """Redraw one to three sensors' activation and/or routing genes."""
+        """Redraw k sensors' activation genes and 3k sensors' routing genes.
+
+        k is one to three; both gene kinds always mutate. The 3k routing
+        sensors are drawn without replacement from the same ring scope (all of
+        it when the scope is smaller).
+        """
         _, left_sensor, right_sensor = sensor_span
         mutation_count = draw_mutation_count(self.random)
         for _ in range(mutation_count):
             sensor_id = self.random.randrange(left_sensor, right_sensor)
-            activation_id = sensor_id * 2
-            routing_id = activation_id + 1
-            operation = self.random.randint(0, 2)
-            if operation in (0, 1):
-                candidate.code[activation_id] = self.random.randrange(
-                    PriorityEncodingC4.RANK_PRECISION
-                )
-            if operation in (0, 2):
-                candidate.code[routing_id] = self.random.randrange(
-                    PriorityEncodingC4.RANK_PRECISION
-                )
+            candidate.code[sensor_id * 2] = self.random.randrange(
+                PriorityEncodingC4.RANK_PRECISION
+            )
+        scope = range(left_sensor, right_sensor)
+        routing_count = min(self.ROUTING_MUTATION_MULTIPLIER * mutation_count, len(scope))
+        for sensor_id in self.random.sample(scope, routing_count):
+            candidate.code[sensor_id * 2 + 1] = self.random.randrange(
+                PriorityEncodingC4.RANK_PRECISION
+            )
         return candidate
 
 
