@@ -5,7 +5,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from Algorithm.qea.QEA import QEA
+from Algorithm.quantum.QEA import QEA
 from Problem.Problem import Problem
 from State.SensorEncoding import SensorEncoding
 from State.QuantumSensorEncoding import QuantumSensorEncoding

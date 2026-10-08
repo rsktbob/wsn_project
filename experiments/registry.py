@@ -8,10 +8,10 @@ take the preset parameters -- one row in :mod:`experiments.builder`.
 import importlib
 
 ALGORITHM_IMPORTS = {
-    "qea3": ("Algorithm.qea.QEA3", "QEA3"),
-    "qea": ("Algorithm.qea.QEA", "QEA"),
-    "qea_random": ("Algorithm.qea.QEA", "QEA"),
-    "qea_classical": ("Algorithm.qea.QEA", "QEA"),
+    "qea3": ("Algorithm.quantum.QEA3", "QEA3"),
+    "qea": ("Algorithm.quantum.QEA", "QEA"),
+    "qea_random": ("Algorithm.quantum.QEA", "QEA"),
+    "qea_classical": ("Algorithm.quantum.QEA", "QEA"),
     "alns": ("Algorithm.misc.ALNS", "ALNS"),
     "eopt": ("Algorithm.misc.EOPT", "EOPT"),
     "sa_sets": ("Algorithm.se.SA_SETS", "SA_SETS"),

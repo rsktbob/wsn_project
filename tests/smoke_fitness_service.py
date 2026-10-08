@@ -197,12 +197,12 @@ def test_v3_tier_ordering_regression():
     print("smoke_fitness_servicev3_tier_ordering_ok")
 
 
-def test_v3_incomplete_beats_mediocre_feasible():
-    """A near-complete, well-managed state may outscore a mediocre one.
+def test_v3_feasible_beats_any_incomplete():
+    """Every feasible state beats every incomplete one.
 
-    This is the intended, designed-in overlap: INCOMPLETE_QUALITY_WEIGHT
-    (0.5) lets an almost-fully-covered state with excellent quality beat a
-    fully-covered state whose quality is below the 0.5 midpoint.
+    The incomplete tier is shifted down by INCOMPLETE_QUALITY_WEIGHT, so
+    its best value approaches 0 from below, while feasible states start
+    at quality 0. The tiers do not overlap.
     """
     target_count, sensor_count = 100, 4
 
@@ -216,59 +216,23 @@ def test_v3_incomplete_beats_mediocre_feasible():
         np.sum(FitnessServiceV3(problem).evaluate_state(near_miss))
     )
 
-    fully_covered_mediocre = _FakeState()
-    fully_covered_mediocre.uncovered_count = 0
-    mediocre_problem = _FakeProblem(
+    fully_covered_worst = _FakeState()
+    fully_covered_worst.uncovered_count = 0
+    worst_problem = _FakeProblem(
         target_count, sensor_count, disconnected_ids=[],
-        cost=_FakeProblem.cost_for_quality(0.4),
+        cost=_FakeProblem.cost_for_quality(0.0),
     )
     feasible_score = float(
-        np.sum(FitnessServiceV3(mediocre_problem).evaluate_state(
-            fully_covered_mediocre
+        np.sum(FitnessServiceV3(worst_problem).evaluate_state(
+            fully_covered_worst
         ))
     )
 
-    assert incomplete_score > feasible_score, (
-        "a near-complete, high-quality state should beat a fully-covered "
-        "but mediocre-quality one"
-    )
-    print("smoke_fitness_servicev3_incomplete_beats_mediocre_ok")
-
-
-def test_v3_incomplete_never_beats_good_feasible():
-    """Even the best possible incomplete state loses to a good feasible one.
-
-    INCOMPLETE_QUALITY_WEIGHT (0.5) is a hard ceiling: no matter how close
-    to full coverage or how perfect the quality, an incomplete state can
-    never reach a fully-covered state whose quality is at or above 0.5.
-    """
-    target_count, sensor_count = 100, 4
-
-    best_possible_near_miss = _FakeState()
-    best_possible_near_miss.uncovered_count = 1
-    problem = _FakeProblem(
-        target_count, sensor_count, disconnected_ids=[],
-        cost=_FakeProblem.cost_for_quality(1.0),
-    )
-    incomplete_score = float(
-        np.sum(FitnessServiceV3(problem).evaluate_state(best_possible_near_miss))
-    )
-
-    fully_covered_good = _FakeState()
-    fully_covered_good.uncovered_count = 0
-    good_problem = _FakeProblem(
-        target_count, sensor_count, disconnected_ids=[],
-        cost=_FakeProblem.cost_for_quality(0.5),
-    )
-    feasible_score = float(
-        np.sum(FitnessServiceV3(good_problem).evaluate_state(fully_covered_good))
-    )
-
     assert incomplete_score < feasible_score, (
-        "even the best possible incomplete state must lose to a "
-        "fully-covered state with quality >= 0.5"
+        "even a near-complete, perfect-quality state must lose to a "
+        "fully-covered state with quality 0"
     )
-    print("smoke_fitness_servicev3_incomplete_capped_ok")
+    print("smoke_fitness_servicev3_feasible_beats_incomplete_ok")
 
 
 def main():
@@ -336,5 +300,4 @@ def main():
 if __name__ == "__main__":
     main()
     test_v3_tier_ordering_regression()
-    test_v3_incomplete_beats_mediocre_feasible()
-    test_v3_incomplete_never_beats_good_feasible()
+    test_v3_feasible_beats_any_incomplete()

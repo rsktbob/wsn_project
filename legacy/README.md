@@ -3,7 +3,7 @@
 不再使用、但保留原始碼與紀錄的實作。這裡的檔案**不在 registry、不在測試套件內**，
 也不保證能直接執行（import 路徑仍指向原本的位置）。
 
-## RL-SETS v1–v5（2026-10-04 移入）
+## RL-SETS v1–v5（2026-10-04 移入，檔案在 `rl_sets/`）
 
 SI_SETS 上的 D3QN 超啟發式：每個 searcher 每回合選一個運算子，事先在訓練地圖上訓練、
 正式實驗凍結使用。被 Ring 家族的逐組區段選擇（`LinUCB_Ring_SETS`、`RL_Ring_SETS`）取代。

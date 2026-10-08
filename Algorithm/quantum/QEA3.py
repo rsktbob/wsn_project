@@ -8,7 +8,7 @@ then updates references and migrates. Migration copies solutions, never angles.
 """
 import numpy as np
 
-from Algorithm.qea.QEA import QEA
+from Algorithm.quantum.QEA import QEA
 from State.QuantumSensorEncoding import QuantumSensorEncoding
 
 
