@@ -145,10 +145,10 @@ class SensorEncoding(Encoding):
         )
 
         # ``proximity_score`` 是目前的路由分數：越接近基地台，越容易
-        # 優先接入既有路由樹。priority gene 仍為 0～9，但所有 sensor
-        # 至少保留 0.5 倍的能源／路由基礎排序，避免 gene=0 完全消失。
+        # 優先接入既有路由樹。priority = 基礎排序 × gene / 9（同學長 2023
+        # RankDecoding，沒有 0.5 偏移），gene=0 的 sensor 排在最後。
         priority = (problem.energy_score + problem.proximity_score) * (
-            0.5 + priority_genes / (self.RANK_PRECISION - 1)
+            priority_genes / (self.RANK_PRECISION - 1)
         )
         # 優先值越高者越早處理；它同時影響覆蓋選擇與路由加入順序。
         sensor_order = np.argsort(priority)[::-1]

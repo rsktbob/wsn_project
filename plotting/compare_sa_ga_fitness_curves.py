@@ -14,8 +14,8 @@ Path(os.environ["MPLCONFIGDIR"]).mkdir(parents=True, exist_ok=True)
 import matplotlib.pyplot as plt
 
 from Algorithm.ga.GA import GA
-from Algorithm.se.SA_SETS import SA_SETS
-from Algorithm.se.SI_SETS import SI_SETS
+from Algorithm.se.sets.SA_SETS import SA_SETS
+from Algorithm.se.si_sets.SI_SETS import SI_SETS
 from Problem.Problem import Problem
 from Problem.services.fitness_servicev2 import FitnessServiceV2
 
@@ -42,7 +42,7 @@ def run_algorithm(name: str, seed: int, evaluate: int):
     elif name == "SI-SETS (w=8)":
         algorithm = SI_SETS(problem, n=8, h=4, w=8, mu=0.4, seed=seed)
     else:
-        algorithm = GA(problem, n=30, cu=0.8, mu=0.1, seed=seed)
+        algorithm = GA(problem, n=30, cu=0.8, seed=seed)
     result = algorithm.run(problem, budget=evaluate)
     history = np.maximum.accumulate(np.asarray(result.history, dtype=float))
     return history, float(result.best_fitness.sum()), int(result.evaluations)

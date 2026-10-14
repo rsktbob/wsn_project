@@ -12,8 +12,6 @@ if str(PROJECT_ROOT) not in sys.path:
 
 
 from Problem.Problem import Problem
-from Algorithm.gomea.GI_GOMEA import GI_GOMEA
-from Algorithm.gomea.GI_GOMEA_Target import GI_GOMEA_Target
 from experiments.builder import build_algorithm
 from State.SensorEncoding import SensorEncoding
 from State.TargetEncoding import TargetEncoding
@@ -130,19 +128,6 @@ def main():
     assert_state_radius_contract(exact, target_state)
     assert target_state.use_continuous_radius is True
 
-    for algorithm_class in (GI_GOMEA, GI_GOMEA_Target):
-        optimizer = algorithm_class(
-            exact,
-            population_size=6,
-            max_linkage_size=8,
-            max_linkage_sets=16,
-            seed=19,
-        )
-        best = optimizer.run(exact, budget=40).best_state
-        assert best is not None
-        assert_state_radius_contract(exact, best)
-        assert len(exact.find_uncovered_targets(best)) == 0
-
     target_id = next(
         target_id
         for target_id, candidates in enumerate(exact.cover_candidates)
@@ -180,7 +165,7 @@ def main():
 
     args = SimpleNamespace(evaluate=40)
     for sensing_problem in (bucketed, exact):
-        for name in ("alns", "codingse", "gi_gomea"):
+        for name in ("ga", "codingse"):
             algorithm = build_algorithm(name, sensing_problem, args, seed=19)
             result = algorithm.run(sensing_problem, budget=40)
             assert result.best_state is not None

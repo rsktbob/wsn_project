@@ -10,9 +10,9 @@ if str(PROJECT_ROOT) not in sys.path:
 
 
 from Algorithm.se.BaseSE import BaseSE
-from Algorithm.se.SA_SETS import SA_SETS
+from Algorithm.se.sets.SA_SETS import SA_SETS
 from Algorithm.se.market_components import PooledEvaluation
-from Algorithm.se.SI_SETS import SI_SETS
+from Algorithm.se.si_sets.SI_SETS import SI_SETS
 from Problem.Problem import Problem
 from experiment_algorithms import build_algorithm, build_problem, parse_args
 
@@ -31,25 +31,30 @@ class SequentialSI(SI_SETS):
 
 
 def check_role_separated_update():
-    """Elitist goods, FE accounting and experiment registration."""
-    elitist_problem = Problem(B=50, S=30, T=9, F=100, FILE=None)
-    elitist = SI_SETS(
-        elitist_problem, n=4, h=4, w=1, mu=0.4, seed=17
+    """EN goods update, FE accounting and experiment registration."""
+    en_problem = Problem(B=50, S=30, T=9, F=100, FILE=None)
+    en = SI_SETS(
+        en_problem, n=4, h=4, w=1, mu=0.4, seed=17
     )
-    elitist.evatime = 0
-    elitist.evaluation_limit = 40
-    elitist.reset_best()
-    elitist.initialize_market(elitist_problem)
-    goods_before = elitist.goods_fitness.copy()
-    elitist.arrange_resources(elitist_problem)
+    en.evatime = 0
+    en.evaluation_limit = 40
+    en.reset_best()
+    en.initialize_market(en_problem)
+    goods_before = [list(pool) for pool in en.goods]
+    goods_fitness_before = en.goods_fitness.copy()
+    visited = set(int(region) for region in en.selected_regions)
+    en.arrange_resources(en_problem)
     try:
-        elitist.vision_search(elitist_problem)
+        en.vision_search(en_problem)
     finally:
-        elitist.close_market()
-    assert np.all(
-        elitist.goods_fitness
-        >= goods_before - elitist.IMPROVEMENT_TOLERANCE
-    )
+        en.close_market()
+    for region in range(en.h):
+        for good_id in range(en.w):
+            replaced = en.goods[region][good_id] is not goods_before[region][good_id]
+            # 被造訪的 good 一律被 child2 取代；沒被造訪的保持不變。
+            assert replaced == (region in visited)
+            if region not in visited:
+                assert en.goods_fitness[region, good_id] == goods_fitness_before[region, good_id]
 
     problem = Problem(B=50, S=30, T=9, F=100, FILE=None)
     algorithm = SI_SETS(

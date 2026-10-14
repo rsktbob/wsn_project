@@ -13,6 +13,7 @@ from State.SensorEncoding import DEFAULT_SENSOR_ENCODING
 from experiments import PROJECT_ROOT
 from experiments.builder import algorithm_label, algorithm_params
 from experiments.config import (
+    DEFAULT_FITNESS_SERVICE,
     IMPLEMENTATION_NAME,
     MOVING_TARGET_ENERGY_THRESHOLD,
     evaluate_budget,
@@ -20,6 +21,7 @@ from experiments.config import (
     moving_enabled,
 )
 from experiments.evaluation import OBJECTIVE_FIELDS
+from experiments.lifetime_tables import write_lifetime_tables
 from experiments.maps import current_map_spec
 from experiments.presets import ALGORITHM_PRESETS
 
@@ -140,7 +142,7 @@ def common_result_fields(name, run_id, seed, args):
         "lifetime_cap": "" if lifetime_cap(args) is None else lifetime_cap(args),
         "moving": moving_enabled(args),
         "sensing_mode": getattr(args, "sensing_mode", "discrete"),
-        "fitness_service": getattr(args, "fitness_service", "v2"),
+        "fitness_service": getattr(args, "fitness_service", DEFAULT_FITNESS_SERVICE),
         "routing_service": getattr(args, "routing_service", "v1"),
         "sensor_ring_id": getattr(args, "sensor_ring_id", True),
         "evaluation_backend": "numba" if NUMBA_AVAILABLE else "python",
@@ -191,7 +193,7 @@ def build_trace_row(
 
 
 def build_algorithm_parameter_report(algorithms, args):
-    fitness_version = getattr(args, "fitness_service", "v2")
+    fitness_version = getattr(args, "fitness_service", DEFAULT_FITNESS_SERVICE)
     fitness_parameters = {}
     if fitness_version == "v2":
         fitness_parameters = {
@@ -237,7 +239,7 @@ def build_algorithm_parameter_report(algorithms, args):
                 args, "draw_fitness_history", False
             ),
             "sensing_mode": getattr(args, "sensing_mode", "discrete"),
-            "fitness_service": getattr(args, "fitness_service", "v2"),
+            "fitness_service": getattr(args, "fitness_service", DEFAULT_FITNESS_SERVICE),
             "fitness_parameters": fitness_parameters,
             "routing_service": getattr(args, "routing_service", "v1"),
             "sensor_ring_id": getattr(args, "sensor_ring_id", True),
@@ -332,6 +334,8 @@ def write_grouped_results(summary_rows, trace_rows, algorithms, args):
             if args.mode == "lifetime":
                 write_rows(map_trace, map_dir / "trace.csv", TRACE_FIELDNAMES)
 
+    if args.mode == "lifetime":
+        write_lifetime_tables(result_root)
     print("result_dir", result_root)
 
 

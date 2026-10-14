@@ -15,7 +15,7 @@ from Algorithm.ga.GA import GA
 from Problem.Problem import Problem
 
 
-GA_PARAMS = {"n": 6, "cu": 0.8, "mu": 0.1}
+GA_PARAMS = {"n": 6, "cu": 0.8}
 
 
 def assert_finite_fitness(fitness):
@@ -35,11 +35,18 @@ def main():
     fitness = algorithm.evaluate(problem, state)
     assert_finite_fitness(fitness)
 
-    original_code = state.code.copy()
-    transitioned = algorithm._mutate_state(problem, state.copy())
-    assert np.count_nonzero(transitioned.code != original_code) == 1
-    transition_fitness = algorithm.evaluate(problem, transitioned)
-    assert_finite_fitness(transition_fitness)
+    # 2023-thesis mutation, mu=1: every chromosome redraws exactly one gene,
+    # so at most one gene differs, and every gene stays in range.
+    domains = GA._gene_domains(problem)
+    mutated = state.copy()
+    GA(problem, mu=1.0, seed=3)._mutate(problem, [mutated])
+    assert int(np.sum(mutated.code != state.code)) <= 1
+    assert np.all((0 <= mutated.code) & (mutated.code < domains))
+    # mu=0: nothing changes.
+    unchanged = state.copy()
+    GA(problem, mu=0.0, seed=3)._mutate(problem, [unchanged])
+    assert np.array_equal(unchanged.code, state.code)
+    assert_finite_fitness(algorithm.evaluate(problem, mutated))
 
     best = algorithm.run(problem, budget=12).best_state
     best_fitness = problem.evaluate_state(best)

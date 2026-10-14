@@ -34,7 +34,7 @@ def main():
     options = parser.parse_args()
     if min(options.map_count, options.runs) < 1 or options.budget < 30 or (options.budget - 30) % 31:
         parser.error('positive maps/runs and budget=30+31*k required for exact GA comparison')
-    names = ['qea', 'qea_classical', 'qea_random', 'ga']
+    names = ['qea', 'ga']
     args = parse_args(['--algorithm', *names, '--maps', options.maps, '--mode', 'single',
                        '--evaluate', str(options.budget), '--runs', str(options.runs),
                        '--seed', str(options.seed)])

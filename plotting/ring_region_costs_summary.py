@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1] / "experiment_results" / "ring_region_costs"
-ALGORITHMS = sys.argv[1:] or ["sa_sets", "si_sets", "ring_sets", "ring_setspriority"]
+ALGORITHMS = sys.argv[1:] or ["sa_sets", "si_sets", "ring_se", "ring_sepri"]
 
 print(f"{'演算法':18} {'區段':>4} {'開啟數':>6} {'排層cost/顆':>12} {'路由cost/顆':>12} {'路由÷排層':>9} {'占全網cost':>9}")
 for algorithm in ALGORITHMS:

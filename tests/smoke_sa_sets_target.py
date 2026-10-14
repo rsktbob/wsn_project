@@ -10,7 +10,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 
-from Algorithm.se.SA_SETS_Target import SA_SETS_Target
+from Algorithm.se.sets.SA_SETS_Target import SA_SETS_Target
 from Problem.Problem import Problem
 from State.TargetEncoding import TargetEncoding
 

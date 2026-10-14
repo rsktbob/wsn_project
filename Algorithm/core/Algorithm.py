@@ -106,12 +106,26 @@ class Algorithm:
         """Evaluate one candidate and return its summed scalar fitness."""
         return float(np.sum(self.evaluate(problem, candidate)))
 
+    def evaluate_batch(self, problem, candidates, *, record_history=False):
+        """Evaluate candidates once and return (objective vectors, scalar scores).
+
+        When ``record_history`` is true, ``history`` must be preallocated and
+        receives the running best score after each evaluation.
+        """
+        objectives = []
+        scores = []
+        for candidate in candidates:
+            values = self.evaluate(problem, candidate)
+            objectives.append(values)
+            scores.append(float(np.sum(values)))
+            if record_history:
+                self.history[self.evatime - 1] = self.fitness
+        return objectives, np.asarray(scores, dtype=float)
+
     def evaluate_many(self, problem, candidates):
         """Evaluate candidates and return their scalar fitness values."""
-        return np.asarray(
-            [self.score(problem, candidate) for candidate in candidates],
-            dtype=float,
-        )
+        _, scores = self.evaluate_batch(problem, candidates)
+        return scores
 
     def update_best(
         self,

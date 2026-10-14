@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="960" viewBox="0 0 840 960" font-family="Helvetica, Arial, 'Noto Sans CJK TC', sans-serif" font-size="12">
+  <rect width="840" height="960" fill="#ffffff"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5F5E5A"/>
+    </marker>
+  </defs>
+  <text x="420" y="32" text-anchor="middle" font-size="17" font-weight="bold" fill="#2C2C2A">E03 設計（提案）：用解碼後的資訊對 ring_se 的候選範圍打分</text>
+
+  <!-- 1. 候選 -->
+  <rect x="40" y="56" width="760" height="46" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <text x="420" y="76" text-anchor="middle" font-weight="bold" fill="#2C2C2A">① ring_se 照常產生 4 個候選範圍（每組 searcher-good 交易）</text>
+  <text x="420" y="93" text-anchor="middle" fill="#2C2C2A">4 段各抽一個：80% 段內隨機一小段、20% 整段＋鄰段一截 —— 範圍由 ring_se 決定，網路只負責選</text>
+
+  <!-- 2. 每個候選的網路（框） -->
+  <rect x="30" y="122" width="780" height="520" rx="12" fill="none" stroke="#534AB7" stroke-dasharray="7 4"/>
+  <text x="420" y="142" text-anchor="middle" font-weight="bold" fill="#534AB7">② 對每個候選範圍打分（4 個候選共用同一個網路）</text>
+
+  <!-- token -->
+  <rect x="50" y="155" width="360" height="200" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+  <g fill="#085041">
+    <text x="62" y="176" font-weight="bold">範圍內每顆 sensor 一個 token · 約 24 維</text>
+    <text x="62" y="198" font-weight="bold">searcher、good 各一份（解碼後）：</text>
+    <text x="62" y="216">· 排程：開／關、感測等級</text>
+    <text x="62" y="234">· 路由：是否轉送節點、轉送量占比、</text>
+    <text x="74" y="250">子樹大小（幾顆靠它轉送）、離 BS 跳數</text>
+    <text x="62" y="268">· 能量：耗能、緊迫度（剩餘電量 ÷ 耗能）</text>
+    <text x="62" y="286">· 覆蓋：覆蓋幾個 target、只有它覆蓋的幾個</text>
+    <text x="62" y="308" font-weight="bold">兩邊共用：</text>
+    <text x="62" y="326">剩餘電量、離 BS 距離、差異旗標</text>
+    <text x="62" y="344">（開關不同、等級不同、優先值不同）</text>
+  </g>
+
+  <!-- 右側輸入 -->
+  <rect x="430" y="155" width="360" height="66" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+  <g fill="#085041">
+    <text x="442" y="175" font-weight="bold">範圍外影響 · 4 維（補局部的缺點）</text>
+    <text x="442" y="193">範圍外有幾顆的路由經過範圍內（S、G）</text>
+    <text x="442" y="211">範圍內負責的 target 在範圍外有無備援（S、G）</text>
+  </g>
+  <rect x="430" y="231" width="360" height="46" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+  <g fill="#085041">
+    <text x="442" y="250" font-weight="bold">範圍位置 · 4 維</text>
+    <text x="442" y="268">起點、終點、長度、是否跨段</text>
+  </g>
+  <rect x="430" y="287" width="360" height="68" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+  <g fill="#085041">
+    <text x="442" y="306" font-weight="bold">整組交易的全域資訊 · 10 維</text>
+    <text x="442" y="324">S、G 的覆蓋率、最弱 target 電量、總剩餘電量；</text>
+    <text x="442" y="342">兩解差異程度、搜尋進度、停滯、全網電量</text>
+  </g>
+
+  <!-- φ 與彙總 -->
+  <rect x="50" y="385" width="360" height="56" rx="8" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="230" y="408" text-anchor="middle" font-weight="bold" fill="#3C3489">φ：每顆 sensor 共用的編碼器</text>
+  <text x="230" y="427" text-anchor="middle" fill="#3C3489">24 → 64 → 64，ReLU</text>
+  <rect x="50" y="471" width="360" height="50" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <text x="230" y="492" text-anchor="middle" font-weight="bold" fill="#2C2C2A">彙總（DeepSets）· 192 維</text>
+  <text x="230" y="510" text-anchor="middle" fill="#2C2C2A">平均 ‖ 最大 ‖ 總和（範圍長短不同也能處理）</text>
+
+  <!-- 串接與打分頭 -->
+  <rect x="50" y="545" width="740" height="36" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <text x="420" y="568" text-anchor="middle" fill="#2C2C2A"><tspan font-weight="bold">串接 · 210 維</tspan>＝ 彙總 192 ‖ 範圍外影響 4 ‖ 範圍位置 4 ‖ 全域 10</text>
+  <rect x="250" y="592" width="340" height="40" rx="8" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="420" y="617" text-anchor="middle" fill="#3C3489"><tspan font-weight="bold">打分頭</tspan>：210 → 128 → 64 → 1 ＝ 這個候選的分數</text>
+
+  <!-- 3. 選擇 -->
+  <rect x="40" y="662" width="760" height="44" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <text x="420" y="689" text-anchor="middle" fill="#2C2C2A"><tspan font-weight="bold">③ 4 個分數 → 選最高的範圍</tspan> → 交換、突變、評估、更新（全部同 ring_se）</text>
+
+  <!-- 箭頭 -->
+  <g stroke="#5F5E5A" stroke-width="1.5" fill="none" marker-end="url(#arrow)">
+    <line x1="230" y1="102" x2="230" y2="153"/>
+    <line x1="610" y1="102" x2="610" y2="153"/>
+    <line x1="230" y1="355" x2="230" y2="383"/>
+    <line x1="230" y1="441" x2="230" y2="469"/>
+    <line x1="230" y1="521" x2="230" y2="543"/>
+    <polyline points="790,355 805,355 805,563 792,563"/>
+    <line x1="420" y1="581" x2="420" y2="590"/>
+    <line x1="420" y1="632" x2="420" y2="660"/>
+  </g>
+
+  <!-- 4. 流程 -->
+  <text x="40" y="740" font-weight="bold" font-size="13" fill="#2C2C2A">④ 實驗流程（每一步都有停損點）</text>
+  <g fill="#F1EFE8" stroke="#888780">
+    <rect x="40" y="752" width="138" height="66" rx="8"/>
+    <rect x="195" y="752" width="138" height="66" rx="8"/>
+    <rect x="350" y="752" width="138" height="66" rx="8" fill="#FBEFD5" stroke="#B7791F"/>
+    <rect x="505" y="752" width="138" height="66" rx="8"/>
+    <rect x="660" y="752" width="140" height="66" rx="8"/>
+  </g>
+  <g fill="#2C2C2A" text-anchor="middle">
+    <text x="109" y="775" font-weight="bold">收資料</text><text x="109" y="793">作弊版存下 4 個</text><text x="109" y="809">候選的交換結果</text>
+    <text x="264" y="775" font-weight="bold">監督式</text><text x="264" y="793">預測每個候選</text><text x="264" y="809">交換後的好壞</text>
+    <text x="419" y="775" font-weight="bold">容量測試（停損）</text><text x="419" y="793">驗證命中率要明顯</text><text x="419" y="809">超過 E02 的 65%</text>
+    <text x="574" y="775" font-weight="bold">lifetime</text><text x="574" y="793">MAP01–06 ×</text><text x="574" y="809">seed 7–36（180 場）</text>
+    <text x="730" y="775" font-weight="bold">RL</text><text x="730" y="793">Q-learning，a＝範圍</text><text x="730" y="809">從監督式網路接續</text>
+  </g>
+  <g stroke="#5F5E5A" stroke-width="1.5" fill="none" marker-end="url(#arrow)">
+    <line x1="178" y1="785" x2="193" y2="785"/><line x1="333" y1="785" x2="348" y2="785"/>
+    <line x1="488" y1="785" x2="503" y2="785"/><line x1="643" y1="785" x2="658" y2="785"/>
+  </g>
+
+  <!-- 比較對象 -->
+  <rect x="40" y="840" width="760" height="96" rx="8" fill="#ffffff" stroke="#888780"/>
+  <g fill="#5F5E5A">
+    <text x="55" y="862" font-weight="bold" fill="#2C2C2A">lifetime 比較對象（同樣 180 場、預算 1000）</text>
+    <text x="55" y="882">· ring_se 隨機選段 906.6（下限）　· E02 監督式打分 921.0（+1.6%）　· 作弊版 974.9（+7.5%，天花板）</text>
+    <text x="55" y="902">· 瓶頸規則（不學習）：選「有效差異 sensor 在 S、G 中緊迫度總和最大」的範圍 —— 舊環境下小預算時和學習方法打平</text>
+    <text x="55" y="922">· 和 E01／E02 一樣：網路只從 ring_se 的 4 個候選裡選；「網路自己產生範圍」留到之後的實驗</text>
+  </g>
+</svg>

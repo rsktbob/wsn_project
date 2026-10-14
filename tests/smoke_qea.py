@@ -74,11 +74,10 @@ def main():
         reused.run(problem, budget=7)
         assert reused.run(problem, budget=3).evaluations == 3
 
-    args = parse_args(['--algorithm', 'qea', 'qea_random', 'qea_classical', '--evaluate', '7'])
-    for name, rule in [('qea', 'rotation'), ('qea_random', 'none'), ('qea_classical', 'classical')]:
-        algorithm = build_algorithm(name, problem, args, seed=9)
-        assert algorithm.update_rule == rule
-        assert algorithm.run(problem, budget=7).evaluations == 7
+    args = parse_args(['--algorithm', 'qea', '--evaluate', '7'])
+    algorithm = build_algorithm('qea', problem, args, seed=9)
+    assert algorithm.update_rule == 'rotation'
+    assert algorithm.run(problem, budget=7).evaluations == 7
     for kwargs in ({'n':0}, {'rotation':float('nan')}, {'probability_floor':0}, {'update_rule':'bad'}):
         try:
             QEA(problem, **kwargs)

@@ -8,25 +8,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 CASES = [
     ("SA-SETS", "tests/smoke_sa_sets.py"),
-    ("Ring-SETS", "tests/smoke_ring_sets.py"),
-    ("GI-GOMEA-WSN", "tests/smoke_gi_gomea.py"),
-    ("CMA-MAE", "tests/smoke_cma_mae.py"),
-    (
-        "Differential-MAP-Elites",
-        "tests/smoke_differential_map_elites.py",
-    ),
-    ("Experiment Registry", "tests/smoke_experiment_algorithms.py"),
-    ("Evaluation Budget", "tests/regression_evaluation_budget.py"),
-    ("Lightweight Bases", "tests/smoke_lightweight_bases.py"),
-    ("Classic Algorithms", "tests/smoke_classic_algorithms.py"),
-    ("CodingSEv2", "tests/smoke_codingsev2.py"),
-    ("NSOA", "tests/smoke_nsoa.py"),
-    ("RIME", "tests/smoke_rime.py"),
-    ("CPO", "tests/smoke_cpo.py"),
-    ("CPOv2", "tests/smoke_cpov2.py"),
+    ("Ring-SE", "tests/smoke_ring_se.py"),
     ("GA", "tests/smoke_ga.py"),
-    ("NSGA-II", "tests/smoke_nsga.py"),
-    ("SNSGAII + RQLearning", "tests/smoke_snsga_rqlearning.py"),
+    ("GA variants", "tests/test_ga_variants.py"),
+    ("PSO", "tests/test_pso.py"),
 ]
 
 

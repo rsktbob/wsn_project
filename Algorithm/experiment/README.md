@@ -71,3 +71,7 @@ python Algorithm/experiment/run_distributed_routing.py \
 先比較以上三種分散式策略的 completed_slots、每 slot 能耗、最大中繼負載、公告 waves、控制訊息數、斷線/能量失敗原因，再擴充地圖和節點密度，改變通訊範圍與控制封包大小，加入無控制成本消融，檢查結果是否只是參數效果。能量平衡效果需要看每節點耗能分布，不能只由政策名稱推論。
 
 若之後比較 Ring-SETS，需先統一感測需求、合法鏈路、控制成本及停止條件；目前 Ring-SETS 同時最佳化感測排程，不能把兩邊壽命直接視為同一問題的演算法勝負。量子啟發式/學習式節點政策應在此協定驗證後另加，與相同觀察、動作和通訊預算的傳統政策比較。
+
+## TN-GEO 集中式搜尋實驗
+
+新增 [tn_geo/README.md](tn_geo/README.md)：獨立的 NumPy MPS Born 生成模型、獨立 categorical 對照、感測器排序消融與固定電量／lifetime 入口。沿用既有 SensorEncoding 和 fitness；與上面的分散式路由原型是不同實驗。

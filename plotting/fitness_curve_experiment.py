@@ -13,7 +13,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from Algorithm.se.SA_SETS import SA_SETS
+from Algorithm.se.sets.SA_SETS import SA_SETS
 from Problem.Problem import Problem
 from Problem.services.fitness_servicev2 import FitnessServiceV2
 

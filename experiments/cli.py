@@ -271,7 +271,7 @@ def parse_args(argv=None):
     for name in sorted(selected_rl):
         model = configured_algorithm_params(name, args)["model_path"]
         if not model:
-            parser.error(f"{name} requires --rl-model; train one with train_rl_ring_sets.py")
+            parser.error(f"{name} requires --rl-model pointing to a trained checkpoint")
         if model and not Path(model).expanduser().is_file():
             parser.error(f"{name} model does not exist: {model}")
     return args

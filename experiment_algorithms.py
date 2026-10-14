@@ -16,8 +16,6 @@ from experiments.builder import (
     algorithm_params,
     build_algorithm,
     configured_algorithm_params,
-    nsga_generation,
-    srime_generation,
 )
 from experiments.cli import parse_args, selected_algorithms
 from experiments.config import (
@@ -113,7 +111,6 @@ __all__ = [
     "load_map_specs",
     "main",
     "moving_enabled",
-    "nsga_generation",
     "parse_args",
     "parse_bool",
     "parse_file_name",
@@ -127,7 +124,6 @@ __all__ = [
     "save_fitness_history_plot",
     "selected_algorithms",
     "set_seed",
-    "srime_generation",
     "state_metrics",
     "write_algorithm_parameters",
     "write_grouped_results",

@@ -20,7 +20,8 @@ FITNESS_SERVICES = {
 }
 ROUTING_SERVICES = ("v1",)
 
-DEFAULT_FITNESS_SERVICE = "v2"
+# 2026-10-12 預設改成 v3（使用者稱為 fitness v5：覆蓋不足層 0.5Q−c−0.5，可行與不可行層同 v2）。
+DEFAULT_FITNESS_SERVICE = "v3"
 DEFAULT_ROUTING_SERVICE = "v1"
 DEFAULT_SENSING_MODE = "discrete"
 

@@ -17,9 +17,11 @@
 
 ## Algorithm
 
+2026-10-09：現行 GA 直接繼承 `Algorithm`，搜尋流程合併到 `Algorithm/ga/GA.py`；
+舊 `BaseGA` 隨 SGA、RGA 封存於 `legacy/algorithms/ga/`。
+
 只有真正被多個演算法共用的模板流程才保留 `Base*`：
 
-- `BaseGA`
 - `BasePSO`
 - `BaseGWO`
 - `BaseEDA`

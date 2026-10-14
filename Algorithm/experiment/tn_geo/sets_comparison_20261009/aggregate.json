@@ -1,0 +1,58 @@
+[
+  {
+    "comparison": "sa_sets",
+    "algorithm": "sa_sets",
+    "runs": 3,
+    "evaluations": [
+      1040,
+      1040,
+      1040
+    ],
+    "mean_best_score": 0.9986108268444445,
+    "mean_weighted_depletion": 0.0013891731555554971,
+    "mean_seconds": 0.08594454514483611,
+    "feasible_runs": 3
+  },
+  {
+    "comparison": "sa_sets",
+    "algorithm": "mps",
+    "runs": 3,
+    "evaluations": [
+      1040,
+      1040,
+      1040
+    ],
+    "mean_best_score": 0.9983614662484848,
+    "mean_weighted_depletion": 0.0016385337515151994,
+    "mean_seconds": 30.96476787949602,
+    "feasible_runs": 3
+  },
+  {
+    "comparison": "si_sets",
+    "algorithm": "si_sets",
+    "runs": 3,
+    "evaluations": [
+      1064,
+      1064,
+      1064
+    ],
+    "mean_best_score": 0.9985123706957264,
+    "mean_weighted_depletion": 0.0014876293042735596,
+    "mean_seconds": 0.1258770003914833,
+    "feasible_runs": 3
+  },
+  {
+    "comparison": "si_sets",
+    "algorithm": "mps",
+    "runs": 3,
+    "evaluations": [
+      1064,
+      1064,
+      1064
+    ],
+    "mean_best_score": 0.9983614662484848,
+    "mean_weighted_depletion": 0.0016385337515151994,
+    "mean_seconds": 31.889025107646983,
+    "feasible_runs": 3
+  }
+]

@@ -9,8 +9,8 @@ constructor. Two things deliberately live outside it:
 * RL training hyper-parameters (replay buffer, batch size, learning rate,
   epsilon schedule, ...). This runner always evaluates a frozen policy, so
   those values changed nothing here while still appearing in the report as if
-  they were experiment settings. ``train_rl_ring_sets.py`` owns them and
-  defines its own defaults for every one of them.
+  they were experiment settings. The training script owns them (the old
+  ``train_rl_ring_sets.py`` now lives in ``legacy/rl_ring/``).
 """
 
 import json
@@ -18,16 +18,6 @@ import json
 from experiments import PROJECT_ROOT
 
 ALGORITHM_PRESETS = {
-    'qea3': {
-        'label': 'QEA3-WSN (local pairs + periodic global migration)',
-        'encoding': 'SensorEncoding: sensing levels + routing-priority ranks',
-        'params': {
-            'n': 30,
-            'rotation': 0.031415926535897934,
-            'probability_floor': 0.01,
-            'global_period': 100,
-        },
-    },
     'qea': {'label': 'Global-QEA',
      'encoding': 'SensorEncoding: sensing levels + routing-priority ranks',
      'params': {'n': 30,
@@ -35,46 +25,38 @@ ALGORITHM_PRESETS = {
                 'probability_floor': 0.01,
                 'update_rule': 'rotation',
                 'learning_rate': 0.05}},
-    'qea_random': {'label': 'QEA uniform random control',
-     'encoding': 'SensorEncoding: sensing levels + routing-priority ranks',
-     'params': {'n': 30,
-                'rotation': 0.031415926535897934,
-                'probability_floor': 0.01,
-                'update_rule': 'none',
-                'learning_rate': 0.05}},
-    'qea_classical': {'label': 'QEA classical probability control',
-     'encoding': 'SensorEncoding: sensing levels + routing-priority ranks',
-     'params': {'n': 30,
-                'rotation': 0.031415926535897934,
-                'probability_floor': 0.01,
-                'update_rule': 'classical',
-                'learning_rate': 0.05}},
 
-    'alns': {
-        "label": 'ALNS',
+    'qts': {'label': 'QTS',
+     'encoding': 'SensorEncoding: sensing levels + routing-priority ranks',
+     'params': {'n': 10,
+                'rotation': 0.031415926535897934,
+                'probability_floor': 0.01,
+                'init': 'uniform'}},
+
+    'qring_se': {
+        "label": 'Q-Ring-SE (Ring-SE with Q-bit goods)',
+        "encoding": 'N sensing levels + N routing-priority ranks',
         "params": {
-            'initial_samples': 8,
-            'min_destroy_ratio': 0.05,
-            'max_destroy_ratio': 0.2,
-            'reaction_factor': 0.2,
-            'segment_length': 25,
-            'initial_temperature': 0.05,
-            'final_temperature': 0.001,
-            'score_global_best': 10.0,
-            'score_improved': 5.0,
-            'score_accepted': 1.0,
-            'feasibility_first': True,
+            'n': 8,
+            'h': 4,
+            'w': 8,
+            'mu': 0.4,
+            'rotation': 0.15707963267948966,
+            'probability_floor': 0.01,
+            'init_confidence': 0.0,
         },
     },
-    'eopt': {
-        "label": 'EOPT',
+    'qsi_sets': {
+        "label": 'Q-SI-SETS (SI-SETS with Q-bit goods)',
+        "encoding": 'N sensing levels + N routing-priority ranks',
         "params": {
-            'tau': 1.5,
-            'initial_samples': 32,
-            'depletion_weight': 0.55,
-            'routing_weight': 0.25,
-            'redundancy_weight': 0.2,
-            'replacement_pool_size': 5,
+            'n': 8,
+            'h': 4,
+            'w': 8,
+            'mu': 0.4,
+            'rotation': 0.15707963267948966,
+            'probability_floor': 0.01,
+            'init_confidence': 0.0,
         },
     },
     'sa_sets': {
@@ -86,8 +68,9 @@ ALGORITHM_PRESETS = {
             'mu': 0.4,
         },
     },
-    'exp3_sa_sets': {
-        "label": 'EXP3-SA-SETS',
+    'sa_setspri': {
+        "label": 'SA-SETSpri (SA-SETS + PriorityEncoding, no partition)',
+        "encoding": 'N activation priorities + N routing priorities (energy activation, energy + farness routing)',
         "params": {
             'n': 8,
             'h': 4,
@@ -95,35 +78,8 @@ ALGORITHM_PRESETS = {
             'mu': 0.4,
         },
     },
-    'linucb_sa_sets': {
-        "label": 'LinUCB-SA-SETS',
-        "params": {
-            'n': 8,
-            'h': 4,
-            'w': 2,
-            'mu': 0.4,
-        },
-    },
-    'thompson_sa_sets': {
-        "label": 'Thompson-SA-SETS',
-        "params": {
-            'n': 8,
-            'h': 4,
-            'w': 2,
-            'mu': 0.4,
-        },
-    },
-    'contextual_thompson_ig_sa_sets': {
-        "label": 'Contextual-Thompson + I×G SA-SETS',
-        "params": {
-            'n': 8,
-            'h': 4,
-            'w': 2,
-            'mu': 0.4,
-        },
-    },
-    'ring_sets': {
-        "label": 'Ring-SETS (Shared-Pool Ring-Segment Operator Selection)',
+    'ring_se': {
+        "label": 'Ring-SE (Shared-Pool Ring-Segment Operator Selection)',
         "encoding": 'N sensing levels + N routing-priority ranks',
         "params": {
             'n': 8,
@@ -132,9 +88,9 @@ ALGORITHM_PRESETS = {
             'mu': 0.4,
         },
     },
-    'ring_setspriority': {
-        "label": 'Ring-SETSpriority (Ring-SETS + C4 PriorityEncoding)',
-        "encoding": 'N activation priorities + N routing priorities (C4)',
+    'ring_sepri': {
+        "label": 'Ring-SEpri (Ring-SE + PriorityEncoding)',
+        "encoding": 'N activation priorities + N routing priorities (energy activation, energy + farness routing)',
         "params": {
             'n': 8,
             'h': 4,
@@ -142,8 +98,8 @@ ALGORITHM_PRESETS = {
             'mu': 0.4,
         },
     },
-    'linucb_ring_sets': {
-        "label": 'LinUCB-Ring-SETS (per-pair LinUCB segment choice)',
+    'linucb_ring_se': {
+        "label": 'LinUCB-Ring-SE (per-pair LinUCB segment choice)',
         "encoding": 'N sensing levels + N routing-priority ranks',
         "params": {
             'n': 8,
@@ -152,83 +108,28 @@ ALGORITHM_PRESETS = {
             'mu': 0.4,
         },
     },
-    'linucb_ring_setspriority': {
-        "label": 'LinUCB-Ring-SETSpriority (per-pair LinUCB segment choice, C4)',
-        "encoding": 'N activation priorities + N routing priorities (C4)',
+    'linucb_ring_sepri': {
+        "label": 'LinUCB-Ring-SEpri (per-pair LinUCB segment choice)',
+        "encoding": 'N activation priorities + N routing priorities (energy activation, energy + farness routing)',
         "params": {
             'n': 8,
             'h': 4,
             'w': 8,
             'mu': 0.4,
-        },
-    },
-    'rl_ring_sets': {
-        "label": 'RL-Ring-SETS (per-pair D3QN segment choice)',
-        "encoding": 'N sensing levels + N routing-priority ranks',
-        "params": {
-            'n': 8,
-            'h': 4,
-            'w': 8,
-            'mu': 0.4,
-            # Network width has to match the checkpoint that is loaded.
-            'hidden_size': 64,
-        },
-    },
-    'rl_ring_setspriority': {
-        "label": 'RL-Ring-SETSpriority (per-pair D3QN segment choice, C4)',
-        "encoding": 'N activation priorities + N routing priorities (C4)',
-        "params": {
-            'n': 8,
-            'h': 4,
-            'w': 8,
-            'mu': 0.4,
-            'hidden_size': 64,
-        },
-    },
-    'linucb_ring_setsv2': {
-        "label": 'LinUCB-Ring-SETSv2 (v2 features, tiered reward)',
-        "encoding": 'N sensing levels + N routing-priority ranks',
-        "params": {
-            'n': 8,
-            'h': 4,
-            'w': 8,
-            'mu': 0.4,
-        },
-    },
-    'linucb_ring_setspriorityv2': {
-        "label": 'LinUCB-Ring-SETSpriorityv2 (v2 features, tiered reward, C4)',
-        "encoding": 'N activation priorities + N routing priorities (C4)',
-        "params": {
-            'n': 8,
-            'h': 4,
-            'w': 8,
-            'mu': 0.4,
-        },
-    },
-    'rl_ring_setsv2': {
-        "label": 'RL-Ring-SETSv2 (v2 features, tiered reward, gamma 0)',
-        "encoding": 'N sensing levels + N routing-priority ranks',
-        "params": {
-            'n': 8,
-            'h': 4,
-            'w': 8,
-            'mu': 0.4,
-            'hidden_size': 64,
-        },
-    },
-    'rl_ring_setspriorityv2': {
-        "label": 'RL-Ring-SETSpriorityv2 (v2 features, tiered reward, gamma 0, C4)',
-        "encoding": 'N activation priorities + N routing priorities (C4)',
-        "params": {
-            'n': 8,
-            'h': 4,
-            'w': 8,
-            'mu': 0.4,
-            'hidden_size': 64,
         },
     },
     'si_sets': {
-        "label": 'SI-SETS (Elitist Role-separated Update)',
+        "label": 'SI-SETS (Role-separated EN Update)',
+        "params": {
+            'n': 8,
+            'h': 4,
+            'w': 8,
+            'mu': 0.4,
+        },
+    },
+    'si_setspri': {
+        "label": 'SI-SETSpri (SI-SETS + PriorityEncoding, no partition)',
+        "encoding": 'N activation priorities + N routing priorities (energy activation, energy + farness routing)',
         "params": {
             'n': 8,
             'h': 4,
@@ -243,64 +144,6 @@ ALGORITHM_PRESETS = {
             'h': 4,
             'w': 2,
             'mu': 0.4,
-        },
-    },
-    'gi_gomea': {
-        "label": 'GI-GOMEA-WSN',
-        "params": {
-            'population_size': 24,
-            'elite_fraction': 0.5,
-            'statistical_weight': 0.7,
-            'graph_weight': 0.3,
-            'max_linkage_size': 16,
-            'max_linkage_sets': 160,
-        },
-    },
-    'gpu_gomea': {
-        "label": 'GPU-GOMEA-WSN',
-        "params": {
-            'population_size': 24,
-            'elite_fraction': 0.5,
-            'statistical_weight': 0.7,
-            'graph_weight': 0.3,
-            'max_linkage_size': 16,
-            'max_linkage_sets': 160,
-            'cuda_device': 0,
-            'require_cuda': False,
-        },
-    },
-    'gi_gomea_target': {
-        "label": 'GI-GOMEA-TARGET',
-        "params": {
-            'population_size': 16,
-            'elite_fraction': 0.5,
-            'statistical_weight': 0.7,
-            'graph_weight': 0.3,
-            'max_linkage_size': 16,
-            'max_linkage_sets': 120,
-        },
-    },
-    'cma_mae': {
-        "label": 'CMA-MAE',
-        "params": {
-            'num_emitters': 15,
-            'batch_size': 36,
-            'sigma': 0.2,
-            'archive_dims': (100, 100),
-            'learning_rate': 0.01,
-            'threshold_min': 0.0,
-        },
-    },
-    'differential_map_elites': {
-        "label": 'Differential-MAP-Elites',
-        "params": {
-            'centroid_count': 25000,
-            'initial_sample_ratio': 0.01,
-            'minimum_initial_samples': 100,
-            'scaling_factor': 0.5,
-            'crossover_rate': 0.9,
-            'cvt_sample_count': 100000,
-            'cvt_iterations': 5,
         },
     },
     'sets': {
@@ -321,13 +164,15 @@ ALGORITHM_PRESETS = {
             'mu': 0.2,
         },
     },
-    'codingsev2': {
-        "label": 'CodingSEv2',
+    'ga_elitist': {
+        "label": 'Elitist GA',
+        "params": {'n': 30, 'cu': 0.8, 'elite_count': 2},
+    },
+    'ga_adaptive': {
+        "label": 'Srinivas-Patnaik Adaptive GA (SensorEncoding)',
         "params": {
-            'n': 5,
-            'h': 4,
-            'w': 2,
-            'mu': 1.0,
+            'n': 30, 'k1': 1.0, 'k2': 0.5,
+            'k3': 1.0, 'k4': 0.5, 'base_mutation': 0.005,
         },
     },
     'ga': {
@@ -340,112 +185,8 @@ ALGORITHM_PRESETS = {
     },
     'pso': {
         "label": 'PSO',
-        "params": {
-            'n': 60,
-            'w': 0.7968,
-            'end_w': 0.7968,
-            'c1': 1.4962,
-            'c2': 1.4962,
-            'vmax': 0.2,
-            'vmin': -0.2,
-            'fmax': 1.0,
-            'fmin': 0,
-        },
-    },
-    'eda': {
-        "label": 'EDA',
-        "params": {
-            'n': 50,
-            'alpha': 0.5,
-        },
-    },
-    'cs': {
-        "label": 'CS',
-        "params": {
-            'n': 15,
-            'fmax': 1.0,
-            'fmin': 0,
-            'step_size': 0.01,
-            'Lmbda': 1.5,
-            'pa': 0.75,
-        },
-    },
-    'nsoa': {
-        "label": 'NSOA',
-        "params": {
-            'n': 30,
-            'normal_mean': 0.85,
-            'normal_std': 0.5,
-            'initial_elimination_probability': 0.5,
-            'sigmoid_delta': 30.0,
-            'sigmoid_nu': 0.3,
-            'feasibility_first': True,
-            'coverage_seeded_initialization': True,
-        },
-    },
-    'cpo': {
-        "label": 'CPO',
-        "params": {
-            'n': 30,
-            'min_population': 10,
-            'cycles': 2,
-            'alpha': 0.2,
-            'tradeoff': 0.8,
-        },
-    },
-    'cpo_v2': {
-        "label": 'CPOv2 (Discrete Adaptive)',
-        "params": {
-            'n': 30,
-            'min_population': 10,
-            'cycles': 2,
-            'adapt_interval': 300,
-            'adaptive_weight': 0.5,
-            'minimum_probability': 0.05,
-            'stagnation_limit': 1000,
-            'restart_fraction': 0.2,
-        },
-    },
-    'nsga': {
-        "label": 'NSGA-II',
-        "params": {
-            'n': 50,
-            'cu': 0.9,
-            'mu': None,
-            'tournament_size': 2,
-        },
-    },
-    'snsga_rqlearning': {
-        "label": 'SNSGAII + RQLearning',
-        "params": {
-            'n': 50,
-            'cu': 0.9,
-            'mu': None,
-            'tournament_size': 2,
-            'rqlearning': {
-                'alpha': 0.2,
-                'gamma': 0.2,
-                'epsilon': 0.1,
-                'heuristic_weight': 0.35,
-                'learn': True,
-            },
-        },
-    },
-    'rime': {
-        "label": 'RIME',
-        "params": {
-            'n': 50,
-            'w': 5,
-        },
-    },
-    'srime': {
-        "label": 'SRIME',
-        "params": {
-            'n': 50,
-            'soft_rate': 0.7,
-            'hard_rate': 0.25,
-            'mutation_rate': None,
-        },
+        "encoding": 'SensorEncoding: sensing choices + routing-priority ranks',
+        "params": {'n': 30, 'w': 0.7, 'c1': 1.5, 'c2': 1.5, 'vmax': 0.2},
     },
 }
 

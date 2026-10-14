@@ -7,6 +7,8 @@ from typing import Any
 
 import numpy as np
 
+from State.State import State
+
 
 @dataclass
 class AlgorithmResult:
@@ -16,7 +18,7 @@ class AlgorithmResult:
     檢查可行性、計算 fitness 與扣除能量。
     """
 
-    best_state: Any
+    best_state: State | None
     best_fitness: np.ndarray
     evaluations: int
     iterations: int

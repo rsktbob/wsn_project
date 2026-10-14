@@ -5,7 +5,7 @@
 （calculate_routing_cost，含自己傳送與幫別人轉送），再依區段統計。
 輸出（在 <output-dir>/<演算法>/）：CSV（每個 seed 一列／區段）、每張地圖一張區段圖（seed 第一個的解：實心＝開啟），
 圖例附上該區段跨 seed 的平均值。
-用法：python plotting/ring_region_costs.py [--maps maps/maps_100100100.json] [--algorithm ring_setspriority]
+用法：python plotting/ring_region_costs.py [--maps maps/maps_100100100.json] [--algorithm ring_sepri]
 區段是 Ring 的 sensor 編號範圍；SA_SETS／SI_SETS 自己的分區不同，這裡只是共同的空間分組。
 """
 from __future__ import annotations
@@ -54,7 +54,7 @@ def region_rows(problem, state, bounds, map_name, seed, fitness):
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--maps", default="maps/maps_100100100.json")
-    parser.add_argument("--algorithm", default="ring_setspriority")
+    parser.add_argument("--algorithm", default="ring_sepri")
     parser.add_argument("--seeds", type=int, nargs="+", default=[7, 8, 9, 10, 11])
     parser.add_argument("--evaluate", type=int, default=10000)
     parser.add_argument("--h", type=int, default=4)

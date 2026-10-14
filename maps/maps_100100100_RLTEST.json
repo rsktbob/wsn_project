@@ -1,0 +1,188 @@
+{
+  "split": "test",
+  "generator": "CreateMapData.py",
+  "minimum_coverage_required": 3,
+  "target_layout": "fixed_grid",
+  "maps": [
+    {
+      "file": "RLTEST01",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST02",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST03",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST04",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST05",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST06",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST07",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST08",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST09",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST10",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST11",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST12",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST13",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST14",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST15",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST16",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST17",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST18",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST19",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST20",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST21",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST22",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST23",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST24",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST25",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST26",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST27",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST28",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST29",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTEST30",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    }
+  ]
+}

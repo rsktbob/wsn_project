@@ -16,11 +16,6 @@ from Problem.Problem import Problem
 from State.PriorityEncoding import PriorityEncoding
 
 
-class EncodingC4(PriorityEncoding):
-    ACTIVATION_BASE = "cost"
-    ROUTING_BASE = "energy"
-
-
 def decode_both(coding, problem):
     fast = coding.decode(problem)
     saved = priority_module.NUMBA_AVAILABLE
@@ -44,14 +39,10 @@ def assert_same(fast, slow, problem):
 
 
 def check(problem, cases, rng):
-    for encoding_cls in (PriorityEncoding, EncodingC4):
-        for split in (True, False):
-            for _ in range(cases):
-                coding = encoding_cls.random(
-                    problem.SENSOR_NUMBER, rng=rng, split_priority=split
-                )
-                fast, slow = decode_both(coding, problem)
-                assert_same(fast, slow, problem)
+    for _ in range(cases):
+        coding = PriorityEncoding.random(problem.SENSOR_NUMBER, rng=rng)
+        fast, slow = decode_both(coding, problem)
+        assert_same(fast, slow, problem)
 
 
 def main():
@@ -62,7 +53,7 @@ def main():
     check(Problem(B=50, S=30, T=9, F=100, FILE=None), 50, rng)
     check(Problem(B=100, S=100, T=100, F=10, FILE="MAP01"), 50, rng)
 
-    # 電量不均時 cost／energy base 會改變順序，也要一致。
+    # 電量不均時 energy base 會改變順序，也要一致。
     problem = Problem(B=100, S=100, T=100, F=10, FILE="MAP02")
     problem.energy = problem.energy * rng.uniform(0.05, 1.0, problem.energy.shape)
     problem.energy_score = problem.energy / np.max(problem.energy)

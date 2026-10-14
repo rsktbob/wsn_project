@@ -1,7 +1,7 @@
-"""畫出 Ring_SETS 的區段劃分：sensor 依所屬區段上色、標上編號（＝染色體位置）。
+"""畫出 Ring_SE 的區段劃分：sensor 依所屬區段上色、標上編號（＝染色體位置）。
 
 sensor 編號與實驗相同（以 BS 為中心的環狀順序，sensor_ring_id=true），區段是
-Ring_SETS.region_sensor_bounds：h 段連續的編號範圍。原點在左上角（BS 顯示在左上）。
+Ring_SE.region_sensor_bounds：h 段連續的編號範圍。原點在左上角（BS 顯示在左上）。
 用法：python plotting/ring_regions_map.py [--maps maps/maps_100100100_a2.json] [--h 4] [--output 檔名.png]
 """
 from __future__ import annotations
@@ -22,7 +22,7 @@ plt.rcParams["axes.unicode_minus"] = False
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from Algorithm.se.Ring_SETS import Ring_SETS  # noqa: E402
+from Algorithm.se.ring_se.Ring_SE import Ring_SE  # noqa: E402
 from experiment_algorithms import parse_args as experiment_args  # noqa: E402
 from experiments.maps import load_map_specs  # noqa: E402
 from experiments.problem_setup import build_problem  # noqa: E402
@@ -35,14 +35,14 @@ INK, MUTED, SURFACE = "#0b0b0b", "#52514e", "#fcfcfb"
 
 def build_map_problem(manifest, map_index=0, seed=7):
     """The experiment's problem for one map of a manifest, plus its spec."""
-    args = experiment_args(["--algorithm", "ring_sets", "--mode", "single", "--maps", manifest])
+    args = experiment_args(["--algorithm", "ring_se", "--mode", "single", "--maps", manifest])
     spec = load_map_specs(str(ROOT / manifest))[map_index]
     args._current_map = spec
     return build_problem(args, seed), spec
 
 
 def region_bounds(problem, h):
-    return Ring_SETS(problem, n=8, h=h, w=8, mu=0.4, seed=7).region_sensor_bounds
+    return Ring_SE(problem, n=8, h=h, w=8, mu=0.4, seed=7).region_sensor_bounds
 
 
 def draw_regions(problem, bounds, title, output, region_labels=None, active=None):
@@ -104,7 +104,7 @@ def main():
     problem, spec = build_map_problem(cli.maps)
     output = ROOT / cli.output
     draw_regions(problem, region_bounds(problem, cli.h),
-                 f"{spec['name']}：Ring_SETS 的 {cli.h} 個區段（編號＝染色體中的 sensor 位置）", output)
+                 f"{spec['name']}：Ring_SE 的 {cli.h} 個區段（編號＝染色體中的 sensor 位置）", output)
     print("saved", output)
 
 

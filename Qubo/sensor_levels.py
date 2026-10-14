@@ -30,7 +30,39 @@ from dataclasses import dataclass
 import numpy as np
 
 from Qubo.model import QuboModel
-from State.PriorityEncoding import PriorityEncoding
+
+def _delivery_cost(problem):
+    """每顆 sensor 傳一個封包回 BS 的最小路徑耗能 C_s（2026-10-13 由 PriorityEncoding 移來）。
+
+    每跳耗能沿用容量公式的 amp_cost + 2 × circuit_cost。實際路由允許
+    任何未封鎖的 link（d(s, p) <= d(s, BS)），這裡另外限制只經過更靠近
+    BS 的節點，才能依 BS 距離由近到遠做一次動態規劃。6 張測試地圖上
+    與不加此限制的 Dijkstra 結果完全相同（繞遠路在 d²/d⁴ 模型下不省電）。
+    只和位置有關，快取在 problem 上（移動後 problem 會重建）。
+    """
+    cached = getattr(problem, "_priority_delivery_cost", None)
+    if cached is not None:
+        return cached
+    sensor_count = problem.SENSOR_NUMBER
+    bs_id = problem.BSID
+    distances = np.asarray(problem.distances)
+    hop = np.asarray(problem.amp_cost) + 2 * problem.circuit_cost
+    to_bs = np.asarray(problem.distances)[:sensor_count, bs_id]
+    allowed = distances[:sensor_count] < problem.blocked_distance / 100
+    cost = np.full(sensor_count, np.inf)
+    for sensor_id in np.argsort(to_bs):
+        best = hop[sensor_id, bs_id] if allowed[sensor_id, bs_id] else np.inf
+        nearer = np.where(
+            (to_bs < to_bs[sensor_id]) & allowed[sensor_id, :sensor_count]
+        )[0]
+        if len(nearer):
+            best = min(
+                best, float(np.min(hop[sensor_id, nearer] + cost[nearer]))
+            )
+        cost[sensor_id] = best
+    problem._priority_delivery_cost = cost
+    return cost
+
 
 # 目標縮放後，任一顆 sensor 的邊際成本 ≤ 1；丟掉一個 target 最多省下一顆
 # sensor 的成本，懲罰取 2 以確保違反任何限制都不划算。
@@ -200,8 +232,8 @@ def build_level_subproblem(
     energy = np.asarray(problem.energy, dtype=float)
     sensing_costs = np.asarray(problem.sensing_costs, dtype=float)
 
-    # 開啟成本沿用 PriorityEncoding 的回傳成本快取（只和位置有關）。
-    delivery_cost = PriorityEncoding._delivery_cost(problem)
+    # 開啟成本用回傳成本快取（只和位置有關）。
+    delivery_cost = _delivery_cost(problem)
     open_cost = np.asarray(problem.generated_load, dtype=float) * delivery_cost
 
     region = np.asarray(region, dtype=int)

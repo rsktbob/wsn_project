@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="690" viewBox="0 0 760 690" font-family="Helvetica, Arial, 'Noto Sans CJK TC', sans-serif" font-size="12">
+  <rect width="760" height="690" fill="#ffffff"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5F5E5A"/>
+    </marker>
+  </defs>
+  <text x="380" y="30" text-anchor="middle" font-size="16" font-weight="bold" fill="#2C2C2A">E02 打分網路（一組 searcher-good 交易）</text>
+
+  <!-- 候選範圍（輸入） -->
+  <g fill="#E1F5EE" stroke="#0F6E56">
+    <rect x="40" y="60" width="155" height="70" rx="8"/>
+    <rect x="215" y="60" width="155" height="70" rx="8"/>
+    <rect x="390" y="60" width="155" height="70" rx="8"/>
+    <rect x="565" y="60" width="155" height="70" rx="8"/>
+  </g>
+  <g fill="#085041" text-anchor="middle">
+    <text x="117" y="84" font-weight="bold">候選 1 · 25 維</text><text x="117" y="102">例：範圍 3–21</text><text x="117" y="120" fill="#5F5E5A">（第 0 段抽到的）</text>
+    <text x="292" y="84" font-weight="bold">候選 2 · 25 維</text><text x="292" y="102">例：範圍 28–31</text><text x="292" y="120" fill="#5F5E5A">（第 1 段抽到的）</text>
+    <text x="467" y="84" font-weight="bold">候選 3 · 25 維</text><text x="467" y="102">例：範圍 54–72</text><text x="467" y="120" fill="#5F5E5A">（第 2 段抽到的）</text>
+    <text x="642" y="84" font-weight="bold">候選 4 · 25 維</text><text x="642" y="102">例：範圍 75–99＋…</text><text x="642" y="120" fill="#5F5E5A">（第 3 段，跨段）</text>
+  </g>
+  <text x="380" y="150" text-anchor="middle" fill="#5F5E5A">ring_se 照常產生 4 個候選範圍（4 段各抽一個，80/20 規則）；0～3 只是清單順序</text>
+
+  <!-- 共用打分網路 -->
+  <rect x="30" y="165" width="700" height="100" rx="10" fill="none" stroke="#534AB7" stroke-dasharray="6 4"/>
+  <g fill="#EEEDFE" stroke="#534AB7">
+    <rect x="40" y="178" width="155" height="74" rx="8"/>
+    <rect x="215" y="178" width="155" height="74" rx="8"/>
+    <rect x="390" y="178" width="155" height="74" rx="8"/>
+    <rect x="565" y="178" width="155" height="74" rx="8"/>
+  </g>
+  <g fill="#3C3489" text-anchor="middle">
+    <text x="117" y="200" font-weight="bold">打分網路</text><text x="117" y="218">25→64→64→1</text><text x="117" y="236">ReLU</text>
+    <text x="292" y="200" font-weight="bold">打分網路</text><text x="292" y="218">25→64→64→1</text><text x="292" y="236">ReLU</text>
+    <text x="467" y="200" font-weight="bold">打分網路</text><text x="467" y="218">25→64→64→1</text><text x="467" y="236">ReLU</text>
+    <text x="642" y="200" font-weight="bold">打分網路</text><text x="642" y="218">25→64→64→1</text><text x="642" y="236">ReLU</text>
+  </g>
+  <text x="380" y="285" text-anchor="middle" font-weight="bold" fill="#534AB7">4 個是同一個網路（權重相同，共 5,889 個參數）</text>
+
+  <!-- 分數 -->
+  <g fill="#F1EFE8" stroke="#888780">
+    <rect x="65" y="305" width="105" height="40" rx="8"/>
+    <rect x="240" y="305" width="105" height="40" rx="8"/>
+    <rect x="415" y="305" width="105" height="40" rx="8"/>
+    <rect x="590" y="305" width="105" height="40" rx="8"/>
+  </g>
+  <g fill="#2C2C2A" text-anchor="middle" font-weight="bold">
+    <text x="117" y="330">分數 s₁</text><text x="292" y="330">分數 s₂</text><text x="467" y="330">分數 s₃</text><text x="642" y="330">分數 s₄</text>
+  </g>
+
+  <!-- 選擇 -->
+  <rect x="230" y="385" width="300" height="56" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <text x="380" y="408" text-anchor="middle" font-weight="bold" fill="#2C2C2A">選分數最高的候選</text>
+  <text x="380" y="427" text-anchor="middle" fill="#2C2C2A">→ 交換、突變、評估、更新（同 ring_se）</text>
+
+  <!-- 箭頭 -->
+  <g stroke="#5F5E5A" stroke-width="1.5" fill="none" marker-end="url(#arrow)">
+    <line x1="117" y1="130" x2="117" y2="176"/><line x1="292" y1="130" x2="292" y2="176"/>
+    <line x1="467" y1="130" x2="467" y2="176"/><line x1="642" y1="130" x2="642" y2="176"/>
+    <line x1="117" y1="252" x2="117" y2="303"/><line x1="292" y1="252" x2="292" y2="303"/>
+    <line x1="467" y1="252" x2="467" y2="303"/><line x1="642" y1="252" x2="642" y2="303"/>
+    <polyline points="117,345 117,365 300,365 300,383"/>
+    <polyline points="292,345 292,370 350,370 350,383"/>
+    <polyline points="467,345 467,370 410,370 410,383"/>
+    <polyline points="642,345 642,365 460,365 460,383"/>
+  </g>
+
+  <!-- 每個候選的 25 維 -->
+  <rect x="40" y="465" width="680" height="135" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+  <g fill="#085041">
+    <text x="55" y="487" font-weight="bold">每個候選的 25 維特徵（都用這個候選自己的範圍算）</text>
+    <text x="55" y="509"><tspan font-weight="bold">位置 4：</tspan>起點、終點、長度、是否跨段</text>
+    <text x="55" y="529"><tspan font-weight="bold">交換會改變什麼 9：</tspan>有效差異數分格 4、無效差異數、會新開、會關掉、會改等級、只改路由優先值</text>
+    <text x="55" y="549"><tspan font-weight="bold">範圍內的現況 7：</tspan>searcher／good 開啟比例、最低／平均電量、瓶頸 sensor 數、耗能占比、單一覆蓋 target 數</text>
+    <text x="55" y="569"><tspan font-weight="bold">記憶 1：</tspan>本 episode 內和這個範圍重疊的 sensor 最近交換成功的比例</text>
+    <text x="55" y="589"><tspan font-weight="bold">全域 4：</tspan>搜尋進度、searcher 停滯、fitness 差距排名、全網電量</text>
+  </g>
+
+  <!-- 訓練 -->
+  <text x="40" y="630" fill="#5F5E5A"><tspan font-weight="bold">目前的訓練（監督式，還不是 RL）：</tspan>標籤＝作弊版在訓練地圖上把 4 個候選都試過的交換結果，損失 MSE</text>
+  <text x="40" y="652" fill="#5F5E5A"><tspan font-weight="bold">下一步（RL）：</tspan>同一個網路接 DQfD（Double DQN ＋ 模仿），分數就當成 Q 值</text>
+</svg>

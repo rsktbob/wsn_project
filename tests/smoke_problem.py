@@ -8,9 +8,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from Algorithm.ga.BaseGA import BaseGA
+from Algorithm.core.Algorithm import Algorithm
 from Algorithm.ga.GA import GA
-from Algorithm.se.SA_SETS import SA_SETS
+from Algorithm.se.sets.SA_SETS import SA_SETS
 from Problem.Problem import Problem
 from State.SensorEncoding import SensorEncoding
 
@@ -65,7 +65,7 @@ def build_and_evaluate(problem_cls):
 def main():
     build_and_evaluate(Problem)
 
-    assert issubclass(GA, BaseGA)
+    assert GA.__bases__ == (Algorithm,)
     assert hasattr(SA_SETS, "create_candidate")
     assert hasattr(SA_SETS, "align_region")
 

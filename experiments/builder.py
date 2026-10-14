@@ -1,38 +1,14 @@
 """Turning a preset into a constructed algorithm instance.
 
-Almost every algorithm is built as ``AlgorithmType(problem, seed=seed,
-**params)``, so that is the default and needs no table entry. Only the handful
-of constructors that deviate -- no ``seed``, no ``problem``, a generation count
-derived from the evaluation budget, or a post-construction assignment -- get a
-builder of their own below.
+Registered algorithms are constructed from their documented presets.
+The RL-SETS variants additionally receive a frozen checkpoint path.
 """
 
 import copy
 
 
-from Algorithm.core import iterations_to_reach_budget
-
-from experiments.config import evaluate_budget
 from experiments.presets import ALGORITHM_PRESETS
 from experiments.registry import RL_SETS_ALGORITHMS, load_algorithm_type
-
-
-def nsga_generation(evaluate, population_size):
-    population_size = max(1, int(population_size))
-    return iterations_to_reach_budget(
-        evaluate,
-        initialization_evaluations=population_size,
-        evaluations_per_iteration=population_size,
-    )
-
-
-def srime_generation(evaluate, population_size):
-    population_size = max(1, int(population_size))
-    return iterations_to_reach_budget(
-        evaluate,
-        initialization_evaluations=population_size,
-        evaluations_per_iteration=max(1, population_size - 1),
-    )
 
 
 def configured_algorithm_params(name, args):
@@ -51,78 +27,15 @@ def algorithm_label(name):
 
 def algorithm_params(name, args):
     """The parameters as they should appear in the experiment report."""
-    params = configured_algorithm_params(name, args)
-    if name in ("nsga", "snsga_rqlearning"):
-        params["generation"] = nsga_generation(
-            evaluate_budget(args), params["n"]
-        )
-    if name == "srime":
-        params["generation"] = srime_generation(
-            evaluate_budget(args), params["n"]
-        )
-    return params
-
-
-def _build_pso(algorithm_type, problem, params, args, seed):
-    # PSO takes its acceleration coefficients as attributes, not arguments.
-    algorithm = algorithm_type(
-        problem,
-        **{key: value for key, value in params.items() if key not in ("c1", "c2")},
-    )
-    algorithm.c1 = params["c1"]
-    algorithm.c2 = params["c2"]
-    return algorithm
-
-
-def _build_nsga(algorithm_type, problem, params, args, seed):
-    return algorithm_type(
-        problem,
-        generation=nsga_generation(evaluate_budget(args), params["n"]),
-        **params,
-    )
-
-
-def _build_snsga_rqlearning(algorithm_type, problem, params, args, seed):
-    rqlearning_params = dict(params.pop("rqlearning"))
-    rqlearning_params["seed"] = seed
-    # SNSGAII builds its own problem internally and takes no problem argument.
-    return algorithm_type(
-        generation=nsga_generation(evaluate_budget(args), params["n"]),
-        rqlearning_kwargs=rqlearning_params,
-        **params,
-    )
-
-
-def _build_srime(algorithm_type, problem, params, args, seed):
-    # SRIME builds its own problem internally and takes no problem argument.
-    return algorithm_type(
-        generation=srime_generation(evaluate_budget(args), params["n"]),
-        **params,
-    )
-
-
-SPECIAL_BUILDERS = {
-    "pso": _build_pso,
-    "nsga": _build_nsga,
-    "snsga_rqlearning": _build_snsga_rqlearning,
-    "srime": _build_srime,
-}
-
-# Constructors that do not accept a seed argument.
-UNSEEDED_ALGORITHMS = frozenset(("eda", "cs"))
+    return configured_algorithm_params(name, args)
 
 
 def build_algorithm(name, problem, args, seed):
     params = configured_algorithm_params(name, args)
     algorithm_type = load_algorithm_type(name)
 
-    special = SPECIAL_BUILDERS.get(name)
-    if special is not None:
-        return special(algorithm_type, problem, params, args, seed)
     if name in RL_SETS_ALGORITHMS and not params["model_path"]:
         raise ValueError(
             f"{name} requires --rl-model pointing to a trained checkpoint"
         )
-    if name in UNSEEDED_ALGORITHMS:
-        return algorithm_type(problem, **params)
     return algorithm_type(problem, seed=seed, **params)
