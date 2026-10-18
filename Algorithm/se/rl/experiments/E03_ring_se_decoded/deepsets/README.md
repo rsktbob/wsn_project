@@ -1,6 +1,6 @@
 # E03 / deepsets：監督式 DeepSets 打分網路
 
-網路圖：`../design.svg` 第 ② 部分。
+網路圖：`network.svg`（設計全貌見 `../design.svg` 第 ② 部分）。
 
 ## 輸入（每個候選範圍）
 

@@ -1,0 +1,4 @@
+random exit=0 10/17 21:11
+bottleneck exit=0 10/17 21:55
+concat exit=0 10/17 22:43
+attention exit=0 10/17 23:03

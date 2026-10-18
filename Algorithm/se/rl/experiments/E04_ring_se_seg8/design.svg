@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1010" viewBox="0 0 900 1010" font-family="Helvetica, Arial, 'Noto Sans CJK TC', sans-serif" font-size="12">
+  <rect width="900" height="1010" fill="#ffffff"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5F5E5A"/>
+    </marker>
+  </defs>
+  <text x="450" y="32" text-anchor="middle" font-size="17" font-weight="bold" fill="#2C2C2A">E04 設計（提案）：ring_se 環切 8 段、整段交換，網路選段</text>
+
+  <!-- ① 問題設定 -->
+  <rect x="40" y="52" width="820" height="46" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <text x="450" y="72" text-anchor="middle" font-weight="bold" fill="#2C2C2A">① 每組 searcher-good 交易：環固定切 8 段（每段 12–13 顆 sensor），網路選 1 段</text>
+  <text x="450" y="89" text-anchor="middle" fill="#2C2C2A">選到第 k 段就交換、突變第 k 段全部 sensor（範圍不再隨機）；作弊版天花板：1000 +7.9%、3000 +0.1%</text>
+
+  <!-- ② 輸入 -->
+  <rect x="30" y="114" width="840" height="236" rx="12" fill="none" stroke="#0F6E56" stroke-dasharray="7 4"/>
+  <text x="450" y="134" text-anchor="middle" font-weight="bold" fill="#0F6E56">② 輸入（兩版共用）</text>
+
+  <rect x="46" y="146" width="300" height="192" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+  <g fill="#085041">
+    <text x="58" y="166" font-weight="bold">每顆 sensor 一個 token · 25 維（同 E03）</text>
+    <text x="58" y="186">每段 13 個（不足補零遮罩）</text>
+    <text x="58" y="208" font-weight="bold">S、G 解碼後各 10 維：</text>
+    <text x="58" y="226">開關、等級、轉送、轉送量、子樹大小、</text>
+    <text x="58" y="242">跳數、耗能、緊迫度、覆蓋數、唯一覆蓋數</text>
+    <text x="58" y="264" font-weight="bold">共用 2 維：</text>
+    <text x="58" y="282">剩餘電量 E/E0、離 BS 距離</text>
+    <text x="58" y="304" font-weight="bold">差異旗標 3 維：</text>
+    <text x="58" y="322">開關不同、等級不同、priority 不同</text>
+  </g>
+
+  <rect x="360" y="146" width="290" height="192" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+  <g fill="#085041">
+    <text x="372" y="166" font-weight="bold">每段額外特徵 · 約 15 維（新增）</text>
+    <text x="372" y="190">· 瓶頸分數：有效差異 sensor 在 S、G</text>
+    <text x="384" y="206">的緊迫度總和（E03 瓶頸規則的分數）</text>
+    <text x="372" y="228">· 有效差異數、無效差異數</text>
+    <text x="372" y="250">· 範圍外影響 4 維（同 E03）：</text>
+    <text x="384" y="266">段外路由經過本段（S、G）、</text>
+    <text x="384" y="282">本段 target 段外無備援（S、G）</text>
+    <text x="372" y="304">· 段編號 one-hot 8 維</text>
+    <text x="384" y="320">（設計 A 可省略，位置已代表段號）</text>
+  </g>
+
+  <rect x="664" y="146" width="192" height="192" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+  <g fill="#085041">
+    <text x="676" y="166" font-weight="bold">全域 · 10 維（同 E03）</text>
+    <text x="676" y="190">搜尋進度</text>
+    <text x="676" y="208">searcher 停滯</text>
+    <text x="676" y="226">平均剩餘電量</text>
+    <text x="676" y="244">fitness 差距排名</text>
+    <text x="676" y="262">S／G 覆蓋率</text>
+    <text x="676" y="280">S／G 最短壽命差</text>
+    <text x="676" y="298">S／G 開啟數</text>
+    <text x="676" y="316">基因不同比例</text>
+  </g>
+
+  <!-- ③ 段編碼器 -->
+  <line x1="350" y1="350" x2="350" y2="370" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="100" y="372" width="500" height="64" rx="8" fill="#EEEDFE" stroke="#534AB7"/>
+  <g fill="#3C3489">
+    <text x="350" y="392" text-anchor="middle" font-weight="bold">③ 段編碼器（兩版共用，8 段共用權重）</text>
+    <text x="350" y="410" text-anchor="middle">13 token → φ：25→64→64 → 平均 ‖ 最大 ‖ 總和÷13（192）</text>
+    <text x="350" y="427" text-anchor="middle">‖ 段特徵 15 → 64，得到段向量 h₀ … h₇</text>
+  </g>
+  <line x1="350" y1="436" x2="230" y2="474" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="350" y1="436" x2="660" y2="474" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="760" y1="338" x2="760" y2="474" stroke="#5F5E5A" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+  <text x="768" y="410" fill="#5F5E5A">全域</text>
+  <line x1="700" y1="338" x2="430" y2="474" stroke="#5F5E5A" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+
+  <!-- 設計 A -->
+  <rect x="30" y="478" width="410" height="400" rx="12" fill="none" stroke="#534AB7" stroke-dasharray="7 4"/>
+  <text x="235" y="500" text-anchor="middle" font-size="14" font-weight="bold" fill="#534AB7">設計 A：串接＋經典 Dueling（約 10 萬參數）</text>
+
+  <g font-size="11" fill="#3C3489">
+    <rect x="50" y="514" width="40" height="28" rx="4" fill="#EEEDFE" stroke="#534AB7"/><text x="70" y="532" text-anchor="middle">h₀</text>
+    <rect x="94" y="514" width="40" height="28" rx="4" fill="#EEEDFE" stroke="#534AB7"/><text x="114" y="532" text-anchor="middle">h₁</text>
+    <text x="150" y="532" text-anchor="middle">…</text>
+    <rect x="166" y="514" width="40" height="28" rx="4" fill="#EEEDFE" stroke="#534AB7"/><text x="186" y="532" text-anchor="middle">h₇</text>
+    <rect x="216" y="514" width="72" height="28" rx="4" fill="#E1F5EE" stroke="#0F6E56"/><text x="252" y="532" text-anchor="middle" fill="#085041">全域 10</text>
+  </g>
+  <text x="300" y="532" fill="#2C2C2A">固定順序串接 522 維</text>
+  <line x1="170" y1="544" x2="170" y2="568" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="70" y="570" width="200" height="40" rx="8" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="170" y="595" text-anchor="middle" fill="#3C3489">共用層 522→128→128</text>
+  <line x1="130" y1="610" x2="100" y2="640" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="210" y1="610" x2="250" y2="640" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="44" y="642" width="120" height="40" rx="8" fill="#FBEFD5" stroke="#BA7517"/>
+  <text x="104" y="667" text-anchor="middle" fill="#633806">V：128→64→1</text>
+  <rect x="186" y="642" width="140" height="40" rx="8" fill="#FBEFD5" stroke="#BA7517"/>
+  <text x="256" y="667" text-anchor="middle" fill="#633806">A：128→64→8</text>
+  <text x="336" y="660" fill="#2C2C2A" font-size="11">第 k 個輸出</text>
+  <text x="336" y="675" fill="#2C2C2A" font-size="11">固定＝第 k 段</text>
+
+  <g fill="#2C2C2A">
+    <text x="48" y="716" font-weight="bold" fill="#0F6E56">優點</text>
+    <text x="48" y="734">· 原論文的經典 Dueling 結構</text>
+    <text x="48" y="752">· 每段有自己的輸出權重，能學「段 0 靠近 BS</text>
+    <text x="60" y="768">要另外判斷」這類段專屬規則</text>
+    <text x="48" y="794" font-weight="bold" fill="#993C1D">缺點</text>
+    <text x="48" y="812">· 段和段的比較要靠 MLP 自己學</text>
+    <text x="48" y="830">· 段之間的權重不共用，資料效率較低</text>
+    <text x="48" y="848">· 段編號 one-hot 多餘（位置已代表段號）</text>
+  </g>
+
+  <!-- 設計 B -->
+  <rect x="460" y="478" width="410" height="400" rx="12" fill="none" stroke="#534AB7" stroke-dasharray="7 4"/>
+  <text x="665" y="500" text-anchor="middle" font-size="14" font-weight="bold" fill="#534AB7">設計 B：段之間做 Attention（約 9.5 萬參數）</text>
+
+  <g font-size="11" fill="#3C3489">
+    <rect x="480" y="514" width="72" height="28" rx="4" fill="#E1F5EE" stroke="#0F6E56"/><text x="516" y="532" text-anchor="middle" fill="#085041">全域 token</text>
+    <rect x="560" y="514" width="40" height="28" rx="4" fill="#EEEDFE" stroke="#534AB7"/><text x="580" y="532" text-anchor="middle">h₀</text>
+    <rect x="604" y="514" width="40" height="28" rx="4" fill="#EEEDFE" stroke="#534AB7"/><text x="624" y="532" text-anchor="middle">h₁</text>
+    <text x="660" y="532" text-anchor="middle">…</text>
+    <rect x="676" y="514" width="40" height="28" rx="4" fill="#EEEDFE" stroke="#534AB7"/><text x="696" y="532" text-anchor="middle">h₇</text>
+  </g>
+  <text x="726" y="526" fill="#2C2C2A" font-size="11">9 個 token</text>
+  <text x="726" y="540" fill="#2C2C2A" font-size="11">全域 10→64</text>
+  <line x1="600" y1="544" x2="600" y2="568" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="490" y="570" width="220" height="40" rx="8" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="600" y="588" text-anchor="middle" fill="#3C3489">Transformer 2 層</text>
+  <text x="600" y="603" text-anchor="middle" fill="#3C3489" font-size="11">d=64、4 頭、FFN 128</text>
+  <text x="718" y="588" fill="#2C2C2A" font-size="11">每段都看得到</text>
+  <text x="718" y="603" fill="#2C2C2A" font-size="11">其他段和全域</text>
+  <line x1="540" y1="610" x2="530" y2="640" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="660" y1="610" x2="680" y2="640" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="470" y="642" width="130" height="40" rx="8" fill="#FBEFD5" stroke="#BA7517"/>
+  <text x="535" y="659" text-anchor="middle" fill="#633806" font-size="11">全域 token 輸出</text>
+  <text x="535" y="674" text-anchor="middle" fill="#633806">V：64→64→1</text>
+  <rect x="610" y="642" width="160" height="40" rx="8" fill="#FBEFD5" stroke="#BA7517"/>
+  <text x="690" y="659" text-anchor="middle" fill="#633806" font-size="11">每個段 token 輸出</text>
+  <text x="690" y="674" text-anchor="middle" fill="#633806">共用 A 頭：64→64→1</text>
+  <text x="778" y="660" fill="#2C2C2A" font-size="11">8 段各得</text>
+  <text x="778" y="675" fill="#2C2C2A" font-size="11">一個 A_k</text>
+
+  <g fill="#2C2C2A">
+    <text x="478" y="716" font-weight="bold" fill="#0F6E56">優點</text>
+    <text x="478" y="734">· 段之間直接比較：別段更緊迫的瓶頸、</text>
+    <text x="490" y="750">別段路由經過本段，attention 直接看到</text>
+    <text x="478" y="768">· 8 段共用 A 頭，資料效率較高</text>
+    <text x="478" y="794" font-weight="bold" fill="#993C1D">缺點</text>
+    <text x="478" y="812">· 要靠段編號 one-hot 才知道自己是第幾段</text>
+    <text x="478" y="830">· 結構較複雜，訓練較不穩</text>
+  </g>
+
+  <!-- ④ 輸出 -->
+  <line x1="235" y1="878" x2="400" y2="912" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="665" y1="878" x2="500" y2="912" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="200" y="914" width="500" height="64" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <text x="450" y="936" text-anchor="middle" font-weight="bold" fill="#2C2C2A">④ 輸出（兩版相同、固定）</text>
+  <text x="450" y="955" text-anchor="middle" fill="#2C2C2A">Q_k = V + A_k − mean(A)，k = 0…7（每段一個 Q）</text>
+  <text x="450" y="971" text-anchor="middle" fill="#2C2C2A">選 Q 最大的段 → 交換＋突變整段 → 照常 EN 更新</text>
+  <text x="450" y="1000" text-anchor="middle" fill="#5F5E5A" font-size="11">比較方式：同一份 8 段作弊版標籤做容量測試（命中率），較好的一版再跑 lifetime</text>
+</svg>

@@ -1,0 +1,6 @@
+train concat exit=0 10/18 14:26
+train attention exit=0 10/18 14:28
+rollout_check exit=0 10/18 14:33
+eval attention_sample exit=0 10/18 15:07
+eval attention_argmax exit=0 10/18 15:40
+eval concat_sample exit=0 10/18 16:27

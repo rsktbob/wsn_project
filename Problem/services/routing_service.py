@@ -1,4 +1,3 @@
-import time
 from dataclasses import dataclass
 
 import numpy as np
@@ -58,20 +57,6 @@ class RoutingService:
     def __init__(self, problem):
         self.problem = problem
 
-    @staticmethod
-    def _parse_routing_order(routing_order):
-        """同時支援新的 sensor-id 陣列與舊的 [sensor, level] 介面。"""
-        routing_array = np.asarray(routing_order, dtype=np.int64)
-        if routing_array.size == 0:
-            return np.empty(0, dtype=np.int64), None
-        if routing_array.ndim == 1:
-            return routing_array.reshape(-1), None
-        if routing_array.ndim == 2 and routing_array.shape[1] == 2:
-            return routing_array[:, 0], routing_array[:, 1]
-        raise ValueError(
-            "routing_order must contain sensor ids or [sensor, level] pairs"
-        )
-
     def compute_priorities(self):
         """Calculate distance-to-BS and remaining-energy routing priorities."""
         problem = self.problem
@@ -111,232 +96,58 @@ class RoutingService:
         else:
             problem.energy_score = problem.energy / max_energy
 
-    def _choose_parent(
-        self,
-        state,
-        route_selector,
-        sensor_id,
-        level,
-        routed_nodes,
-        parent_scores,
-    ):
-        """Select a candidate next-hop index, with greedy fallback."""
-        if route_selector is None:
-            return int(np.argmax(parent_scores))
-
-        problem = self.problem
-        callback = getattr(route_selector, "select_next_hop", None)
-        if callback is None:
-            callback = route_selector.SelectNextHop
-        parent_id = callback(
-            problem,
-            state,
-            sensor_id,
-            level,
-            routed_nodes,
-            parent_scores,
-        )
-
-        if parent_id is None:
-            return int(np.argmax(parent_scores))
-        matches = np.where(routed_nodes == int(parent_id))[0]
-        if len(matches) == 0:
-            return int(np.argmax(parent_scores))
-        return int(matches[0])
-
-    def _notify_selector(
-        self,
-        state,
-        route_selector,
-        sensor_id,
-        level,
-        parent_id,
-        routed_nodes,
-        parent_scores,
-        parent_score,
-        success,
-    ):
-        """Let an optional adaptive selector learn from a routing decision."""
-        if route_selector is None:
-            return
-        callback = getattr(route_selector, "learn_from_route", None)
-        if callback is None:
-            callback = getattr(route_selector, "LearnFromRoute", None)
-        if callback is not None:
-            callback(
-                self.problem,
-                state,
-                sensor_id,
-                level,
-                parent_id,
-                routed_nodes,
-                parent_scores,
-                parent_score,
-                success,
-            )
-
     def build_routes(
         self,
         state,
         routing_order,
         *,
-        route_selector=None,
-        test=False,
         disable_failed=True,
     ):
         """Build a forwarding tree by maximizing remaining bottleneck capacity."""
         problem = self.problem
-        routing_ids, routing_levels = self._parse_routing_order(
-            routing_order
+        # level 一律讀 state.levels，路由只接受一維 sensor id 順序。
+        routing_ids = np.asarray(routing_order, dtype=np.int64)
+        if routing_ids.ndim != 1:
+            raise ValueError("routing_order must be a 1-D array of sensor ids")
+        # 核心一開始會重設 next_hops／tx_load／remaining_capacity；沒有 numba
+        # 時 njit 退回成同一份 Python 函式，兩種環境走同一套邏輯。
+        state.levels = np.ascontiguousarray(state.levels, dtype=np.int64)
+        state.next_hops = np.ascontiguousarray(state.next_hops, dtype=np.int64)
+        state.tx_load = np.ascontiguousarray(state.tx_load, dtype=np.int64)
+        state.remaining_capacity = np.ascontiguousarray(
+            state.remaining_capacity,
+            dtype=np.float64,
         )
-        if NUMBA_AVAILABLE and route_selector is None and not test:
-            # State.empty 已配置好這些陣列；核心直接寫入，
-            # 避免每個候選解另外建立一組相同尺寸的陣列。
-            state.levels = np.ascontiguousarray(
-                state.levels,
-                dtype=np.int64,
-            )
-            state.next_hops = np.ascontiguousarray(
-                state.next_hops,
-                dtype=np.int64,
-            )
-            state.tx_load = np.ascontiguousarray(
-                state.tx_load,
-                dtype=np.int64,
-            )
-            state.remaining_capacity = np.ascontiguousarray(
-                state.remaining_capacity,
-                dtype=np.float64,
-            )
-            (
-                connected_ids,
-                rejected_ids,
-                unavailable_ids,
-                capacity_failed_ids,
-            ) = build_routes_kernel(
-                state.levels,
-                routing_ids,
-                np.asarray(problem.link_capacity, dtype=np.float64),
-                np.asarray(problem.generated_load, dtype=np.int64),
-                int(problem.SENSOR_NUMBER),
-                int(problem.DEVICE_NUMBER),
-                int(problem.BSID),
-                bool(disable_failed),
-                state.next_hops,
-                state.tx_load,
-                state.remaining_capacity,
-            )
-            # path 是 Python dict，數值核心完成後才由 parent chain 還原；
-            # connected_ids 維持建立順序，故 parent 一定已經存在。
-            state.paths = {int(problem.BSID): [int(problem.BSID)]}
-            for sensor_id in connected_ids:
-                sensor_id = int(sensor_id)
-                parent_id = int(state.next_hops[sensor_id])
-                state.paths[sensor_id] = [sensor_id] + state.paths[parent_id]
-            # 核心已經回傳 int64 陣列，直接沿用，不再逐一轉成 Python int。
-            return RoutingResult(
-                connected_ids=connected_ids,
-                rejected_ids=rejected_ids,
-                unavailable_ids=unavailable_ids,
-                capacity_failed_ids=capacity_failed_ids,
-            )
-
-        state.remaining_capacity[problem.BSID] = np.inf
-        state.paths = {problem.BSID: [problem.BSID]}
-        routed_nodes = np.array([problem.BSID], dtype=int)
-        rejected_ids = []
-        unavailable_ids = []
-        capacity_failed_ids = []
-        start_time = time.time() if test else None
-
-        if routing_levels is None:
-            routing_levels = np.asarray(
-                state.levels[routing_ids],
-                dtype=np.int64,
-            )
-        for sensor_id, level in zip(routing_ids, routing_levels):
+        (
+            connected_ids,
+            rejected_ids,
+            unavailable_ids,
+            capacity_failed_ids,
+        ) = build_routes_kernel(
+            state.levels,
+            routing_ids,
+            np.asarray(problem.link_capacity, dtype=np.float64),
+            np.asarray(problem.generated_load, dtype=np.int64),
+            int(problem.SENSOR_NUMBER),
+            int(problem.DEVICE_NUMBER),
+            int(problem.BSID),
+            bool(disable_failed),
+            state.next_hops,
+            state.tx_load,
+            state.remaining_capacity,
+        )
+        # path 是 Python dict，數值核心完成後才由 parent chain 還原；
+        # connected_ids 維持建立順序，故 parent 一定已經存在。
+        state.paths = {int(problem.BSID): [int(problem.BSID)]}
+        for sensor_id in connected_ids:
             sensor_id = int(sensor_id)
-            level = int(level)
-            required_load = problem.generated_load[sensor_id]
-            path_caps = state.remaining_capacity[routed_nodes]
-
-            link_caps = problem.link_capacity[
-                sensor_id, level, routed_nodes
-            ]
-            if np.max(link_caps) <= 0:
-                if disable_failed:
-                    state.levels[sensor_id] = 0
-                rejected_ids.append(sensor_id)
-                unavailable_ids.append(sensor_id)
-                continue
-
-            # A route is feasible only when both the source-to-parent link and
-            # the parent's complete path can carry this sensor's packets.
-            # The score is the exact bottleneck margin; no flooring or
-            # cross-normalized tie breaker can turn an insufficient link into
-            # an apparently feasible one.
-            parent_scores = (
-                np.minimum(link_caps, path_caps) - required_load
-            )
-            parent_index = self._choose_parent(
-                state,
-                route_selector,
-                sensor_id,
-                level,
-                routed_nodes,
-                parent_scores,
-            )
-            parent_id = routed_nodes[parent_index]
-            parent_score = parent_scores[parent_index]
-
-            if parent_score >= 0:
-                state.next_hops[sensor_id] = parent_id
-                routed_nodes = np.append(routed_nodes, sensor_id)
-                state.paths[sensor_id] = [sensor_id] + state.paths[
-                    state.next_hops[sensor_id]
-                ]
-                state.tx_load[
-                    np.asarray(state.paths[sensor_id][:-1], dtype=int)
-                ] += problem.generated_load[sensor_id]
-                self.update_capacity(state, routed_nodes)
-                self._notify_selector(
-                    state,
-                    route_selector,
-                    sensor_id,
-                    level,
-                    parent_id,
-                    routed_nodes,
-                    parent_scores,
-                    parent_score,
-                    True,
-                )
-            else:
-                if disable_failed:
-                    state.levels[sensor_id] = 0
-                rejected_ids.append(sensor_id)
-                capacity_failed_ids.append(sensor_id)
-                self._notify_selector(
-                    state,
-                    route_selector,
-                    sensor_id,
-                    level,
-                    parent_id,
-                    routed_nodes,
-                    parent_scores,
-                    parent_score,
-                    False,
-                )
-
-        if test:
-            print(0, 0, time.time() - start_time)
-        # 非 numba 後備路徑：同樣統一回傳 int64 陣列。
+            parent_id = int(state.next_hops[sensor_id])
+            state.paths[sensor_id] = [sensor_id] + state.paths[parent_id]
         return RoutingResult(
-            connected_ids=np.asarray(routed_nodes[1:], dtype=np.int64),
-            rejected_ids=np.asarray(rejected_ids, dtype=np.int64),
-            unavailable_ids=np.asarray(unavailable_ids, dtype=np.int64),
-            capacity_failed_ids=np.asarray(
-                capacity_failed_ids, dtype=np.int64
-            ),
+            connected_ids=connected_ids,
+            rejected_ids=rejected_ids,
+            unavailable_ids=unavailable_ids,
+            capacity_failed_ids=capacity_failed_ids,
         )
 
     def build_capacities(self, schedule=None):

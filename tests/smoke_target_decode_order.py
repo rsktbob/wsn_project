@@ -44,7 +44,7 @@ def main():
     retained = coding._decode_coverage(problem, state)
 
     # 從後往前刪除時，應刪掉後加入的 sensor 1，保留 sensor 0。
-    assert retained == [[0, 1]]
+    assert retained == [0]
     np.testing.assert_array_equal(state.levels, [1, 0])
     print("smoke_target_decode_order_ok")
 

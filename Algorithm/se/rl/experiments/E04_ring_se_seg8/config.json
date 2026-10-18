@@ -1,0 +1,27 @@
+{
+  "budget": 1000,
+  "episodes": 800,
+  "gamma": 0.5,
+  "n_step": 3,
+  "lambda_n": 1.0,
+  "batch": 128,
+  "replay_capacity": 150000,
+  "warmup": 5000,
+  "target_every": 1000,
+  "updates_per_round": 4,
+  "l2": 1e-05,
+  "grad_clip": 10.0,
+  "per_alpha": 0.4,
+  "per_beta0": 0.6,
+  "per_eps": 0.001,
+  "eps_start": 1.0,
+  "eps_end": 0.05,
+  "eps_decay_frac": 0.5,
+  "val_every": 50,
+  "val_snapshot_index": [1, 4],
+  "torch_threads": 2,
+  "net_overrides": {
+    "concat": {"lr": 0.0003},
+    "attention": {"lr": 0.0001}
+  }
+}

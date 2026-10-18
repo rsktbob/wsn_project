@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="800" viewBox="0 0 760 800" font-family="Helvetica, Arial, 'Noto Sans CJK TC', sans-serif" font-size="12">
+  <rect width="760" height="800" fill="#ffffff"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5F5E5A"/>
+    </marker>
+  </defs>
+  <text x="380" y="30" text-anchor="middle" font-size="17" font-weight="bold" fill="#2C2C2A">E03 DeepSets 打分網路（41,153 參數）</text>
+  <text x="380" y="50" text-anchor="middle" fill="#5F5E5A">每個候選範圍算一個分數；4 個候選共用同一個網路，選分數最高的</text>
+
+  <!-- 外框：單一候選 -->
+  <rect x="20" y="66" width="720" height="620" rx="12" fill="none" stroke="#534AB7" stroke-dasharray="7 4"/>
+  <text x="36" y="86" font-weight="bold" fill="#534AB7">一個候選範圍（×4，共用權重）</text>
+
+  <!-- token 輸入 -->
+  <rect x="40" y="100" width="400" height="150" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+  <text x="240" y="122" text-anchor="middle" font-weight="bold" fill="#085041">範圍內每顆 sensor 一個 token：L × 25（L ≤ 50，補零遮罩）</text>
+  <g fill="#085041">
+    <text x="56" y="146">searcher 解碼 10：開關、等級、是否轉送、轉送量、子樹大小、</text>
+    <text x="56" y="162">　跳數、耗能、緊迫度、覆蓋 target 數、獨占 target 數</text>
+    <text x="56" y="182">good 解碼 10：同上</text>
+    <text x="56" y="202">sensor 2：剩餘電量 E/E0、離 BS 距離</text>
+    <text x="56" y="222">差異旗標 3：開關不同、等級不同、優先值基因不同</text>
+    <text x="56" y="240" fill="#0F6E56" font-size="11">（不含原始排程基因值）</text>
+  </g>
+
+  <!-- extra 輸入 -->
+  <rect x="460" y="100" width="260" height="150" rx="8" fill="#FAEEDA" stroke="#854F0B"/>
+  <text x="590" y="122" text-anchor="middle" font-weight="bold" fill="#633806">範圍層級特徵 18</text>
+  <g fill="#633806">
+    <text x="476" y="146">範圍外影響 4：路由經過範圍內的</text>
+    <text x="476" y="162">　外部 sensor 數、無備援 target 比例</text>
+    <text x="476" y="186">位置 4：起點、終點、長度、是否跨段</text>
+    <text x="476" y="210">全域 10：進度、停滯、平均電量、</text>
+    <text x="476" y="226">　fitness 排名差、覆蓋率、壽命差、</text>
+    <text x="476" y="242">　開啟數、基因不同比例</text>
+  </g>
+
+  <!-- φ -->
+  <line x1="240" y1="250" x2="240" y2="278" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="80" y="280" width="320" height="86" rx="8" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="240" y="302" text-anchor="middle" font-weight="bold" fill="#3C3489">φ：每顆 sensor 共用的 MLP</text>
+  <text x="240" y="324" text-anchor="middle" fill="#3C3489">Linear 25→64 · ReLU</text>
+  <text x="240" y="342" text-anchor="middle" fill="#3C3489">Linear 64→64 · ReLU</text>
+  <text x="240" y="359" text-anchor="middle" fill="#534AB7" font-size="11">輸出 L × 64</text>
+
+  <!-- pooling -->
+  <line x1="240" y1="366" x2="240" y2="394" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="60" y="396" width="360" height="74" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <text x="240" y="418" text-anchor="middle" font-weight="bold" fill="#2C2C2A">集合聚合（只算遮罩內的 sensor）</text>
+  <rect x="76" y="430" width="100" height="28" rx="5" fill="#ffffff" stroke="#888780"/>
+  <text x="126" y="449" text-anchor="middle" fill="#2C2C2A">平均 64</text>
+  <rect x="190" y="430" width="100" height="28" rx="5" fill="#ffffff" stroke="#888780"/>
+  <text x="240" y="449" text-anchor="middle" fill="#2C2C2A">最大 64</text>
+  <rect x="304" y="430" width="100" height="28" rx="5" fill="#ffffff" stroke="#888780"/>
+  <text x="354" y="449" text-anchor="middle" fill="#2C2C2A">總和÷50　64</text>
+
+  <!-- concat -->
+  <line x1="240" y1="470" x2="360" y2="500" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M590,250 L590,480 L400,502" fill="none" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="250" y="502" width="260" height="34" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <text x="380" y="524" text-anchor="middle" font-weight="bold" fill="#2C2C2A">串接 192 ‖ 18 = 210</text>
+
+  <!-- head -->
+  <line x1="380" y1="536" x2="380" y2="558" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="250" y="560" width="260" height="84" rx="8" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="380" y="580" text-anchor="middle" font-weight="bold" fill="#3C3489">打分頭</text>
+  <text x="380" y="600" text-anchor="middle" fill="#3C3489">Linear 210→128 · ReLU</text>
+  <text x="380" y="617" text-anchor="middle" fill="#3C3489">Linear 128→64 · ReLU</text>
+  <text x="380" y="634" text-anchor="middle" fill="#3C3489">Linear 64→1</text>
+  <line x1="380" y1="644" x2="380" y2="666" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="380" y="680" text-anchor="middle" font-weight="bold" fill="#2C2C2A">分數 s₁</text>
+
+  <!-- 4 候選 -->
+  <g>
+    <rect x="160" y="706" width="90" height="30" rx="6" fill="#ffffff" stroke="#534AB7"/>
+    <text x="205" y="726" text-anchor="middle" fill="#3C3489">s₁</text>
+    <rect x="260" y="706" width="90" height="30" rx="6" fill="#ffffff" stroke="#534AB7"/>
+    <text x="305" y="726" text-anchor="middle" fill="#3C3489">s₂</text>
+    <rect x="360" y="706" width="90" height="30" rx="6" fill="#ffffff" stroke="#534AB7"/>
+    <text x="405" y="726" text-anchor="middle" fill="#3C3489">s₃</text>
+    <rect x="460" y="706" width="90" height="30" rx="6" fill="#ffffff" stroke="#534AB7"/>
+    <text x="505" y="726" text-anchor="middle" fill="#3C3489">s₄</text>
+    <line x1="558" y1="721" x2="586" y2="721" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="592" y="726" font-weight="bold" fill="#2C2C2A">argmax → 交換</text>
+  </g>
+  <text x="380" y="770" text-anchor="middle" fill="#5F5E5A" font-size="11">訓練：監督式，目標 Δ≤1e-12 → 0、Δ&gt;0 → 0.5＋0.5×百分位；4 個候選 MSE；Adam lr 1e-3、batch 512</text>
+</svg>

@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1050" viewBox="0 0 900 1050" font-family="Helvetica, Arial, 'Noto Sans CJK TC', sans-serif" font-size="12">
+  <rect width="900" height="1050" fill="#ffffff"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5F5E5A"/>
+    </marker>
+  </defs>
+  <text x="450" y="32" text-anchor="middle" font-size="17" font-weight="bold" fill="#2C2C2A">E04 設計 B：ring_se 環切 8 段、整段交換，段之間做 Attention 選段</text>
+
+  <!-- ① 問題設定 -->
+  <rect x="40" y="52" width="820" height="46" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <text x="450" y="72" text-anchor="middle" font-weight="bold" fill="#2C2C2A">① 每組 searcher-good 交易：環固定切 8 段（每段 12–13 顆 sensor），網路選 1 段</text>
+  <text x="450" y="89" text-anchor="middle" fill="#2C2C2A">選到第 k 段就交換、突變第 k 段全部 sensor（範圍不再隨機）；作弊版天花板：1000 +7.9%、3000 +0.1%</text>
+
+  <!-- ② 輸入 -->
+  <rect x="30" y="114" width="840" height="246" rx="12" fill="none" stroke="#0F6E56" stroke-dasharray="7 4"/>
+  <text x="450" y="134" text-anchor="middle" font-weight="bold" fill="#0F6E56">② 輸入（與設計 A 相同）</text>
+  <text x="450" y="352" text-anchor="middle" fill="#993C1D">（改）所有特徵先做 z-score 標準化：平均／標準差用隨機策略的資料算一次後固定</text>
+
+  <rect x="46" y="146" width="300" height="192" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+  <g fill="#085041">
+    <text x="58" y="166" font-weight="bold">每顆 sensor 一個 token · 25 維（同 E03）</text>
+    <text x="58" y="186">每段 13 個（不足補零遮罩）</text>
+    <text x="58" y="208" font-weight="bold">S、G 解碼後各 10 維（共 20）：</text>
+    <text x="58" y="226">開關、等級、轉送、轉送量、子樹大小、</text>
+    <text x="58" y="242">跳數、耗能、緊迫度、覆蓋數、唯一覆蓋數</text>
+    <text x="58" y="264" font-weight="bold">共用 2 維：</text>
+    <text x="58" y="282">剩餘電量 E/E0、離 BS 距離</text>
+    <text x="58" y="304" font-weight="bold">差異旗標 3 維：</text>
+    <text x="58" y="322">開關不同、等級不同、priority 不同</text>
+  </g>
+
+  <rect x="360" y="146" width="290" height="192" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+  <g fill="#085041">
+    <text x="372" y="166" font-weight="bold">每段額外特徵 · 7 維</text>
+    <text x="372" y="190">· 瓶頸分數 b_k：有效差異 sensor 在 S、G</text>
+    <text x="384" y="206">的緊迫度總和（E03 瓶頸規則的分數）</text>
+    <text x="372" y="228">· 有效差異數、無效差異數</text>
+    <text x="372" y="250">· 範圍外影響 4 維（同 E03）：</text>
+    <text x="384" y="266">段外路由經過本段（S、G）、</text>
+    <text x="384" y="282">本段 target 段外無備援（S、G）</text>
+    <text x="372" y="306" fill="#993C1D">（改）段編號 one-hot 移到 ④，</text>
+    <text x="384" y="322" fill="#993C1D">改成可學的段嵌入</text>
+  </g>
+
+  <rect x="664" y="146" width="192" height="192" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+  <g fill="#085041">
+    <text x="676" y="166" font-weight="bold">全域 · 10 維（同 E03）</text>
+    <text x="676" y="190">搜尋進度</text>
+    <text x="676" y="208">searcher 停滯</text>
+    <text x="676" y="226">平均剩餘電量</text>
+    <text x="676" y="244">fitness 差距排名</text>
+    <text x="676" y="262">S／G 覆蓋率</text>
+    <text x="676" y="280">S／G 最短壽命差</text>
+    <text x="676" y="298">S／G 開啟數</text>
+    <text x="676" y="316">基因不同比例</text>
+  </g>
+
+  <!-- ③ 段編碼器 -->
+  <line x1="350" y1="360" x2="350" y2="380" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="90" y="382" width="520" height="82" rx="8" fill="#EEEDFE" stroke="#534AB7"/>
+  <g fill="#3C3489">
+    <text x="350" y="402" text-anchor="middle" font-weight="bold">③ 段編碼器（8 段共用權重，同設計 A）</text>
+    <text x="350" y="420" text-anchor="middle">13 token → φ：25→64→64 → 遮罩後 平均 ‖ 最大 ‖ 總和÷13（192）</text>
+    <text x="350" y="437" text-anchor="middle">‖ 段特徵 7 → MLP 199→128→64，得到段向量 h₀ … h₇</text>
+    <text x="350" y="454" text-anchor="middle" fill="#993C1D">（改）原本是單層 207→64；改兩層，讓段特徵和 token 摘要能交互</text>
+  </g>
+
+  <!-- ④ 網路 -->
+  <rect x="30" y="482" width="840" height="322" rx="12" fill="none" stroke="#534AB7" stroke-dasharray="7 4"/>
+  <text x="450" y="504" text-anchor="middle" font-size="14" font-weight="bold" fill="#534AB7">④ 段之間做 Attention（約 12 萬參數）</text>
+  <line x1="350" y1="464" x2="350" y2="480" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <g font-size="11" fill="#3C3489">
+    <rect x="160" y="518" width="96" height="28" rx="4" fill="#E1F5EE" stroke="#0F6E56"/><text x="208" y="536" text-anchor="middle" fill="#085041">全域 10→64</text>
+    <rect x="270" y="518" width="56" height="28" rx="4" fill="#EEEDFE" stroke="#534AB7"/><text x="298" y="536" text-anchor="middle">h₀＋e₀</text>
+    <rect x="332" y="518" width="56" height="28" rx="4" fill="#EEEDFE" stroke="#534AB7"/><text x="360" y="536" text-anchor="middle">h₁＋e₁</text>
+    <text x="404" y="536" text-anchor="middle">…</text>
+    <rect x="420" y="518" width="56" height="28" rx="4" fill="#EEEDFE" stroke="#534AB7"/><text x="448" y="536" text-anchor="middle">h₇＋e₇</text>
+  </g>
+  <text x="490" y="530" fill="#2C2C2A">9 個 token</text>
+  <text x="490" y="545" fill="#993C1D" font-size="11">（改）e_k＝可學段嵌入 8×64，取代 one-hot</text>
+  <line x1="760" y1="338" x2="760" y2="532" stroke="#5F5E5A" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="768" y="440" fill="#5F5E5A">全域</text>
+  <line x1="760" y1="532" x2="740" y2="532" stroke="#5F5E5A" stroke-width="1.2" stroke-dasharray="4 3"/>
+
+  <line x1="320" y1="548" x2="320" y2="572" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="150" y="574" width="340" height="58" rx="8" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="320" y="595" text-anchor="middle" fill="#3C3489" font-weight="bold">Transformer 2 層（pre-LN、不用 dropout）</text>
+  <text x="320" y="614" text-anchor="middle" fill="#3C3489">d=64、4 頭、FFN 128；每段都看得到其他段和全域</text>
+
+  <!-- 段距離偏置 -->
+  <rect x="520" y="566" width="330" height="128" rx="8" fill="#FAECE7" stroke="#993C1D"/>
+  <g fill="#712B13">
+    <text x="534" y="586" font-weight="bold">（改）段距離 attention 偏置</text>
+    <text x="534" y="604">score(i, j) ＝ q_i·k_j / √16 ＋ r[頭, d(i, j)]</text>
+    <text x="534" y="622">d(i, j)＝|i−j| ∈ 0…7（段 0 最內圈、段 7 最外圈）</text>
+    <text x="534" y="640">全域 token 對各段另用一個偏置</text>
+    <text x="534" y="658">每頭 9 個可學參數（每層 36 個）</text>
+    <text x="534" y="680" font-size="11">讓網路直接知道哪些段相鄰；外圈路由會經過內圈</text>
+  </g>
+  <line x1="520" y1="603" x2="492" y2="603" stroke="#993C1D" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+  <line x1="230" y1="632" x2="200" y2="662" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="400" y1="632" x2="420" y2="662" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="140" y="654" fill="#2C2C2A" font-size="11">全域 token 輸出</text>
+  <text x="414" y="654" fill="#2C2C2A" font-size="11">8 個段 token 輸出</text>
+  <rect x="110" y="664" width="170" height="40" rx="8" fill="#FBEFD5" stroke="#BA7517"/>
+  <text x="195" y="689" text-anchor="middle" fill="#633806">V：64→64→1</text>
+  <rect x="320" y="664" width="190" height="40" rx="8" fill="#FBEFD5" stroke="#BA7517"/>
+  <text x="415" y="689" text-anchor="middle" fill="#633806">共用 A 頭：64→64→1</text>
+  <text x="415" y="722" text-anchor="middle" fill="#2C2C2A" font-size="11">8 段各得一個 A_k（同一組權重）</text>
+
+
+  <rect x="90" y="740" width="720" height="52" rx="8" fill="#ffffff" stroke="#888780" stroke-dasharray="4 3"/>
+  <text x="450" y="759" text-anchor="middle" fill="#2C2C2A">訓練注意：學習率比設計 A 小（例如 1e-4 對 3e-4），梯度裁剪 10</text>
+  <text x="450" y="777" text-anchor="middle" fill="#2C2C2A" font-size="11">補空位的 token 在 ③ 已遮罩；④ 的 9 個 token 都是真的，不需要遮罩</text>
+
+  <!-- ⑤ 輸出 -->
+  <line x1="450" y1="804" x2="450" y2="822" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="40" y="824" width="820" height="46" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <text x="450" y="844" text-anchor="middle" font-weight="bold" fill="#2C2C2A">⑤ Q_k = V + A_k − mean(A)，k = 0…7（每段一個 Q）</text>
+  <text x="450" y="861" text-anchor="middle" fill="#2C2C2A">選 Q 最大的段 → 交換＋突變整段 → 照常 EN 更新</text>
+
+  <!-- 優缺點 -->
+  <rect x="40" y="886" width="400" height="146" rx="8" fill="#ffffff" stroke="#0F6E56"/>
+  <g fill="#2C2C2A">
+    <text x="56" y="908" font-weight="bold" fill="#0F6E56">優點</text>
+    <text x="56" y="930">· 段之間直接比較：別段更緊迫的瓶頸、</text>
+    <text x="68" y="946">別段路由經過本段，attention 直接看到</text>
+    <text x="56" y="968">· 8 段共用 A 頭，RL 時每個轉移都在訓練</text>
+    <text x="68" y="984">同一組權重，資料效率較高</text>
+    <text x="56" y="1006">· 段距離偏置直接表達相鄰關係</text>
+  </g>
+  <rect x="460" y="886" width="400" height="146" rx="8" fill="#ffffff" stroke="#993C1D"/>
+  <g fill="#2C2C2A">
+    <text x="476" y="908" font-weight="bold" fill="#993C1D">缺點</text>
+    <text x="476" y="930">· 段專屬規則（段 0 靠近 BS）要靠段嵌入學</text>
+    <text x="476" y="952">· 結構較複雜，RL 訓練較不穩</text>
+    <text x="476" y="974">· v3 同等條件對照時 attention 沒贏 DeepSets</text>
+    <text x="488" y="990">（那次是範圍內 sensor 之間的 attention，</text>
+    <text x="488" y="1006">這次是段之間，不同層級）</text>
+  </g>
+</svg>

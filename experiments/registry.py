@@ -12,6 +12,8 @@ ALGORITHM_IMPORTS = {
     "qring_se": ("Algorithm.quantum.QRing_SE", "QRing_SE"),
     "qsi_sets": ("Algorithm.quantum.QSI_SETS", "QSI_SETS"),
     "qts": ("Algorithm.quantum.QTS", "QTS"),
+    "qdit_ts": ("Algorithm.quantum.QditTS", "QditTS"),
+    "qdit_ts_smooth": ("Algorithm.quantum.QditTS_Smooth", "QditTS_Smooth"),
     "sa_sets": ("Algorithm.se.sets.SA_SETS", "SA_SETS"),
     "sa_setspri": ("Algorithm.se.sets.SA_SETSpri", "SA_SETSpri"),
     "ring_se": ("Algorithm.se.ring_se.Ring_SE", "Ring_SE"),

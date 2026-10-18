@@ -33,6 +33,19 @@ ALGORITHM_PRESETS = {
                 'probability_floor': 0.01,
                 'init': 'uniform'}},
 
+    'qdit_ts': {'label': 'Qdit-TS',
+     'encoding': 'SensorEncoding: sensing levels + routing-priority ranks',
+     'params': {'n': 10,
+                'rotation': 0.031415926535897934,
+                'probability_floor': 0.01}},
+
+    'qdit_ts_smooth': {'label': 'Qdit-TS smooth',
+     'encoding': 'SensorEncoding: sensing levels + routing-priority ranks',
+     'params': {'n': 10,
+                'rotation': 0.031415926535897934,
+                'kernel': (1.0, 0.5),
+                'probability_floor': 0.01}},
+
     'qring_se': {
         "label": 'Q-Ring-SE (Ring-SE with Q-bit goods)',
         "encoding": 'N sensing levels + N routing-priority ranks',

@@ -30,7 +30,7 @@ def check_fractional_shortfall_is_rejected():
     state = State.empty(problem)
     state.levels[0] = 1
 
-    result = RoutingService(problem).build_routes(state, [[0, 1]])
+    result = RoutingService(problem).build_routes(state, [0])
 
     assert result.connected_ids.tolist() == []
     assert result.capacity_failed_ids.tolist() == [0]
@@ -48,7 +48,7 @@ def check_largest_bottleneck_margin_is_selected():
 
     result = RoutingService(problem).build_routes(
         state,
-        [[0, 1], [1, 1]],
+        [0, 1],
     )
 
     assert result.connected_ids.tolist() == [0, 1]

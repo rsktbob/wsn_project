@@ -1,0 +1,13 @@
+{
+  "description": "2023 DS1 avg map: boundary 100, 100 sensors, 25 targets (data/10010025_DS1_avg).",
+  "maps": [
+    {
+      "name": "DS1_avg",
+      "file": "DS1_avg",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 25,
+      "full_energy": 10
+    }
+  ]
+}

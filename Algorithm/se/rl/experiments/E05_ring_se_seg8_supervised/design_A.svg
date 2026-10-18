@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1180" viewBox="0 0 900 1180" font-family="Helvetica, Arial, 'Noto Sans CJK TC', sans-serif" font-size="12">
+  <rect width="900" height="1180" fill="#ffffff"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5F5E5A"/>
+    </marker>
+  </defs>
+  <text x="450" y="32" text-anchor="middle" font-size="17" font-weight="bold" fill="#2C2C2A">E05 設計 A（提案）：ring_se 環切 8 段，監督式學習選段，串接 MLP</text>
+
+  <!-- ① 問題設定 -->
+  <rect x="40" y="52" width="820" height="62" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <text x="450" y="72" text-anchor="middle" font-weight="bold" fill="#2C2C2A">① 同 E04：每組 searcher-good 交易，環固定切 8 段，網路選 1 段，整段交換、段內突變</text>
+  <text x="450" y="89" text-anchor="middle" fill="#2C2C2A">段 0 最內圈、段 7 最外圈；作弊版（偷看 8 段只交換的 Δ）天花板 1000 +7.3%</text>
+  <text x="450" y="106" text-anchor="middle" fill="#993C1D">E04 教訓：監督式回歸 Δ ＋ 選最大 → 52% 都選段 7，每步改善率 0.394 ≈ 隨機 0.397，lifetime −1.4%</text>
+
+  <!-- ② 輸入 -->
+  <rect x="40" y="130" width="820" height="62" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+  <text x="450" y="150" text-anchor="middle" font-weight="bold" fill="#085041">② 輸入：維持 E04（z-score 標準化）</text>
+  <text x="450" y="168" text-anchor="middle" fill="#085041">sensor token 8 段 × 13 × 25（S 10 ‖ G 10 ‖ E/E0、離 BS 距離 ‖ 差異旗標 3）</text>
+  <text x="450" y="184" text-anchor="middle" fill="#085041">段特徵 8 × 7（瓶頸分數、有效／無效差異數、範圍外影響 4）· 全域 10</text>
+
+  <!-- ③ 段編碼器 -->
+  <line x1="450" y1="192" x2="450" y2="210" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="160" y="212" width="580" height="48" rx="8" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="450" y="232" text-anchor="middle" font-weight="bold" fill="#3C3489">③ 段編碼器（同 E04，8 段共用權重）</text>
+  <text x="450" y="250" text-anchor="middle" fill="#3C3489">φ 25→64→64 → 遮罩後 平均 ‖ 最大 ‖ 總和÷13 ‖ 段特徵 7 → 199→128→64 = h_k</text>
+
+  <!-- ④ 網路 -->
+  <line x1="450" y1="260" x2="450" y2="278" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="30" y="280" width="840" height="250" rx="12" fill="none" stroke="#534AB7" stroke-dasharray="7 4"/>
+  <text x="450" y="302" text-anchor="middle" font-size="14" font-weight="bold" fill="#534AB7">④ 串接後直接輸出 8 個分數（沿用 E04 設計 A 的主體，約 12.4 萬參數）</text>
+
+  <g font-size="11" fill="#3C3489">
+    <rect x="200" y="316" width="44" height="28" rx="4" fill="#EEEDFE" stroke="#534AB7"/><text x="222" y="334" text-anchor="middle">h₀</text>
+    <rect x="248" y="316" width="44" height="28" rx="4" fill="#EEEDFE" stroke="#534AB7"/><text x="270" y="334" text-anchor="middle">h₁</text>
+    <text x="310" y="334" text-anchor="middle">…</text>
+    <rect x="328" y="316" width="44" height="28" rx="4" fill="#EEEDFE" stroke="#534AB7"/><text x="350" y="334" text-anchor="middle">h₇</text>
+    <rect x="382" y="316" width="76" height="28" rx="4" fill="#E1F5EE" stroke="#0F6E56"/><text x="420" y="334" text-anchor="middle" fill="#085041">全域 10</text>
+  </g>
+  <text x="470" y="334" fill="#2C2C2A">依段號固定順序串接：8×64＋10＝522 維</text>
+  <line x1="360" y1="346" x2="360" y2="366" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="200" y="368" width="320" height="50" rx="8" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="360" y="388" text-anchor="middle" fill="#3C3489" font-weight="bold">共用層 522→128→128（ReLU）</text>
+  <text x="360" y="406" text-anchor="middle" fill="#3C3489">同 E04 設計 A</text>
+  <line x1="360" y1="418" x2="360" y2="438" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="200" y="440" width="320" height="40" rx="8" fill="#FBEFD5" stroke="#BA7517"/>
+  <text x="360" y="465" text-anchor="middle" fill="#633806">輸出層 128→8 → s₀ … s₇（第 k 個固定＝第 k 段）</text>
+  <text x="360" y="506" text-anchor="middle" fill="#993C1D">（改）拿掉 V／A 兩支：不做 RL，不需要 Dueling，直接一層輸出 8 個分數</text>
+
+  <rect x="580" y="370" width="270" height="110" rx="8" fill="#ffffff" stroke="#888780" stroke-dasharray="4 3"/>
+  <g fill="#2C2C2A" font-size="11">
+    <text x="592" y="390" font-weight="bold">優點／缺點</text>
+    <text x="592" y="408">+ 結構簡單，訓練穩</text>
+    <text x="592" y="424">+ 每段有自己的輸出權重（段專屬規則）</text>
+    <text x="592" y="440">− 段之間的比較要靠 MLP 自己學</text>
+    <text x="592" y="456">− 每段輸出偏置可直接學「段 7 比較好」，</text>
+    <text x="604" y="472">崩塌風險較高，更依賴 ⑤⑥</text>
+  </g>
+
+  <!-- ⑤ 訓練目標 -->
+  <rect x="30" y="548" width="840" height="240" rx="12" fill="none" stroke="#993C1D" stroke-dasharray="7 4"/>
+  <text x="450" y="570" text-anchor="middle" font-size="14" font-weight="bold" fill="#993C1D">⑤ 訓練目標（關鍵改動，兩個候選）</text>
+
+  <rect x="46" y="582" width="395" height="196" rx="8" fill="#FAECE7" stroke="#993C1D"/>
+  <g fill="#712B13">
+    <text x="58" y="602" font-weight="bold">方案 1：組內排序（listwise，推薦）</text>
+    <text x="58" y="622">標籤：作弊版 8 段 Δ 轉成「哪段最好」的分布</text>
+    <text x="70" y="638">p*_k ＝ 1/m（Δ_k 是最大的 m 段之一），否則 0</text>
+    <text x="70" y="654">8 段都沒改善的交易不拿來訓練</text>
+    <text x="58" y="674">損失：交叉熵 −Σ p*_k · log softmax(s)_k</text>
+    <text x="58" y="694">意義：softmax(s)_k ＝ 第 k 段是最好那段的機率</text>
+    <text x="58" y="714">好處：只比同一組交易的 8 段，</text>
+    <text x="70" y="730">「段 7 平均 Δ 大」不會被放大；</text>
+    <text x="70" y="746">輸出的機率可以直接拿來抽樣（⑥）</text>
+    <text x="58" y="766" font-size="11">注意：這是分類式輸出，和之前「監督式要輸出 Q」不同</text>
+  </g>
+  <rect x="459" y="582" width="395" height="196" rx="8" fill="#ffffff" stroke="#888780"/>
+  <g fill="#2C2C2A">
+    <text x="471" y="602" font-weight="bold">方案 2：回歸（E04 診斷的做法）</text>
+    <text x="471" y="622">標籤：log(1 + Δ_k ÷ 回合中位數)，8 個都回歸</text>
+    <text x="471" y="642">損失：MSE</text>
+    <text x="471" y="662">意義：s_k ＝ 第 k 段預期改善量</text>
+    <text x="471" y="682">好處：保留「好多少」的資訊</text>
+    <text x="471" y="702">缺點：E04 已證實 argmax 會崩到段 7；</text>
+    <text x="483" y="718">MSE 被「段之間的平均差」主導，</text>
+    <text x="483" y="734">組內誰比較好反而學得少</text>
+    <text x="471" y="754">可改成組內置中：s_k 逼近 Δ_k − 8 段平均</text>
+  </g>
+
+  <!-- ⑥ 選段 -->
+  <line x1="450" y1="788" x2="450" y2="806" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="30" y="808" width="840" height="136" rx="12" fill="none" stroke="#BA7517" stroke-dasharray="7 4"/>
+  <text x="450" y="830" text-anchor="middle" font-size="14" font-weight="bold" fill="#BA7517">⑥ 選段方式（同一個模型兩種都測，不用重訓）</text>
+  <rect x="46" y="842" width="395" height="90" rx="8" fill="#FBEFD5" stroke="#BA7517"/>
+  <g fill="#633806">
+    <text x="58" y="862" font-weight="bold">抽樣（推薦）：依 softmax(s) 的機率抽 1 段</text>
+    <text x="58" y="882">網路有把握時接近作弊版；沒把握時接近隨機，</text>
+    <text x="58" y="898">選段分布不會塌到同一段，多樣性保留</text>
+    <text x="58" y="918" font-size="11">預測完全沒用時最差也只是 8 段隨機</text>
+  </g>
+  <rect x="459" y="842" width="395" height="90" rx="8" fill="#ffffff" stroke="#888780"/>
+  <g fill="#2C2C2A">
+    <text x="471" y="862" font-weight="bold">取最大：選 s 最大的段</text>
+    <text x="471" y="882">E04 的做法；預測準時最好，</text>
+    <text x="471" y="898">預測不準時會集中到少數段</text>
+    <text x="471" y="918" font-size="11">當對照組，確認抽樣有沒有幫助</text>
+  </g>
+
+  <!-- ⑦ 資料與評估 -->
+  <rect x="40" y="960" width="820" height="200" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <g fill="#2C2C2A">
+    <text x="56" y="982" font-weight="bold">⑦ 資料與評估</text>
+    <text x="56" y="1004">· 資料：沿用 E04 收好的 8 段作弊標籤（800 episode、41 萬組交易，作弊版推進），不用重收</text>
+    <text x="56" y="1024">· 訓練：Adam、batch 256、早停；訓練圖依地圖切 10% 當驗證（同 E04 診斷）</text>
+    <text x="56" y="1044">· 驗證指標：命中率、Δ 比例，加上（新增）選段分布和作弊版的差距</text>
+    <text x="56" y="1064">· 在自己推進的族群上量每步改善率（新增；E04 的問題就是在這裡才看出來：</text>
+    <text x="68" y="1080">作弊版推進的資料上命中 27%，自己推進時改善率卻和隨機一樣）</text>
+    <text x="56" y="1100">· lifetime：MAP01–06 × seed 7–36（180 場），預算 1000，</text>
+    <text x="68" y="1116">對照 8 段隨機 903.2、RL B 911.0、監督式回歸 B 890.7、作弊版 971.0</text>
+    <text x="56" y="1140" fill="#993C1D">· 若自己推進時仍和隨機一樣：代表作弊版推進的資料和實際使用的狀態差太多，再考慮用隨機推進補收資料</text>
+  </g>
+</svg>

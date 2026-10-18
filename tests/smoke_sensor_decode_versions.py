@@ -31,8 +31,6 @@ class FakeRouting:
         """模擬目前 RoutingService 介面與 v2／v3 的失敗處理。"""
         del kwargs
         routing_ids = np.asarray(routing_order, dtype=int)
-        if routing_ids.ndim == 2:
-            routing_ids = routing_ids[:, 0]
         for sensor_id in routing_ids:
             if sensor_id == self.reject_id:
                 # 模擬正式 RoutingService 遇到容量不足時暫時關閉 level。

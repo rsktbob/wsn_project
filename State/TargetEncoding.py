@@ -19,13 +19,12 @@ class TargetEncoding(Encoding):
     GENE_DOMAIN = 10000
 
     def __init__(self, code):
-        """建立 target 編碼；路由選擇器預設使用容量貪婪規則。"""
+        """建立 target 編碼；路由使用容量貪婪規則。"""
         super().__init__(code)
-        self.route_selector = None
 
     @classmethod
-    def random(cls, target_count, rng=None, *, route_selector=None):
-        """均勻建立 target 染色體，並可附加自訂下一跳選擇器。"""
+    def random(cls, target_count, rng=None):
+        """均勻建立 target 染色體。"""
         target_count = int(target_count)
         if target_count <= 0:
             raise ValueError("target_count must be positive")
@@ -34,15 +33,11 @@ class TargetEncoding(Encoding):
             code = np.random.randint(0, cls.GENE_DOMAIN, target_count)
         else:
             code = rng.integers(0, cls.GENE_DOMAIN, target_count)
-        encoding = cls(code)
-        encoding.route_selector = route_selector
-        return encoding
+        return cls(code)
 
     def copy(self):
-        """複製染色體並沿用同一個路由選擇政策。"""
-        copied = self.__class__(self.code.copy())
-        copied.route_selector = self.route_selector
-        return copied
+        """複製染色體。"""
+        return self.__class__(self.code.copy())
 
     def decode(self, problem):
         """依 target 順序解碼 assignments，刪除冗餘 sensor 後建立路由。"""
@@ -63,7 +58,6 @@ class TargetEncoding(Encoding):
         problem.routing_service.build_routes(
             state,
             open_sensors,
-            route_selector=self.route_selector,
         )
         # 路由可能關閉容量不足的感測器，因此完成後再同步一次半徑。
         problem.resolve_state_radius(state)
@@ -138,10 +132,7 @@ class TargetEncoding(Encoding):
         # 刪除判斷由後往前，但建立路由仍保留原本的高優先順序。
         retained = list(reversed(retained_reversed))
 
-        return [
-            [int(sensor_id), int(state.levels[sensor_id])]
-            for sensor_id in retained
-        ]
+        return [int(sensor_id) for sensor_id in retained]
 
     def _target_priorities(self, problem):
         """結合 target 距離、候選區域能量與基因低位計算排序值。"""
