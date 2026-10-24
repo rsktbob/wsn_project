@@ -13,8 +13,8 @@ Other priority bases moved to ``legacy/priority_encoding/`` on 2026-10-13.
 from __future__ import annotations
 
 from Algorithm.se.ring_se.Ring_SE import Ring_SE
-from Algorithm.se.sensor_operators import draw_mutation_count
 from State.PriorityEncoding import PriorityEncoding
+from State.initialization import random_priority_coding
 
 
 class Ring_SEpri(Ring_SE):
@@ -29,7 +29,7 @@ class Ring_SEpri(Ring_SE):
 
     def create_candidate(self, problem, region=None):
         """Uniform random priorities; the decoder already reaches full coverage."""
-        return PriorityEncoding.random(problem.SENSOR_NUMBER, rng=self.rng)
+        return random_priority_coding(problem, self.rng)
 
     def mutate_candidate(self, problem, candidate, sensor_span):
         """Redraw k sensors' activation genes and 3k sensors' routing genes.
@@ -39,7 +39,7 @@ class Ring_SEpri(Ring_SE):
         it when the scope is smaller).
         """
         _, left_sensor, right_sensor = sensor_span
-        mutation_count = draw_mutation_count(self.random)
+        mutation_count = self.random.choice(self.MUTATION_COUNTS)
         for _ in range(mutation_count):
             sensor_id = self.random.randrange(left_sensor, right_sensor)
             candidate.code[sensor_id * 2] = self.random.randrange(

@@ -4,6 +4,7 @@ import numpy as np
 
 from Algorithm.core.Algorithm import Algorithm
 from State.SensorEncoding import SensorEncoding
+from State.initialization import random_sensor_coding
 
 
 class GA(Algorithm):
@@ -40,14 +41,7 @@ class GA(Algorithm):
         return domains
 
     def _create_state(self, P):
-        coding = SensorEncoding.random(P.SENSOR_NUMBER, P.radius_option_counts, rng=self.rng)
-        # Seed coverage like SA-SETS: each target turns on one valid (sensor, level);
-        # later targets may overwrite an earlier choice for the same sensor.
-        for target_candidates in P.cover_candidates:
-            if target_candidates:
-                sensor_id, level = self.random.choice(target_candidates)
-                coding.code[int(sensor_id) * 2] = int(level)
-        return coding
+        return random_sensor_coding(P, self.rng, self.random)
 
     def _select(self, states, fitness):
         player = min(self.TOURNAMENT_SIZE, len(states))

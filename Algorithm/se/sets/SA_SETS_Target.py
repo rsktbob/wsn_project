@@ -4,7 +4,6 @@ import math
 import numpy as np
 
 from Algorithm.se.sets.SA_SETS import SA_SETS
-from Algorithm.se.sensor_operators import draw_mutation_count
 from State.TargetEncoding import TargetEncoding
 
 
@@ -180,7 +179,7 @@ class SA_SETS_Target(SA_SETS):
 
     def mutate_candidate(self, P, state):
         """突變 candidate、priority rank，或直接重抽完整 target gene。"""
-        mutation_count = draw_mutation_count(self.random)
+        mutation_count = self.random.choice(self.MUTATION_COUNTS)
         target_ids = [
             self.random.randrange(P.TARGET_NUMBER)
             for _ in range(mutation_count)

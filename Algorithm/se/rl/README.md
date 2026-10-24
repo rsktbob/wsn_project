@@ -24,7 +24,11 @@ SE 演算法上的強化學習實驗。
 
 ## 實驗一覽
 
+> 10/22：E01–E06 已整批移到 `codes/2027WSN/legacy/rl_experiments/`（資料、checkpoint 在 `runs/2027WSN/rl/legacy/`），下表連結已改；E07 不再引用它們（需要的環境程式複製成 E07 的 `base_e03.py`、`base_e06.py`）。
+
 | 編號 | 日期 | 基底演算法 | 目的 | 決策單位／動作 | RL 演算法 | 狀態 | 結論 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [E01](experiments/E01_ring_se_segment/README.md) | 2026-10-13 | ring_se | 學到的策略選 ring 區段能否贏隨機、拿到作弊版天花板（1000：+9.1%）的多少 | 每組交易選 4 段之一 | D3QN、Rainbow（經典 Dueling＋DQfD 式模仿） | 訓練中（D3QN DQfD seed 0） | |
-| [E03](experiments/E03_ring_se_decoded/README.md) | 2026-10-14 | ring_se | 用解碼後的 sensor token 選候選範圍 | 每組交易 4 候選選 1 | 監督式 DeepSets、瓶頸規則 | 監督式完成；RL 待設計 | 瓶頸規則 +4.2% 最好，DeepSets +2.9% |
+| [E01](../../../legacy/rl_experiments/E01_ring_se_segment/README.md) | 2026-10-13 | ring_se | 學到的策略選 ring 區段能否贏隨機、拿到作弊版天花板（1000：+9.1%）的多少 | 每組交易選 4 段之一 | D3QN、Rainbow（經典 Dueling＋DQfD 式模仿） | 訓練中（D3QN DQfD seed 0） | |
+| [E03](../../../legacy/rl_experiments/E03_ring_se_decoded/README.md) | 2026-10-14 | ring_se | 用解碼後的 sensor token 選候選範圍 | 每組交易 4 候選選 1 | 監督式 DeepSets、瓶頸規則 | 監督式完成；RL 待設計 | 瓶頸規則 +4.2% 最好，DeepSets +2.9% |
+| [E06](../../../legacy/rl_experiments/E06_ring_se_span_context/README.md) | 2026-10-19 | ring_se | 原版 4 候選，全網 sensor 前後文編碼＋遮罩池化，監督式與 RL 同網路 | 每組交易 4 候選選 1 | 監督式、D3QN（γ=0 主、γ=0.5 消融）、監督式暖啟動 | seed 0 完成 | 監督式 +4.2% ＝瓶頸規則；全網前後文、RL、γ>0 都沒加分 |
+| [E07](experiments/E07_ring_se_lifetime/README.md) | 2026-10-19 | ring_se | 預算 10000、30 張圖完整 lifetime，監督式（學作弊版選哪個）與 D3QN 分開、簡單網路（無 Transformer） | 每組交易 4 候選選 1 | 監督式分類；D3QN 從零 γ=0（待實作） | 監督式 seed 0 完成 | 模仿作弊版全輸（10000 −3.15%）；改差異獎勵回歸、預算 1000 標籤 → 1000 時 +5.29% ≈ E06；10000 都在雜訊內 |

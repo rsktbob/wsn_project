@@ -1,0 +1,363 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1216" height="1512" viewBox="0 88 1216 1512" font-family="'Noto Sans CJK TC','Microsoft JhengHei','PingFang TC',sans-serif">
+<defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker></defs>
+<rect x="0" y="88" width="1216" height="1512" fill="#fff"/>
+<rect x="150" y="100" width="380" height="44" rx="22" fill="#2F3B4A" stroke="#2F3B4A" stroke-width="1.5"/>
+<text x="340" y="128" font-size="15" font-weight="bold" fill="#fff" text-anchor="middle">開始：輸入目前網路狀態與評估預算 B</text>
+<polyline points="340,144 340,170" fill="none" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="40" y="172" width="600" height="180" rx="10" fill="#F4F6F8" stroke="#5B6B7F" stroke-width="2"/>
+<path d="M40,182 a10,10 0 0 1 10,-10 h580 a10,10 0 0 1 10,10 v24 h-600 z" fill="#5B6B7F"/>
+<text x="56" y="195" font-size="16" font-weight="bold" fill="#fff" text-anchor="start">① 前處理（建立問題時做一次）</text>
+<text x="626" y="195" font-size="13" font-weight="normal" fill="#fff" text-anchor="end">見圖 A</text>
+<text x="58" y="234" font-size="15" font-weight="normal" fill="#222" text-anchor="start">• Sensor 依距離環重新編號：以 BS 為中心，由內環到外環；</text>
+<text x="76" y="257" font-size="15" font-weight="normal" fill="#222" text-anchor="start">同一環內從正上方順時針排</text>
+<text x="58" y="286" font-size="15" font-weight="normal" fill="#222" text-anchor="start">• 依編號切成 h = 4 段連續範圍（100 顆 → 每段 25 顆）</text>
+<text x="58" y="315" font-size="15" font-weight="normal" fill="#222" text-anchor="start">• 建 CCS 候選表：每個 target → 能覆蓋它的 (sensor, 最小 level)，</text>
+<text x="76" y="338" font-size="15" font-weight="normal" fill="#222" text-anchor="start">且該 sensor 在這個 level 有可用連線</text>
+<polyline points="340,352 340,378" fill="none" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="40" y="380" width="600" height="270" rx="10" fill="#EEF7F1" stroke="#3E8E5E" stroke-width="2"/>
+<path d="M40,390 a10,10 0 0 1 10,-10 h580 a10,10 0 0 1 10,10 v24 h-600 z" fill="#3E8E5E"/>
+<text x="56" y="403" font-size="16" font-weight="bold" fill="#fff" text-anchor="start">② 初始化</text>
+<text x="626" y="403" font-size="13" font-weight="normal" fill="#fff" text-anchor="end">見圖 B</text>
+<text x="58" y="440" font-size="15" font-weight="normal" fill="#222" text-anchor="start">產生 8 個 searcher ＋ 8 個 good（共 16 條染色體），每條：</text>
+<rect x="64" y="454" width="552" height="44" rx="6" fill="#fff" stroke="#3E8E5E" stroke-width="1.3"/>
+<text x="78" y="481" font-size="15" font-weight="normal" fill="#222" text-anchor="start">(a) 隨機底：每顆 sensor 的 level 均勻隨機、priority 均勻抽 0～9</text>
+<polyline points="340,498 340,512" fill="none" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="64" y="514" width="552" height="66" rx="6" fill="#fff" stroke="#3E8E5E" stroke-width="1.3"/>
+<text x="78" y="541" font-size="15" font-weight="normal" fill="#222" text-anchor="start">(b) CCS 覆寫：依序走過每個 target，從它的候選表隨機抽一組 (s, ℓ)，</text>
+<text x="105" y="564" font-size="15" font-weight="normal" fill="#222" text-anchor="start">把 sensor s 的 level 改成 ℓ（被抽到多次 → 後蓋前；priority 不動）</text>
+<polyline points="340,580 340,594" fill="none" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="64" y="596" width="552" height="44" rx="6" fill="#fff" stroke="#3E8E5E" stroke-width="1.3"/>
+<text x="78" y="623" font-size="15" font-weight="normal" fill="#222" text-anchor="start">(c) 評估這 16 條 → 記下目前最佳解；已用評估數 = 16</text>
+<polyline points="340,650 340,676" fill="none" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+<polygon points="340,678 490,728 340,778 190,728" fill="#FFF7D6" stroke="#B8960C" stroke-width="2"/>
+<text x="340" y="734" font-size="17" font-weight="bold" fill="#222" text-anchor="middle">已用評估數 &lt; B ？</text>
+<text x="352" y="800" font-size="15" font-weight="bold" fill="#B8960C" text-anchor="start">是</text>
+<polyline points="340,778 340,810" fill="none" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+<text x="506" y="720" font-size="15" font-weight="bold" fill="#B8960C" text-anchor="start">否</text>
+<rect x="40" y="812" width="600" height="350" rx="10" fill="#EEF3FA" stroke="#3B6EA5" stroke-width="2"/>
+<path d="M40,822 a10,10 0 0 1 10,-10 h580 a10,10 0 0 1 10,10 v24 h-600 z" fill="#3B6EA5"/>
+<text x="56" y="835" font-size="16" font-weight="bold" fill="#fff" text-anchor="start">③ 投資：每組 (searcher a, good b) 都交易，共 8 × 8 = 64 組</text>
+<text x="626" y="835" font-size="13" font-weight="normal" fill="#fff" text-anchor="end">見圖 C</text>
+<rect x="64" y="862" width="552" height="44" rx="6" fill="#fff" stroke="#3B6EA5" stroke-width="1.3"/>
+<text x="78" y="889" font-size="15" font-weight="normal" fill="#222" text-anchor="start">1. 選段：從 4 段中均勻隨機選一段 r（每組交易各自抽）</text>
+<polyline points="340,906 340,920" fill="none" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="64" y="922" width="552" height="66" rx="6" fill="#fff" stroke="#3B6EA5" stroke-width="1.3"/>
+<text x="78" y="949" font-size="15" font-weight="normal" fill="#222" text-anchor="start">2. 決定範圍 [L, R)：</text>
+<text x="216" y="949" font-size="15" font-weight="normal" fill="#222" text-anchor="start">• 80% 段內：在段 r 裡隨機取一個連續子範圍</text>
+<text x="216" y="972" font-size="15" font-weight="normal" fill="#222" text-anchor="start">• 20% 跨段：整段 r ＋ 相鄰段的一部分</text>
+<polyline points="340,988 340,1002" fill="none" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="64" y="1004" width="552" height="66" rx="6" fill="#fff" stroke="#3B6EA5" stroke-width="1.3"/>
+<text x="78" y="1031" font-size="15" font-weight="normal" fill="#222" text-anchor="start">3. 雙向交換：[L, R) 內每顆 sensor 的 level、priority 整組換</text>
+<text x="98" y="1054" font-size="15" font-weight="normal" fill="#222" text-anchor="start">child1 = a 換入 b 的範圍；child2 = b 換入 a 的範圍</text>
+<polyline points="340,1070 340,1084" fill="none" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="64" y="1086" width="552" height="66" rx="6" fill="#fff" stroke="#3B6EA5" stroke-width="1.3"/>
+<text x="78" y="1113" font-size="15" font-weight="normal" fill="#222" text-anchor="start">4. 突變：child1、child2 各自以 μ = 0.4 的機率突變，</text>
+<text x="98" y="1136" font-size="15" font-weight="normal" fill="#222" text-anchor="start">只在同一個 [L, R) 內改 1～3 顆 sensor</text>
+<polyline points="340,1162 340,1188" fill="none" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="40" y="1190" width="600" height="66" rx="8" fill="#F2F2F2" stroke="#777" stroke-width="1.5"/>
+<text x="340" y="1216" font-size="16" font-weight="bold" fill="#222" text-anchor="middle">評估全部 128 個子代（64 組 × 2）</text>
+<text x="340" y="1242" font-size="15" font-weight="normal" fill="#222" text-anchor="middle">評估 = 解碼成排程 → 算 fitness；比歷史最佳好就記下</text>
+<polyline points="340,1256 340,1282" fill="none" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="40" y="1284" width="600" height="168" rx="10" fill="#FBF2E8" stroke="#C0762B" stroke-width="2"/>
+<path d="M40,1294 a10,10 0 0 1 10,-10 h580 a10,10 0 0 1 10,10 v24 h-600 z" fill="#C0762B"/>
+<text x="56" y="1307" font-size="16" font-weight="bold" fill="#fff" text-anchor="start">④ 更新：child1 只能給 a，child2 只能給 b</text>
+<rect x="64" y="1332" width="268" height="104" rx="6" fill="#fff" stroke="#C0762B" stroke-width="1.3"/>
+<text x="198" y="1358" font-size="16" font-weight="bold" fill="#C0762B" text-anchor="middle">Searcher a：菁英</text>
+<text x="198" y="1384" font-size="15" font-weight="normal" fill="#222" text-anchor="middle">只看自己的 8 個 child1</text>
+<text x="198" y="1406" font-size="15" font-weight="normal" fill="#222" text-anchor="middle">取最好的那一個</text>
+<text x="198" y="1428" font-size="15" font-weight="normal" fill="#222" text-anchor="middle">嚴格比 a 好才取代 a</text>
+<rect x="348" y="1332" width="268" height="104" rx="6" fill="#fff" stroke="#C0762B" stroke-width="1.3"/>
+<text x="482" y="1358" font-size="16" font-weight="bold" fill="#C0762B" text-anchor="middle">Good b：不菁英</text>
+<text x="482" y="1384" font-size="15" font-weight="normal" fill="#222" text-anchor="middle">只看 8 個拜訪者給的 child2</text>
+<text x="482" y="1406" font-size="15" font-weight="normal" fill="#222" text-anchor="middle">取最好的那一個</text>
+<text x="482" y="1428" font-size="15" font-weight="normal" fill="#222" text-anchor="middle">一律取代 b（即使變差）</text>
+<polyline points="340,1452 340,1486 22,1486 22,728 190,728" fill="none" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+<text x="50" y="1478" font-size="13" font-weight="normal" fill="#555" text-anchor="start">下一回合（已用評估數 ＋128）</text>
+<rect x="140" y="1516" width="400" height="64" rx="32" fill="#2F3B4A" stroke="#2F3B4A" stroke-width="1.5"/>
+<text x="340" y="1542" font-size="15" font-weight="bold" fill="#fff" text-anchor="middle">結束：輸出歷史最佳染色體</text>
+<text x="340" y="1566" font-size="14" font-weight="normal" fill="#fff" text-anchor="middle">→ 解碼成排程（開哪些 sensor、level、路由）</text>
+<polyline points="490,728 665,728 665,1548 542,1548" fill="none" stroke="#444" stroke-width="1.8" marker-end="url(#arr)"/>
+<rect x="690" y="96" width="510" height="352" rx="8" fill="#FCFCFC" stroke="#BBB" stroke-width="1.2"/>
+<text x="706" y="122" font-size="15" font-weight="bold" fill="#222" text-anchor="start">A　距離環編號與分段（例：12 顆 sensor、h = 4）</text>
+<rect x="712" y="140" width="236" height="236" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<path d="M792,150 A70,70 0 0 1 722,220" fill="none" stroke="#AAA" stroke-width="1" stroke-dasharray="4 3"/>
+<path d="M862,150 A140,140 0 0 1 722,290" fill="none" stroke="#AAA" stroke-width="1" stroke-dasharray="4 3"/>
+<path d="M932,150 A210,210 0 0 1 722,360" fill="none" stroke="#AAA" stroke-width="1" stroke-dasharray="4 3"/>
+<path d="M935.4,211.2 A222,222 0 0 1 783.2,363.4" fill="none" stroke="#444" stroke-width="1.6" marker-end="url(#arr)"/>
+<text x="888" y="332" font-size="12" font-weight="normal" fill="#555" text-anchor="start">順時針</text>
+<circle cx="772.2" cy="163.5" r="11" fill="#D6E4F0" stroke="#4E79A7" stroke-width="1.6"/>
+<text x="772.2" y="167.5" font-size="11" font-weight="bold" fill="#222" text-anchor="middle">0</text>
+<circle cx="757.5" cy="188.0" r="11" fill="#D6E4F0" stroke="#4E79A7" stroke-width="1.6"/>
+<text x="757.5" y="192.0" font-size="11" font-weight="bold" fill="#222" text-anchor="middle">1</text>
+<circle cx="731.0" cy="201.2" r="11" fill="#D6E4F0" stroke="#4E79A7" stroke-width="1.6"/>
+<text x="731.0" y="205.2" font-size="11" font-weight="bold" fill="#222" text-anchor="middle">2</text>
+<circle cx="827.0" cy="164.8" r="11" fill="#FDE2C8" stroke="#E0822A" stroke-width="1.6"/>
+<text x="827.0" y="168.8" font-size="11" font-weight="bold" fill="#222" text-anchor="middle">3</text>
+<circle cx="815.6" cy="199.8" r="11" fill="#FDE2C8" stroke="#E0822A" stroke-width="1.6"/>
+<text x="815.6" y="203.8" font-size="11" font-weight="bold" fill="#222" text-anchor="middle">4</text>
+<circle cx="794.3" cy="227.5" r="11" fill="#FDE2C8" stroke="#E0822A" stroke-width="1.6"/>
+<text x="794.3" y="231.5" font-size="11" font-weight="bold" fill="#222" text-anchor="middle">5</text>
+<circle cx="765.1" cy="246.8" r="11" fill="#D7ECD3" stroke="#59A14F" stroke-width="1.6"/>
+<text x="765.1" y="250.8" font-size="11" font-weight="bold" fill="#222" text-anchor="middle">6</text>
+<circle cx="733.1" cy="255.4" r="11" fill="#D7ECD3" stroke="#59A14F" stroke-width="1.6"/>
+<text x="733.1" y="259.4" font-size="11" font-weight="bold" fill="#222" text-anchor="middle">7</text>
+<circle cx="894.2" cy="186.6" r="11" fill="#D7ECD3" stroke="#59A14F" stroke-width="1.6"/>
+<text x="894.2" y="190.6" font-size="11" font-weight="bold" fill="#222" text-anchor="middle">8</text>
+<circle cx="866.2" cy="250.9" r="11" fill="#E9DCEA" stroke="#9C6B9A" stroke-width="1.6"/>
+<text x="866.2" y="254.9" font-size="11" font-weight="bold" fill="#222" text-anchor="middle">9</text>
+<circle cx="817.9" cy="297.6" r="11" fill="#E9DCEA" stroke="#9C6B9A" stroke-width="1.6"/>
+<text x="817.9" y="301.6" font-size="11" font-weight="bold" fill="#222" text-anchor="middle">10</text>
+<circle cx="755.6" cy="322.8" r="11" fill="#E9DCEA" stroke="#9C6B9A" stroke-width="1.6"/>
+<text x="755.6" y="326.8" font-size="11" font-weight="bold" fill="#222" text-anchor="middle">11</text>
+<rect x="713" y="143" width="24" height="16" rx="2" fill="#2F3B4A"/>
+<text x="725" y="155" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">BS</text>
+<rect x="984" y="150" width="18" height="18" rx="3" fill="#D6E4F0" stroke="#4E79A7" stroke-width="1.6"/>
+<text x="1010" y="164" font-size="14" font-weight="normal" fill="#222" text-anchor="start">段 0：編號 0–2</text>
+<rect x="984" y="178" width="18" height="18" rx="3" fill="#FDE2C8" stroke="#E0822A" stroke-width="1.6"/>
+<text x="1010" y="192" font-size="14" font-weight="normal" fill="#222" text-anchor="start">段 1：編號 3–5</text>
+<rect x="984" y="206" width="18" height="18" rx="3" fill="#D7ECD3" stroke="#59A14F" stroke-width="1.6"/>
+<text x="1010" y="220" font-size="14" font-weight="normal" fill="#222" text-anchor="start">段 2：編號 6–8</text>
+<rect x="984" y="234" width="18" height="18" rx="3" fill="#E9DCEA" stroke="#9C6B9A" stroke-width="1.6"/>
+<text x="1010" y="248" font-size="14" font-weight="normal" fill="#222" text-anchor="start">段 3：編號 9–11</text>
+<text x="984" y="280" font-size="13" font-weight="normal" fill="#555" text-anchor="start">BS 在左上角</text>
+<text x="984" y="301" font-size="13" font-weight="normal" fill="#555" text-anchor="start">虛線弧 = 距離環邊界</text>
+<text x="984" y="322" font-size="13" font-weight="normal" fill="#555" text-anchor="start">由內環往外環編號</text>
+<text x="984" y="343" font-size="13" font-weight="normal" fill="#555" text-anchor="start">同一環順時針（上緣 → 左緣）</text>
+<text x="984" y="364" font-size="13" font-weight="normal" fill="#555" text-anchor="start">段 = 編號連續的一段，</text>
+<text x="984" y="385" font-size="13" font-weight="normal" fill="#555" text-anchor="start">不一定剛好是一整環</text>
+<text x="706" y="417" font-size="13" font-weight="normal" fill="#555" text-anchor="start">染色體順序</text>
+<rect x="784" y="400" width="34" height="24" rx="0" fill="#D6E4F0" stroke="#4E79A7" stroke-width="1.2"/>
+<text x="801" y="417" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">0</text>
+<rect x="818" y="400" width="34" height="24" rx="0" fill="#D6E4F0" stroke="#4E79A7" stroke-width="1.2"/>
+<text x="835" y="417" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">1</text>
+<rect x="852" y="400" width="34" height="24" rx="0" fill="#D6E4F0" stroke="#4E79A7" stroke-width="1.2"/>
+<text x="869" y="417" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">2</text>
+<rect x="886" y="400" width="34" height="24" rx="0" fill="#FDE2C8" stroke="#E0822A" stroke-width="1.2"/>
+<text x="903" y="417" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">3</text>
+<rect x="920" y="400" width="34" height="24" rx="0" fill="#FDE2C8" stroke="#E0822A" stroke-width="1.2"/>
+<text x="937" y="417" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">4</text>
+<rect x="954" y="400" width="34" height="24" rx="0" fill="#FDE2C8" stroke="#E0822A" stroke-width="1.2"/>
+<text x="971" y="417" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">5</text>
+<rect x="988" y="400" width="34" height="24" rx="0" fill="#D7ECD3" stroke="#59A14F" stroke-width="1.2"/>
+<text x="1005" y="417" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">6</text>
+<rect x="1022" y="400" width="34" height="24" rx="0" fill="#D7ECD3" stroke="#59A14F" stroke-width="1.2"/>
+<text x="1039" y="417" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">7</text>
+<rect x="1056" y="400" width="34" height="24" rx="0" fill="#D7ECD3" stroke="#59A14F" stroke-width="1.2"/>
+<text x="1073" y="417" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">8</text>
+<rect x="1090" y="400" width="34" height="24" rx="0" fill="#E9DCEA" stroke="#9C6B9A" stroke-width="1.2"/>
+<text x="1107" y="417" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">9</text>
+<rect x="1124" y="400" width="34" height="24" rx="0" fill="#E9DCEA" stroke="#9C6B9A" stroke-width="1.2"/>
+<text x="1141" y="417" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">10</text>
+<rect x="1158" y="400" width="34" height="24" rx="0" fill="#E9DCEA" stroke="#9C6B9A" stroke-width="1.2"/>
+<text x="1175" y="417" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">11</text>
+<rect x="690" y="468" width="510" height="158" rx="8" fill="#FCFCFC" stroke="#BBB" stroke-width="1.2"/>
+<text x="706" y="494" font-size="15" font-weight="bold" fill="#222" text-anchor="start">B　染色體格式（每顆 sensor 兩個基因）</text>
+<rect x="712" y="508" width="44" height="30" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="734.0" y="528" font-size="14" font-weight="bold" fill="#222" text-anchor="middle">ℓ₀</text>
+<rect x="756" y="508" width="44" height="30" rx="0" fill="#EEE" stroke="#666" stroke-width="1.2"/>
+<text x="778.0" y="528" font-size="14" font-weight="bold" fill="#222" text-anchor="middle">p₀</text>
+<rect x="806" y="508" width="44" height="30" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="828.0" y="528" font-size="14" font-weight="bold" fill="#222" text-anchor="middle">ℓ₁</text>
+<rect x="850" y="508" width="44" height="30" rx="0" fill="#EEE" stroke="#666" stroke-width="1.2"/>
+<text x="872.0" y="528" font-size="14" font-weight="bold" fill="#222" text-anchor="middle">p₁</text>
+<rect x="900" y="508" width="44" height="30" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="922.0" y="528" font-size="14" font-weight="bold" fill="#222" text-anchor="middle">ℓ₂</text>
+<rect x="944" y="508" width="44" height="30" rx="0" fill="#EEE" stroke="#666" stroke-width="1.2"/>
+<text x="966.0" y="528" font-size="14" font-weight="bold" fill="#222" text-anchor="middle">p₂</text>
+<rect x="1030" y="508" width="60" height="30" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="1060.0" y="528" font-size="14" font-weight="bold" fill="#222" text-anchor="middle">ℓN−1</text>
+<rect x="1090" y="508" width="60" height="30" rx="0" fill="#EEE" stroke="#666" stroke-width="1.2"/>
+<text x="1120.0" y="528" font-size="14" font-weight="bold" fill="#222" text-anchor="middle">pN−1</text>
+<text x="1009" y="528" font-size="16" font-weight="bold" fill="#222" text-anchor="middle">…</text>
+<text x="756" y="556" font-size="12" font-weight="normal" fill="#555" text-anchor="middle">sensor 0</text>
+<text x="850" y="556" font-size="12" font-weight="normal" fill="#555" text-anchor="middle">sensor 1</text>
+<text x="944" y="556" font-size="12" font-weight="normal" fill="#555" text-anchor="middle">sensor 2</text>
+<text x="1090" y="556" font-size="12" font-weight="normal" fill="#555" text-anchor="middle">sensor N−1</text>
+<text x="708" y="584" font-size="14" font-weight="normal" fill="#222" text-anchor="start">ℓᵢ：sensing level（0 = 關，越大半徑越大）</text>
+<text x="708" y="608" font-size="14" font-weight="normal" fill="#222" text-anchor="start">pᵢ：路由 priority（0～9，解碼時決定接入順序）</text>
+<g transform="translate(0,-36)">
+<rect x="690" y="680" width="510" height="346" rx="8" fill="#FCFCFC" stroke="#BBB" stroke-width="1.2"/>
+<text x="706" y="706" font-size="15" font-weight="bold" fill="#222" text-anchor="start">C　範圍選擇與雙向交換（例：12 顆，選到段 1）</text>
+<text x="706" y="739" font-size="13" font-weight="normal" fill="#555" text-anchor="start">段（底色）</text>
+<rect x="820" y="722" width="30" height="24" rx="0" fill="#D6E4F0" stroke="#4E79A7" stroke-width="1.2"/>
+<text x="835.0" y="739" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">0</text>
+<rect x="850" y="722" width="30" height="24" rx="0" fill="#D6E4F0" stroke="#4E79A7" stroke-width="1.2"/>
+<text x="865.0" y="739" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">1</text>
+<rect x="880" y="722" width="30" height="24" rx="0" fill="#D6E4F0" stroke="#4E79A7" stroke-width="1.2"/>
+<text x="895.0" y="739" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">2</text>
+<rect x="910" y="722" width="30" height="24" rx="0" fill="#FDE2C8" stroke="#E0822A" stroke-width="1.2"/>
+<text x="925.0" y="739" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">3</text>
+<rect x="940" y="722" width="30" height="24" rx="0" fill="#FDE2C8" stroke="#E0822A" stroke-width="1.2"/>
+<text x="955.0" y="739" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">4</text>
+<rect x="970" y="722" width="30" height="24" rx="0" fill="#FDE2C8" stroke="#E0822A" stroke-width="1.2"/>
+<text x="985.0" y="739" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">5</text>
+<rect x="1000" y="722" width="30" height="24" rx="0" fill="#D7ECD3" stroke="#59A14F" stroke-width="1.2"/>
+<text x="1015.0" y="739" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">6</text>
+<rect x="1030" y="722" width="30" height="24" rx="0" fill="#D7ECD3" stroke="#59A14F" stroke-width="1.2"/>
+<text x="1045.0" y="739" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">7</text>
+<rect x="1060" y="722" width="30" height="24" rx="0" fill="#D7ECD3" stroke="#59A14F" stroke-width="1.2"/>
+<text x="1075.0" y="739" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">8</text>
+<rect x="1090" y="722" width="30" height="24" rx="0" fill="#E9DCEA" stroke="#9C6B9A" stroke-width="1.2"/>
+<text x="1105.0" y="739" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">9</text>
+<rect x="1120" y="722" width="30" height="24" rx="0" fill="#E9DCEA" stroke="#9C6B9A" stroke-width="1.2"/>
+<text x="1135.0" y="739" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">10</text>
+<rect x="1150" y="722" width="30" height="24" rx="0" fill="#E9DCEA" stroke="#9C6B9A" stroke-width="1.2"/>
+<text x="1165.0" y="739" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">11</text>
+<text x="706" y="775" font-size="13" font-weight="normal" fill="#555" text-anchor="start">段內 80%</text>
+<rect x="820" y="758" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="835.0" y="775" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">0</text>
+<rect x="850" y="758" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="865.0" y="775" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">1</text>
+<rect x="880" y="758" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="895.0" y="775" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">2</text>
+<rect x="910" y="758" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="925.0" y="775" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">3</text>
+<rect x="940" y="758" width="30" height="24" rx="0" fill="#FDE2C8" stroke="#E0822A" stroke-width="2.4"/>
+<text x="955.0" y="775" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">4</text>
+<rect x="970" y="758" width="30" height="24" rx="0" fill="#FDE2C8" stroke="#E0822A" stroke-width="2.4"/>
+<text x="985.0" y="775" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">5</text>
+<rect x="1000" y="758" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="1015.0" y="775" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">6</text>
+<rect x="1030" y="758" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="1045.0" y="775" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">7</text>
+<rect x="1060" y="758" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="1075.0" y="775" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">8</text>
+<rect x="1090" y="758" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="1105.0" y="775" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">9</text>
+<rect x="1120" y="758" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="1135.0" y="775" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">10</text>
+<rect x="1150" y="758" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="1165.0" y="775" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">11</text>
+<text x="706" y="811" font-size="13" font-weight="normal" fill="#555" text-anchor="start">跨段 20%</text>
+<rect x="820" y="794" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="835.0" y="811" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">0</text>
+<rect x="850" y="794" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="865.0" y="811" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">1</text>
+<rect x="880" y="794" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="895.0" y="811" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">2</text>
+<rect x="910" y="794" width="30" height="24" rx="0" fill="#FDE2C8" stroke="#E0822A" stroke-width="2.4"/>
+<text x="925.0" y="811" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">3</text>
+<rect x="940" y="794" width="30" height="24" rx="0" fill="#FDE2C8" stroke="#E0822A" stroke-width="2.4"/>
+<text x="955.0" y="811" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">4</text>
+<rect x="970" y="794" width="30" height="24" rx="0" fill="#FDE2C8" stroke="#E0822A" stroke-width="2.4"/>
+<text x="985.0" y="811" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">5</text>
+<rect x="1000" y="794" width="30" height="24" rx="0" fill="#D7ECD3" stroke="#59A14F" stroke-width="2.4"/>
+<text x="1015.0" y="811" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">6</text>
+<rect x="1030" y="794" width="30" height="24" rx="0" fill="#D7ECD3" stroke="#59A14F" stroke-width="2.4"/>
+<text x="1045.0" y="811" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">7</text>
+<rect x="1060" y="794" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="1075.0" y="811" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">8</text>
+<rect x="1090" y="794" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="1105.0" y="811" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">9</text>
+<rect x="1120" y="794" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="1135.0" y="811" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">10</text>
+<rect x="1150" y="794" width="30" height="24" rx="0" fill="#fff" stroke="#CCC" stroke-width="1"/>
+<text x="1165.0" y="811" font-size="12" font-weight="bold" fill="#AAA" text-anchor="middle">11</text>
+<text x="706" y="842" font-size="13" font-weight="normal" fill="#555" text-anchor="start">段內：L、R 都在段 r 裡隨機（至少 1 顆）</text>
+<text x="706" y="861" font-size="13" font-weight="normal" fill="#555" text-anchor="start">跨段：整段 r，再往左或右多拿相鄰段 ≥1 顆（段 0、3 只有一側）</text>
+<line x1="706" y1="874" x2="1184" y2="874" stroke="#DDD" stroke-width="1"/>
+<text x="706" y="903" font-size="13" font-weight="normal" fill="#555" text-anchor="start">searcher a</text>
+<rect x="820" y="886" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="835.0" y="903" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="850" y="886" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="865.0" y="903" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="880" y="886" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="895.0" y="903" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="910" y="886" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="925.0" y="903" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="940" y="886" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="955.0" y="903" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="970" y="886" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="985.0" y="903" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="1000" y="886" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="1015.0" y="903" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="1030" y="886" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="1045.0" y="903" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="1060" y="886" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="1075.0" y="903" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="1090" y="886" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="1105.0" y="903" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="1120" y="886" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="1135.0" y="903" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="1150" y="886" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="1165.0" y="903" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<text x="706" y="931" font-size="13" font-weight="normal" fill="#555" text-anchor="start">good b</text>
+<rect x="820" y="914" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="835.0" y="931" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="850" y="914" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="865.0" y="931" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="880" y="914" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="895.0" y="931" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="910" y="914" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="925.0" y="931" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="940" y="914" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="955.0" y="931" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="970" y="914" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="985.0" y="931" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="1000" y="914" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="1015.0" y="931" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="1030" y="914" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="1045.0" y="931" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="1060" y="914" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="1075.0" y="931" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="1090" y="914" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="1105.0" y="931" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="1120" y="914" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="1135.0" y="931" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="1150" y="914" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="1165.0" y="931" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<text x="1000" y="958" font-size="13" font-weight="normal" fill="#555" text-anchor="middle">↓ 交換 [4, 6) 這一段（level、priority 一起換）</text>
+<text x="706" y="987" font-size="13" font-weight="normal" fill="#555" text-anchor="start">child1（給 a）</text>
+<rect x="820" y="970" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="835.0" y="987" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="850" y="970" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="865.0" y="987" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="880" y="970" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="895.0" y="987" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="910" y="970" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="925.0" y="987" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="940" y="970" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="955.0" y="987" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="970" y="970" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="985.0" y="987" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="1000" y="970" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="1015.0" y="987" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="1030" y="970" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="1045.0" y="987" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="1060" y="970" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="1075.0" y="987" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="1090" y="970" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="1105.0" y="987" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="1120" y="970" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="1135.0" y="987" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="1150" y="970" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="1165.0" y="987" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<text x="706" y="1015" font-size="13" font-weight="normal" fill="#555" text-anchor="start">child2（給 b）</text>
+<rect x="820" y="998" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="835.0" y="1015" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="850" y="998" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="865.0" y="1015" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="880" y="998" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="895.0" y="1015" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="910" y="998" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="925.0" y="1015" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="940" y="998" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="955.0" y="1015" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="970" y="998" width="30" height="24" rx="0" fill="#fff" stroke="#666" stroke-width="1.2"/>
+<text x="985.0" y="1015" font-size="12" font-weight="bold" fill="#222" text-anchor="middle">a</text>
+<rect x="1000" y="998" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="1015.0" y="1015" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="1030" y="998" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="1045.0" y="1015" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="1060" y="998" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="1075.0" y="1015" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="1090" y="998" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="1105.0" y="1015" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="1120" y="998" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="1135.0" y="1015" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="1150" y="998" width="30" height="24" rx="0" fill="#6B7280" stroke="#4B5160" stroke-width="1.2"/>
+<text x="1165.0" y="1015" font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">b</text>
+<rect x="937" y="882" width="66" height="60" rx="3" fill="none" stroke="#D33" stroke-width="1.8" stroke-dasharray="5 3"/>
+<rect x="937" y="966" width="66" height="60" rx="3" fill="none" stroke="#D33" stroke-width="1.8" stroke-dasharray="5 3"/>
+</g>
+</svg>

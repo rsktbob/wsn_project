@@ -1,5 +1,5 @@
 """Search Economics execution helpers."""
 
-from Algorithm.se.parallel_market import ParallelSEMarket
+from Algorithm.se.pooled_evaluator import PooledEvaluator
 
-__all__ = ["ParallelSEMarket"]
+__all__ = ["PooledEvaluator"]

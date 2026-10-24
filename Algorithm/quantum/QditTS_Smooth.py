@@ -8,7 +8,7 @@ the best option b and the worst option w:
     for every pair (i, j), i != j, with g_i > 0 and l_j > 0: a Givens rotation
     in the (a_i, a_j) plane by t_ij = rotation * g_i * l_j moves probability
     from j to i, limited, as in QditTS, so that a_j^2 stays at the floor.
-kernel[k] is the weight at distance k (default 1, 0.5); weight outside the
+kernel[k] is the weight at distance k (default 1, 0.25); weight outside the
 domain is dropped before renormalizing.  The angles add up to `rotation`, so
 kernel (1,) is exactly QditTS.  Pairs are applied one after another (gain
 offset outer, loss offset inner), each one norm-preserving.  Both sensing
@@ -17,6 +17,10 @@ levels and priority ranks are ordered, so both are smoothed.  b == w is tabu.
 Floor eps = min(probability_floor, 1/d): options already at the floor are
 left out of l (l is renormalized over the rest), so a single option at the
 floor does not stop the rest of the row.
+
+Defaults n=30, rotation=0.2*pi follow QditTS; kernel (1, 0.25) was the best
+non-trivial kernel at that setting (2026-10-18: 1068.5, against 1079.7 for
+kernel (1,) = QditTS; (1, 0.5) 1048.2).  Smoothing did not help in any test.
 
 History: before 2026-10-18 the register stored probabilities P and updated
 P += delta * (g - l) with delta=0.02 (no rotation).
@@ -28,7 +32,7 @@ from Algorithm.quantum.QditTS import QditTS
 
 
 class QditTS_Smooth(QditTS):
-    def __init__(self, DP, n=10, rotation=0.01 * np.pi, kernel=(1.0, 0.5),
+    def __init__(self, DP, n=30, rotation=0.2 * np.pi, kernel=(1.0, 0.25),
                  probability_floor=0.01, seed=None):
         kernel = np.asarray(kernel, dtype=float)
         if kernel.ndim != 1 or not len(kernel) or kernel[0] <= 0 or np.any(kernel < 0):

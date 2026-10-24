@@ -22,6 +22,11 @@ The options are unordered: no smoothing toward neighbouring levels or ranks.
 Priority genes of sensors observed at level 0 are updated like any other gene.
 
 The loop stops on the evaluation budget only, as QTS.
+
+Defaults n=30, rotation=0.2*pi are the best setting of the 2026-10-18 grid
+(iteration best, MAP01-06, seed 7-11, budget 10000, v3: 1079.7; seed 12-21:
+1077.5, +1.5% over ring_se, p=.004).  Earlier defaults were n=10,
+rotation=0.01*pi (996.3).
 """
 
 import numpy as np
@@ -31,7 +36,7 @@ from State.SensorEncoding import SensorEncoding
 
 
 class QditTS(Algorithm):
-    def __init__(self, DP, n=10, rotation=0.01 * np.pi, probability_floor=0.01,
+    def __init__(self, DP, n=30, rotation=0.2 * np.pi, probability_floor=0.01,
                  seed=None):
         super().__init__(seed=seed)
         if int(n) != n or n < 2:

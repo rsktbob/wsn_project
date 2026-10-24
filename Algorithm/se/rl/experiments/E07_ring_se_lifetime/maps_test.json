@@ -1,0 +1,188 @@
+{
+  "split": "e07_test",
+  "generator": "CreateTest.py",
+  "minimum_coverage_required": 3,
+  "target_layout": "fixed_grid",
+  "maps": [
+    {
+      "file": "RLTRAIN171",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN172",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN173",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN174",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN175",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN176",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN177",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN178",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN179",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN180",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN181",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN182",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN183",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN184",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN185",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN186",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN187",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN188",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN189",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN190",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN191",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN192",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN193",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN194",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN195",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN196",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN197",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN198",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN199",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    },
+    {
+      "file": "RLTRAIN200",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100
+    }
+  ]
+}

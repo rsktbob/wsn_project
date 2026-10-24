@@ -9,7 +9,8 @@
   兩邊都沒開的 sensor，改基因幾乎不會改變解（平坦比例分析）。
 * 回饋：0.5 × [child1 比 searcher 好] + 0.5 × [child2 比 good 好]。
 
-``LinUCBSegmentPolicy``：共用一個線性模型，模型跨 lifetime 段延續。
+選區段的規則由子類別提供：``LinUCB_Ring_SE``（共用一個線性模型，跨 lifetime 段延續），
+以及 ``Algorithm/se/rl/experiments`` 裡的 RL 實驗 env。
 
 D3QN 版（RL_Ring_SETS 系列）、v2 特徵與分級回饋、checkpoint 的 environment_contract
 已在 2026-10-13 移到 ``legacy/rl_ring/``（該處保留本檔搬移前的完整版本）。
@@ -19,16 +20,13 @@ from __future__ import annotations
 
 import numpy as np
 
-from Algorithm.se.market_components import (
-    accept_good_children,
-    accept_searcher_children,
-)
+from Algorithm.se.ring_se.Ring_SE import Ring_SE
 from State.Encoding import swap_segment
 
 IMPROVEMENT_EPSILON = 1e-12
 
 
-class PairSegmentMarket:
+class PairSegmentMarket(Ring_SE):
     """Ring_SE round where every searcher-good pair picks its own segment.
 
     Subclasses provide ``_choose_segments(context, pairs)`` and
@@ -158,11 +156,11 @@ class PairSegmentMarket:
         )
         self.round_rewards.append(float(np.mean(rewards)))
 
-        accept_searcher_children(self, children, child1_fitness, searcher_fitness_before)
-        # 同 Ring_SE 的 EN：good 一律換成拜訪者中最好的 child2（GOOD_ACCEPT_TOLERANCE = -inf）。
-        accept_good_children(
+        self.accept_searcher_children(children, child1_fitness, searcher_fitness_before)
+        # 同 Ring_SE：good 換成拜訪者中最好的 child2（E／N 見 GOOD_ELITIST）。
+        self.accept_good_children(
             self.goods, self.goods_fitness, goods_fitness_before, children,
-            child2_fitness, range(self.n), self.GOOD_ACCEPT_TOLERANCE,
+            child2_fitness, range(self.n),
         )
         improved = self.searcher_fitness > searcher_fitness_before + IMPROVEMENT_EPSILON
         self.searcher_stagnation = np.where(improved, 0, self.searcher_stagnation + 1)
@@ -197,58 +195,4 @@ class PairSegmentMarket:
             self.history[evaluation_start:history_end] = self.fitness
 
 
-class LinUCBSegmentPolicy(PairSegmentMarket):
-    """Shared-parameter LinUCB over the h candidate spans of each pair.
-
-    Features (one row per segment): constant, effective differences in
-    {1-2, 3-4, >=5} (0 is the reference), inactive differences / 5, span
-    length, searcher active ratio, search progress and progress × {1-2}.
-    The model persists across optimizer calls of one lifetime run.
-    """
-
-    ALPHA = 0.3
-    RIDGE = 1.0
-    FEATURE_NAMES = (
-        "constant", "effective_1_2", "effective_3_4", "effective_5_plus",
-        "inactive_differences", "span_length", "searcher_active_ratio",
-        "progress", "progress_x_effective_1_2",
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        size = len(self.FEATURE_NAMES)
-        self.linucb_A = self.RIDGE * np.eye(size)
-        self.linucb_b = np.zeros(size)
-
-    def _linucb_features(self, stat, progress):
-        e = stat["effective"]
-        small = 1.0 if 1 <= e <= 2 else 0.0
-        return np.array([
-            1.0, small, 1.0 if 3 <= e <= 4 else 0.0, 1.0 if e >= 5 else 0.0,
-            min(stat["inactive"], 5) / 5.0, stat["length"], stat["active_ratio"],
-            progress, progress * small,
-        ])
-
-    def _choose_segments(self, context, pairs):
-        A_inv = np.linalg.inv(self.linucb_A)
-        theta = A_inv @ self.linucb_b
-        self._chosen_features = []
-        choices = []
-        for _, _, _, stats in pairs:
-            X = np.array([self._linucb_features(s, context["progress"]) for s in stats])
-            scores = X @ theta + self.ALPHA * np.sqrt(
-                np.einsum("ij,jk,ik->i", X, A_inv, X)
-            )
-            best = np.flatnonzero(scores >= scores.max() - 1e-12)
-            pick = int(best[self.random.randrange(len(best))])
-            choices.append(pick)
-            self._chosen_features.append(X[pick])
-        return choices
-
-    def _observe_round(self, context, pairs, choices, rewards, done):
-        for x, reward in zip(self._chosen_features, rewards):
-            self.linucb_A += np.outer(x, x)
-            self.linucb_b += reward * x
-
-
-__all__ = ["LinUCBSegmentPolicy", "PairSegmentMarket"]
+__all__ = ["IMPROVEMENT_EPSILON", "PairSegmentMarket"]

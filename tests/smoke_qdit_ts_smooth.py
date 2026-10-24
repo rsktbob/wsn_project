@@ -40,7 +40,7 @@ def main():
     np.testing.assert_array_equal(a.history, b.history)
 
     # Hand example: 6 levels uniform, b=3, w=1, kernel (1, 0.5).
-    hand = QditTS_Smooth(problem, rotation=0.05 * np.pi, seed=3)
+    hand = QditTS_Smooth(problem, rotation=0.05 * np.pi, kernel=(1.0, 0.5), seed=3)
     hand.run(problem, budget=10)
     row = int(np.flatnonzero(domains == 6)[0])
     hand.amplitudes[row, :6] = np.sqrt(1 / 6)
@@ -82,7 +82,8 @@ def main():
 
     args = parse_args(['--algorithm', 'qdit_ts_smooth', '--evaluate', '7'])
     built = build_algorithm('qdit_ts_smooth', problem, args, seed=9)
-    assert built.n == 10 and np.isclose(built.rotation, 0.01 * np.pi)
+    assert built.n == 30 and np.isclose(built.rotation, 0.2 * np.pi)
+    np.testing.assert_array_equal(built.kernel, [1.0, 0.25])
     assert built.run(problem, budget=7).evaluations == 7
     print('smoke_qdit_ts_smooth_ok')
 

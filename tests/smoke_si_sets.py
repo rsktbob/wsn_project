@@ -11,7 +11,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from Algorithm.se.BaseSE import BaseSE
 from Algorithm.se.sets.SA_SETS import SA_SETS
-from Algorithm.se.market_components import PooledEvaluation
+from Algorithm.se.pooled_evaluator import PooledEvaluator
 from Algorithm.se.si_sets.SI_SETS import SI_SETS
 from Problem.Problem import Problem
 from experiment_algorithms import build_algorithm, build_problem, parse_args
@@ -91,18 +91,14 @@ def main():
         problem, n=4, h=4, w=1, mu=0.4, seed=31
     )
 
-    # 流程不同，所以不繼承 SA_SETS；分區與運算子透過相同 mixin 共用，
-    # 平行評估來自共用的 PooledEvaluation。
+    # 流程不同，所以不繼承 SA_SETS；只繼承 BaseSE，平行評估由 PooledEvaluator 物件負責。
     assert not issubclass(SI_SETS, SA_SETS)
-    assert issubclass(SI_SETS, BaseSE) and issubclass(SI_SETS, PooledEvaluation)
-    for method_name in (
-        "select_identity_sensors",
-        "create_candidate",
-        "align_region",
-        "invest",
-        "mutate_candidate",
-    ):
-        assert getattr(SI_SETS, method_name) is getattr(SA_SETS, method_name)
+    assert SI_SETS.__bases__ == (BaseSE,)
+    assert isinstance(operator_algorithm.evaluator, PooledEvaluator)
+    # 分區和 SA_SETS 相同：選到同樣的 identity sensor。
+    assert operator_algorithm.select_identity_sensors(problem) == SA_SETS(
+        problem, n=4, h=4, w=1, mu=0.4, seed=31
+    ).select_identity_sensors(problem)
     operator_algorithm.identity_sensors = (
         operator_algorithm.select_identity_sensors(problem)
     )
@@ -121,7 +117,6 @@ def main():
     assert algorithm.evatime == 24
     assert algorithm.investment_quality.shape == (4, 4)
     assert algorithm.goods_fitness.shape == (4, 1)
-    assert algorithm.market.pool.processes == []
 
     repeated = SI_SETS(
         problem,
@@ -141,7 +136,7 @@ def main():
         result.best_state.tx_load, repeated.best_state.tx_load
     )
 
-    assert algorithm._pool is None
+    assert algorithm.evaluator._pool is None
     for seed in (7, 31):
         parallel = SI_SETS(problem, n=4, h=4, w=2, mu=0.4, seed=seed)
         serial = SequentialSI(problem, n=4, h=4, w=2, mu=0.4, seed=seed)

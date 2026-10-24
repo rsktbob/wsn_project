@@ -158,3 +158,41 @@ searcher 直接被較好的投資取代、B_j 用歷史最佳、IBeta(t_b, t_a, 
 
 正式版 `State/PriorityEncoding.py` 現在就是 EF（不再有 `PriorityEncodingEF` 類別名），對舊 EF 300 組染色體（電量不均）解碼逐欄位相同。
 `_delivery_cost`（C_s，給 C4 的 cost base 與 QUBO 用）移到 `Qubo/sensor_levels.py`。PriorityEncoding 的 0.5 偏移仍保留。
+
+## Q-Ring-SE（2026-10-18 移入）
+
+使用者決定移出正式程式。**不在 registry、不在測試套件內**；import 路徑仍指向 `Algorithm.quantum.QRing_SE`，不能直接執行。
+
+| 檔案 | 原位置 | 內容 |
+| --- | --- | --- |
+| `algorithms/quantum/QRing_SE.py` | `Algorithm/quantum/` | Ring_SE 的每個 good 加一組 Q-bit 機率 `Q_k`（QuantumSensorEncoding 溫度計閘）＋吸引子 `b_k`；child1 從 `Q_k` 觀測選到的段，child2 同 Ring_SE；旋轉只在觀測段內；接受規則 EE |
+| `tests/smoke_qring_se.py` | `tests/` | smoke 測試 |
+
+registry 名 `qring_se`；移除的 preset：n8 h4 w8 mu0.4、rotation 0.05π、probability_floor 0.01、init_confidence 0.0，
+label `Q-Ring-SE (Ring-SE with Q-bit goods)`。parameter_basis 說明：exploratory defaults, not tuned。
+
+**仍留在原處：** `State/QuantumSensorEncoding.py`（QEA 也用）；`Ring_SE.py` 註解裡提到 QRing_SE 的文字未改。
+**若要恢復：** 檔案移回原位置，並在 `experiments/registry.py`、`experiments/presets.py`、`experiments/parameter_basis.json` 加回 `qring_se`。
+
+## Q-SI-SETS（2026-10-18 移入）
+
+使用者決定移出正式程式。**不在 registry、不在測試套件內**；import 路徑仍指向 `Algorithm.quantum.QSI_SETS`，不能直接執行。
+
+| 檔案 | 原位置 | 內容 |
+| --- | --- | --- |
+| `algorithms/quantum/QSI_SETS.py` | `Algorithm/quantum/` | SI_SETS 的每個區域 good 加一組 Q-bit 機率 `Q_rk`＋吸引子 `b_rk`；child1 從 `Q_rk` 觀測交配段，child2 同 SI_SETS；旋轉比對兩解的閘目標（修正 QRing_SE 觀測解較好時不轉的問題）；good 更新 EN |
+| `tests/smoke_qsi_sets.py` | `tests/` | smoke 測試 |
+
+registry 名 `qsi_sets`；移除的 preset：n8 h4 w8 mu0.4、rotation 0.05π、probability_floor 0.01、init_confidence 0.0，
+label `Q-SI-SETS (SI-SETS with Q-bit goods)`。parameter_basis 說明：same defaults as qring_se, not tuned。
+
+**結果（10/13）：** 三個版本都沒贏 si_sets，最好的 guided 只追平。
+**若要恢復：** 檔案移回原位置，並在 `experiments/registry.py`、`experiments/presets.py`、`experiments/parameter_basis.json` 加回 `qsi_sets`。
+
+
+## rl_experiments（10/22）
+
+`Algorithm/se/rl/experiments/` 的 E01–E06 整批移來（程式、README、設計圖）；資料、checkpoint、log 在 `runs/2027WSN/rl/legacy/E0?/`，
+各資料夾的 `data`、`results` 捷徑已重新指到那裡（E04、E05 原本直接放在程式資料夾的 7.6 GB 資料也搬去了）。
+E01–E06 的 `common.py` 用 `HERE.parents[4]` 找專案根目錄，移到這裡後路徑層數不同，要重跑需先修這點。
+E07 用到的 E03／E06 環境程式已複製進 E07（`base_e03.py`、`base_e06.py`），不再引用這裡。

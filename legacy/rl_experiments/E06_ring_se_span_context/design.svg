@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1200" viewBox="0 0 1000 1200" font-family="Helvetica, Arial, 'Noto Sans CJK TC', sans-serif" font-size="12">
+  <rect width="1000" height="1200" fill="#ffffff"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#5F5E5A"/>
+    </marker>
+    <marker id="arrowR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#993C1D"/>
+    </marker>
+  </defs>
+  <text x="500" y="32" text-anchor="middle" font-size="17" font-weight="bold" fill="#2C2C2A">E06 設計：原版 ring_se 4 候選選 1，全網 sensor 前後文編碼＋候選遮罩池化，監督式與 RL 共用網路</text>
+
+  <!-- ① 問題設定 -->
+  <rect x="30" y="50" width="940" height="62" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <text x="500" y="70" text-anchor="middle" font-weight="bold" fill="#2C2C2A">① 問題設定：原版 ring_se（n8 h4 w8 μ0.4，EN），每回合 64 組 searcher-good 交易，每組決策一次</text>
+  <text x="500" y="87" text-anchor="middle" fill="#2C2C2A">每組先在 4 段各用原版 80/20 規則抽一個範圍（長度 1–50、20% 跨到相鄰段）→ 網路選 1 個 → 交換、範圍內突變、EN 更新照原版</text>
+  <text x="500" y="104" text-anchor="middle" fill="#993C1D">隨機選＝原版 ring_se 906.6；作弊版（偷看 4 候選只交換的 Δ）974.9（+7.5%）；E03 瓶頸規則 944.5、DeepSets 932.7（預算 1000）</text>
+
+  <!-- ② 輸入 -->
+  <text x="40" y="138" font-size="14" font-weight="bold" fill="#085041">② 輸入（監督式、RL 完全相同；z-score 標準化）</text>
+  <g fill="#085041">
+    <rect x="30" y="148" width="180" height="78" rx="6" fill="#E1F5EE" stroke="#0F6E56"/>
+    <text x="120" y="167" text-anchor="middle" font-weight="bold">sensor token 100×25</text>
+    <text x="120" y="184" text-anchor="middle" font-size="11">全網每顆 sensor：</text>
+    <text x="120" y="199" text-anchor="middle" font-size="11">S 解碼 10 ‖ G 解碼 10</text>
+    <text x="120" y="214" text-anchor="middle" font-size="11">E/E0、離 BS 距離 ‖ 差異旗標 3</text>
+
+    <rect x="220" y="148" width="180" height="78" rx="6" fill="#E1F5EE" stroke="#0F6E56"/>
+    <text x="310" y="167" text-anchor="middle" font-weight="bold">路由父節點 2×100</text>
+    <text x="310" y="184" text-anchor="middle" font-size="11">S、G 解碼後每顆的父節點</text>
+    <text x="310" y="199" text-anchor="middle" font-size="11">（BS／沒開 = −1）</text>
+    <text x="310" y="214" text-anchor="middle" font-size="11">→ 只用在注意力偏置</text>
+
+    <rect x="410" y="148" width="180" height="78" rx="6" fill="#E1F5EE" stroke="#0F6E56"/>
+    <text x="500" y="167" text-anchor="middle" font-weight="bold">候選遮罩 4×100</text>
+    <text x="500" y="184" text-anchor="middle" font-size="11">第 c 個候選範圍內 = 1</text>
+    <text x="500" y="199" text-anchor="middle" font-size="11">長度、位置、跨段都不固定</text>
+    <text x="500" y="214" text-anchor="middle" font-size="11">→ 不用 slot，用遮罩</text>
+
+    <rect x="600" y="148" width="180" height="78" rx="6" fill="#E1F5EE" stroke="#0F6E56"/>
+    <text x="690" y="167" text-anchor="middle" font-weight="bold">候選特徵 4×10</text>
+    <text x="690" y="184" text-anchor="middle" font-size="11">位置 4（起點、終點、長度、跨段）</text>
+    <text x="690" y="199" text-anchor="middle" font-size="11">範圍外影響 4（同 E03）</text>
+    <text x="690" y="214" text-anchor="middle" font-size="11">瓶頸分數 S、G 各 1</text>
+
+    <rect x="790" y="148" width="180" height="78" rx="6" fill="#E1F5EE" stroke="#0F6E56"/>
+    <text x="880" y="167" text-anchor="middle" font-weight="bold">全域 10</text>
+    <text x="880" y="184" text-anchor="middle" font-size="11">搜尋進度、停滯、平均電量</text>
+    <text x="880" y="199" text-anchor="middle" font-size="11">fitness 差距排名、覆蓋率…</text>
+    <text x="880" y="214" text-anchor="middle" font-size="11">（同 E03）</text>
+  </g>
+
+  <!-- ③ 網路 -->
+  <rect x="20" y="244" width="960" height="500" rx="12" fill="none" stroke="#534AB7" stroke-dasharray="7 4"/>
+  <text x="40" y="266" font-size="14" font-weight="bold" fill="#534AB7">③ 網路（監督式、RL 同一個；154,170 參數）</text>
+
+  <line x1="120" y1="226" x2="120" y2="290" stroke="#5F5E5A" stroke-width="1.5"/>
+  <line x1="120" y1="290" x2="198" y2="290" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="200" y="276" width="600" height="30" rx="6" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="500" y="296" text-anchor="middle" fill="#3C3489"><tspan font-weight="bold">φ</tspan>　25 → 64 → 64（ReLU，100 顆共用權重）</text>
+
+  <line x1="500" y1="306" x2="500" y2="320" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="200" y="322" width="600" height="50" rx="6" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="500" y="342" text-anchor="middle" fill="#3C3489"><tspan font-weight="bold">Sensor Transformer × 2 層</tspan>（d64、4 頭、FF 128、pre-LN）：100 顆 sensor 互相看</text>
+  <text x="500" y="361" text-anchor="middle" font-size="11" fill="#3C3489">注意力偏置 = 環上距離 |i−j| 分桶（可學）＋「j 是 i 在 S 的父／子」＋「在 G 的父／子」（可學）</text>
+  <line x1="310" y1="226" x2="310" y2="262" stroke="#0F6E56" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <path d="M310,262 C310,300 170,300 170,347 L198,347" fill="none" stroke="#0F6E56" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+  <text x="70" y="352" font-size="11" fill="#0F6E56">路由父節點</text>
+  <text x="70" y="366" font-size="11" fill="#0F6E56">→ 偏置</text>
+
+  <line x1="500" y1="372" x2="500" y2="390" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- h_i strip -->
+  <text x="190" y="408" text-anchor="end" fill="#3C3489" font-weight="bold">h_i 100×64</text>
+  <text x="190" y="422" text-anchor="end" font-size="11" fill="#3C3489">（有前後文）</text>
+  <rect x="200" y="394" width="600" height="30" fill="#CECBF6" stroke="#534AB7"/>
+  <g stroke="#534AB7" stroke-width="2">
+    <line x1="350" y1="394" x2="350" y2="424"/><line x1="500" y1="394" x2="500" y2="424"/><line x1="650" y1="394" x2="650" y2="424"/>
+  </g>
+  <g font-size="11" fill="#3C3489" text-anchor="middle">
+    <text x="275" y="413">段 0（內圈）</text><text x="425" y="413">段 1</text><text x="575" y="413">段 2</text><text x="725" y="413">段 3（外圈）</text>
+  </g>
+  <!-- candidate spans -->
+  <g font-size="11" font-weight="bold">
+    <rect x="230" y="432" width="102" height="14" rx="3" fill="#F5C4B3" stroke="#993C1D"/><text x="281" y="443" text-anchor="middle" fill="#712B13">c1 局部</text>
+    <rect x="380" y="432" width="108" height="14" rx="3" fill="#FAEEDA" stroke="#BA7517"/><text x="434" y="443" text-anchor="middle" fill="#633806">c2 局部</text>
+    <rect x="500" y="452" width="204" height="14" rx="3" fill="#C0DD97" stroke="#3B6D11"/><text x="602" y="463" text-anchor="middle" fill="#27500A">c3 整段＋跨到段 3</text>
+    <rect x="728" y="432" width="42" height="14" rx="3" fill="#B5D4F4" stroke="#185FA5"/><text x="749" y="443" text-anchor="middle" fill="#0C447C">c4</text>
+  </g>
+  <text x="810" y="447" font-size="11" fill="#5F5E5A">← 每組交易的 4 個候選</text>
+  <text x="810" y="461" font-size="11" fill="#5F5E5A">　（遮罩；長度不固定）</text>
+
+  <line x1="500" y1="470" x2="500" y2="484" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="200" y="486" width="600" height="44" rx="6" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="500" y="504" text-anchor="middle" fill="#3C3489"><tspan font-weight="bold">遮罩池化（每個候選各做一次）</tspan>：範圍內 h_i 的 平均 ‖ 最大 ‖ 總和÷50（192）</text>
+  <text x="500" y="521" text-anchor="middle" font-size="11" fill="#3C3489">‖ 候選特徵 10 → 202 → 128 → 64 ＝ 候選 token u_c（4 個候選共用權重）</text>
+  <path d="M690,226 L690,236 L880,236 L880,508 L802,508" fill="none" stroke="#0F6E56" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+  <text x="886" y="470" font-size="11" fill="#0F6E56">候選特徵</text>
+
+  <line x1="500" y1="530" x2="500" y2="544" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <g text-anchor="middle" font-weight="bold">
+    <rect x="270" y="546" width="80" height="28" rx="5" fill="#F1EFE8" stroke="#888780"/><text x="310" y="565" fill="#2C2C2A">g（全域）</text>
+    <rect x="370" y="546" width="70" height="28" rx="5" fill="#F5C4B3" stroke="#993C1D"/><text x="405" y="565" fill="#712B13">u1</text>
+    <rect x="450" y="546" width="70" height="28" rx="5" fill="#FAEEDA" stroke="#BA7517"/><text x="485" y="565" fill="#633806">u2</text>
+    <rect x="530" y="546" width="70" height="28" rx="5" fill="#C0DD97" stroke="#3B6D11"/><text x="565" y="565" fill="#27500A">u3</text>
+    <rect x="610" y="546" width="70" height="28" rx="5" fill="#B5D4F4" stroke="#185FA5"/><text x="645" y="565" fill="#0C447C">u4</text>
+  </g>
+  <path d="M880,236 L940,236 L940,560 L690,560" fill="none" stroke="#0F6E56" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <path d="M960,226 L960,250 L960,590 L230,590 L230,560 L268,560" fill="none" stroke="#0F6E56" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+  <text x="80" y="556" font-size="11" fill="#0F6E56">全域 10 → 64</text>
+  <text x="80" y="570" font-size="11" fill="#0F6E56">＝ 全域 token g</text>
+
+  <line x1="500" y1="574" x2="500" y2="600" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="200" y="602" width="600" height="30" rx="6" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="500" y="622" text-anchor="middle" fill="#3C3489"><tspan font-weight="bold">候選 Attention × 1 層</tspan>：[g, u1…u4] 互相比較；不加候選編號（換順序結果跟著換）</text>
+
+  <line x1="330" y1="632" x2="330" y2="650" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="600" y1="632" x2="600" y2="650" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="220" y="652" width="220" height="30" rx="6" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="330" y="672" text-anchor="middle" fill="#3C3489">V ＝ MLP(g′) 64→64→1</text>
+  <rect x="470" y="652" width="260" height="30" rx="6" fill="#EEEDFE" stroke="#534AB7"/>
+  <text x="600" y="672" text-anchor="middle" fill="#3C3489">A_c ＝ 共用 MLP(u_c′) 64→64→1</text>
+  <line x1="500" y1="682" x2="500" y2="696" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="300" y="698" width="400" height="34" rx="6" fill="#534AB7"/>
+  <text x="500" y="715" text-anchor="middle" fill="#ffffff" font-weight="bold">輸出 Q1 Q2 Q3 Q4 ＝ V ＋ A_c − mean(A)</text>
+  <text x="500" y="728" text-anchor="middle" fill="#ffffff" font-size="11">選 Q 最大的候選（監督式也輸出 Q，才能直接接 RL）</text>
+  <text x="40" y="706" font-size="11" fill="#5F5E5A">消融：Sensor Transformer 0 層</text>
+  <text x="40" y="720" font-size="11" fill="#5F5E5A">（只看範圍內，≈ E03 DeepSets）</text>
+
+  <!-- ④ 訓練 -->
+  <text x="40" y="772" font-size="14" font-weight="bold" fill="#2C2C2A">④ 訓練：同一個網路、同一個獎勵定義（差異獎勵 ÷ 上一回合正 Δ 中位數），兩種學法</text>
+  <rect x="30" y="782" width="440" height="252" rx="10" fill="#FAEEDA" stroke="#BA7517"/>
+  <text x="250" y="804" text-anchor="middle" font-size="14" font-weight="bold" fill="#633806">監督式 supervised/</text>
+  <g fill="#633806">
+    <text x="46" y="828" font-weight="bold">資料</text>
+    <text x="90" y="828">作弊版在訓練快照跑 800 episode（預算 1000）；</text>
+    <text x="90" y="844">每組交易偷看 4 候選「只交換」的 Δ（不計預算）</text>
+    <text x="46" y="868" font-weight="bold">標籤</text>
+    <text x="90" y="868">r_c ＝ min(差異獎勵_c ÷ 上回合正 Δ 中位數, 5)</text>
+    <text x="90" y="884">差異獎勵：其他 63 組固定為作弊版的選擇（不含突變）</text>
+    <text x="46" y="908" font-weight="bold">損失</text>
+    <text x="90" y="908">Huber(Q_c, r_c)，4 個候選都算</text>
+    <text x="90" y="924">＝ 學「只看眼前一步（γ = 0）」的 Q</text>
+    <text x="46" y="948" font-weight="bold">設定</text>
+    <text x="90" y="948">Adam 3e-4、batch 256、≤ 40 epoch、早停 6</text>
+    <text x="90" y="964">依地圖切 10% 驗證</text>
+    <text x="46" y="988" font-weight="bold">特性</text>
+    <text x="90" y="988">標籤乾淨（不含突變運氣），4 個都看得到</text>
+    <text x="90" y="1004">但只看一步、且是老師的狀態分布</text>
+    <text x="90" y="1020" fill="#993C1D">檢查：自己推進的改善率、4 段被選比例（防 E05 崩塌）</text>
+  </g>
+
+  <rect x="530" y="782" width="440" height="252" rx="10" fill="#E6F1FB" stroke="#185FA5"/>
+  <text x="750" y="804" text-anchor="middle" font-size="14" font-weight="bold" fill="#0C447C">強化學習 D3QN  d3qn/、d3qn_warm/</text>
+  <g fill="#0C447C">
+    <text x="546" y="828" font-weight="bold">環境</text>
+    <text x="590" y="828">網路自己推進 ring_se（ε-greedy 選候選），</text>
+    <text x="590" y="844">800 episode × 預算 1000，不偷看</text>
+    <text x="546" y="868" font-weight="bold">獎勵</text>
+    <text x="590" y="868">同左的定義，但用實際子代（含突變）、只有選的那個</text>
+    <text x="546" y="892" font-weight="bold">目標</text>
+    <text x="590" y="892">主設定 γ = 0：y ＝ r（contextual bandit）</text>
+    <text x="590" y="908">消融 γ = 0.5：Double DQN，1-step ＋ 3-step</text>
+    <text x="590" y="924">s′ ＝ 同 searcher、同 good 位置的下一回合</text>
+    <text x="546" y="948" font-weight="bold">設定</text>
+    <text x="590" y="948">PER α 0.4、β 0.6→1；target 每 1000 次更新</text>
+    <text x="590" y="964">每回合更新 16 次、batch 128、lr 1e-4</text>
+    <text x="546" y="988" font-weight="bold">探索</text>
+    <text x="590" y="988">從零：ε 1.0 → 0.05；暖啟動：ε 0.2 → 0.05</text>
+    <text x="546" y="1012" font-weight="bold">特性</text>
+    <text x="590" y="1012">看後續回合（γ > 0）、自己的狀態分布</text>
+  </g>
+
+  <line x1="472" y1="900" x2="526" y2="900" stroke="#993C1D" stroke-width="2.5" marker-end="url(#arrowR)"/>
+  <text x="499" y="886" text-anchor="middle" font-size="11" font-weight="bold" fill="#993C1D">暖啟動</text>
+  <text x="499" y="918" text-anchor="middle" font-size="10" fill="#993C1D">載入權重</text>
+
+  <!-- 三個版本 -->
+  <rect x="30" y="1046" width="940" height="56" rx="8" fill="#F1EFE8" stroke="#888780"/>
+  <text x="500" y="1066" text-anchor="middle" font-weight="bold" fill="#2C2C2A">五個版本：監督式（＋sensor Transformer 0 層消融）· RL γ=0 從零 · RL γ=0 暖啟動（主方法）· RL γ=0.5 暖啟動</text>
+  <text x="500" y="1086" text-anchor="middle" fill="#2C2C2A">訓練中驗證：每 50 episode，10 張驗證圖 × 快照 {1, 4}，和隨機比單段最終 fitness，best.pt 依此挑</text>
+
+  <!-- ⑤ 評估 -->
+  <rect x="30" y="1114" width="940" height="62" rx="8" fill="#E1F5EE" stroke="#0F6E56"/>
+  <text x="500" y="1134" text-anchor="middle" font-weight="bold" fill="#085041">⑤ 評估：MAP01–06 × seed 7–36（180 場），預算 1000，成對 Wilcoxon 對 ring_se</text>
+  <text x="500" y="1152" text-anchor="middle" fill="#085041">對照：ring_se 906.6 · E03 DeepSets 932.7 · E03 瓶頸規則 944.5 · 作弊版 974.9</text>
+  <text x="500" y="1168" text-anchor="middle" fill="#085041">報 lifetime、勝/負、p、拿到天花板比例、4 段被選比例、額外時間；先 seed 0，贏瓶頸規則再補 seed 1、2</text>
+</svg>

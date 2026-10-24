@@ -29,7 +29,7 @@ def check(algorithm_type, name, w):
     # 不分區：對齊不改任何基因。
     assert np.array_equal(algorithm.align_region(problem, candidate, 0).code, before)
     for _ in range(200):
-        algorithm.mutatev1(problem, candidate)
+        algorithm.mutate_candidate(problem, candidate)
         assert np.all((0 <= candidate.code) & (candidate.code < 10))
 
     result = algorithm.run(problem, budget=60)

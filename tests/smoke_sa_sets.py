@@ -13,7 +13,6 @@ if str(PROJECT_ROOT) not in sys.path:
 from Algorithm.se.BaseSE import BaseSE
 from Algorithm.se.sets.SA_SETS import SA_SETS
 from Problem.Problem import Problem
-from State.SensorEncoding import SensorEncoding
 
 
 SA_SETS_PARAMS = {"n": 8, "h": 4, "w": 2, "mu": 0.4}
@@ -55,33 +54,7 @@ def main():
     transition_fitness = algorithm.evaluate(problem, investment)
     assert_finite_fitness(transition_fitness)
 
-    # mutatev2 降低 level 或關閉 sensor 後，必須使用 CCS 補回所有
-    # target；已開啟的替代 sensor 則保留目前值與需求值中的較大者。
-    repair_code = np.zeros(problem.SENSOR_NUMBER * 2, dtype=int)
-    for target_candidates in problem.cover_candidates:
-        assert target_candidates
-        sensor_id, required_level = target_candidates[0]
-        level_id = int(sensor_id) * 2
-        repair_code[level_id] = max(
-            int(repair_code[level_id]),
-            int(required_level),
-        )
-        repair_code[level_id + 1] = SensorEncoding.RANK_PRECISION - 1
-    repair_candidate = SensorEncoding(repair_code)
-    assert not len(
-        problem.coverage_service.find_uncovered_targets(
-            repair_candidate.code[0::2]
-        )
-    )
-    for _ in range(100):
-        algorithm.mutatev2(problem, repair_candidate)
-        assert not len(
-            problem.coverage_service.find_uncovered_targets(
-                repair_candidate.code[0::2]
-            )
-        )
-    # 舊的純隨機 mutation 仍保留供實驗切換。
-    assert algorithm.mutatev1(problem, repair_candidate.copy()) is not None
+    assert algorithm.mutate_candidate(problem, state.copy()) is not None
 
     algorithm.evatime = 0
     algorithm.initialize_market(problem)

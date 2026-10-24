@@ -91,6 +91,9 @@ persistent_worker_pool、selective_evaluation）留在 `se/` 根目錄。
 三個家族共用的 Beta 記憶、平行評估與角色分離更新放在 `se/market_components.py`；
 sensor 分區、初始解與交配突變放在 `se/sensor_operators.py`（以 mixin 給 SETS、SA_SETS、
 SI_SETS 共用）。2026-10-03 起 SI_SETS 直接繼承 BaseSE；論文版 `SETSv2`、`SA_SETSv2` 已刪除；原 `SI_SETS`（單子代、無條件換 goods）刪除，`SI_SETSv2` 改名為 `SI_SETS`。
+2026-10-22 起 `se/` 根目錄只剩 `BaseSE.py` 與 `pooled_evaluator.py`：mixin 檔全部拆掉；`parallel_market`、
+`persistent_worker_pool`、`selective_evaluation` 刪除，SETS／SA_SETS／CodingSE 改成和 SI_SETS、Ring_SE 一樣，
+在主程序投資、對齊、更新 goods，只把評估交給 `PooledEvaluator`（SETS 系列因此不再和舊結果逐段相同）。
 
 逐組選區段的 Ring 變體（2026-10-04）：共用部分在 `se/ring_se/ring_segment_policy.py`
 （每組交易的候選範圍與特徵、LinUCB）。2026-10-13 起 RL 系列（`RL_Ring_SETS`、

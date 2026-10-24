@@ -49,7 +49,8 @@ def main():
 
     args = parse_args(['--algorithm', 'qts', '--evaluate', '7'])
     built = build_algorithm('qts', problem, args, seed=9)
-    assert built.n == 10 and built.run(problem, budget=7).evaluations == 7
+    assert built.n == 30 and np.isclose(built.rotation, 0.05 * np.pi)
+    assert built.run(problem, budget=7).evaluations == 7
     print('smoke_qts_ok')
 
 

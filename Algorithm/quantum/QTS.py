@@ -18,6 +18,12 @@ gates gives P(value=k) = 2^-(k+1) (half of the genes start at 0).
 
 The loop stops on the evaluation budget only: with the runner's default
 max_iteration=800, n=10 would otherwise stop at 8000 of 10000 evaluations.
+
+Defaults n=30, rotation=0.05*pi are the best iteration-best setting of the
+2026-10-18 grid (MAP01-06, seed 7-11, budget 10000, v3: 1032.3).  Earlier
+defaults were n=10, rotation=0.01*pi (967.1).  Rotating toward the global
+best instead reached 1036.7 (n=30, 0.02*pi), within noise, but is not the
+original QTS rule.
 """
 
 import numpy as np
@@ -27,7 +33,7 @@ from State.QuantumSensorEncoding import QuantumSensorEncoding
 
 
 class QTS(Algorithm):
-    def __init__(self, DP, n=10, rotation=0.01 * np.pi, probability_floor=0.01,
+    def __init__(self, DP, n=30, rotation=0.05 * np.pi, probability_floor=0.01,
                  init="uniform", seed=None):
         super().__init__(seed=seed)
         if int(n) != n or n < 2:
@@ -42,8 +48,11 @@ class QTS(Algorithm):
         self.rotation = float(rotation)
         self.probability_floor = float(probability_floor)
         self.init = init
-        self.encoding = QuantumSensorEncoding(DP.radius_option_counts)
+        self.encoding = self._build_encoding(DP)
         self.name = "QTS"
+
+    def _build_encoding(self, problem):
+        return QuantumSensorEncoding(problem.radius_option_counts)
 
     def _update(self, best_code, worst_code):
         best_target, best_path = self.encoding.elite_path(best_code)
@@ -57,7 +66,7 @@ class QTS(Algorithm):
 
     def search(self, problem, budget, state=None):
         # Warm-start state is unused: every call starts from the same prior.
-        self.encoding = QuantumSensorEncoding(problem.radius_option_counts)
+        self.encoding = self._build_encoding(problem)
         problem.prepare_coding_cache()
         self.reset_best()
         self.evatime = 0

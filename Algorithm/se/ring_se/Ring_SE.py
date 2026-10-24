@@ -9,6 +9,7 @@ SE 三個家族的第三個（另外兩個是 SETS 與 SI_SETS）：
 * 更新：角色分離的 EN 更新。``child1`` 以 searcher 為底，只能取代
   該 searcher，而且必須嚴格變好（E，菁英）；``child2`` 以 good 為底，
   每回合該 good 一律換成拜訪者中最好的 child2，即使變差（N，不菁英）。
+  E／N 由 BaseSE 的 ``SEARCHER_ELITIST``／``GOOD_ELITIST`` 決定。
   歷史最佳解由 ``update_best`` 在每次評估時保留，不會遺失。
   （2026-10-12 由 EE 改成 EN：搭配學長突變 GA、fitness v3 的 lifetime
   實驗中，EN 在 1000／3000／10000 都顯著贏同編碼 GA。）
@@ -25,17 +26,13 @@ from __future__ import annotations
 import numpy as np
 
 from Algorithm.se.BaseSE import BaseSE
-from Algorithm.se.market_components import (
-    PooledEvaluation,
-    accept_good_children,
-    accept_searcher_children,
-)
-from Algorithm.se.sensor_operators import CCSInitialization, draw_mutation_count
+from Algorithm.se.pooled_evaluator import PooledEvaluator
 from State.Encoding import swap_segment
 from State.SensorEncoding import SensorEncoding
+from State.initialization import random_sensor_coding
 
 
-class Ring_SE(CCSInitialization, PooledEvaluation, BaseSE):
+class Ring_SE(BaseSE):
     """SE with ring-segment operator scopes and one shared elitist goods pool.
 
     For ``h=4`` and 100 ring-ordered sensors, segments are ``[0:25)``,
@@ -53,8 +50,8 @@ class Ring_SE(CCSInitialization, PooledEvaluation, BaseSE):
     """
 
     LOCAL_OPERATOR_PROBABILITY = 0.80
-    # EN：good 的接受門檻為 -inf，一律換成拜訪者中最好的 child2。
-    GOOD_ACCEPT_TOLERANCE = -np.inf
+    # 每次突變改動的 sensor 數：90% 一顆、5% 兩顆、5% 三顆。
+    MUTATION_COUNTS = [1] * 90 + [2] * 5 + [3] * 5
 
     def __init__(self, problem, n=8, h=4, w=8, mu=0.4, seed=None):
         super().__init__(
@@ -73,6 +70,7 @@ class Ring_SE(CCSInitialization, PooledEvaluation, BaseSE):
         self.region_sensor_bounds = self._build_region_sensor_bounds(
             problem.SENSOR_NUMBER
         )
+        self.evaluator = PooledEvaluator()
 
     def _build_region_sensor_bounds(self, sensor_count):
         """Split ring-major sensor ids into contiguous, near-equal regions."""
@@ -91,9 +89,25 @@ class Ring_SE(CCSInitialization, PooledEvaluation, BaseSE):
         self.goods = [self.create_candidate(problem) for _ in range(self.w)]
         self.goods_fitness = self.evaluate_many(problem, self.goods)
 
+    def create_candidate(self, problem, region=None):
+        """CCS 初始解；Ring 的區域不限制解，所以不對齊。"""
+        return random_sensor_coding(problem, self.rng, self.random)
+
     def align_region(self, problem, candidate, region):
         """Ring membership guides operators only; never force sensing levels."""
         return candidate
+
+    def arrange_resources(self, problem):
+        """開啟 h 個評估子程序。"""
+        self.evaluator.start(problem, self.h, self.next_seed)
+
+    def close_market(self):
+        """搜尋結束或發生例外時關閉評估子程序。"""
+        self.evaluator.close()
+
+    def evaluate_investments(self, problem, investments):
+        """評估 ``investments[searcher][child]``，回傳同形狀的 fitness。"""
+        return self.evaluator.evaluate(self, problem, investments)
 
     def _resolve_region(self, region):
         region = int(region)
@@ -152,7 +166,7 @@ class Ring_SE(CCSInitialization, PooledEvaluation, BaseSE):
     def mutate_candidate(self, problem, candidate, sensor_span):
         """Mutate one to three sensor pairs inside the chosen ring scope."""
         _, left_sensor, right_sensor = sensor_span
-        mutation_count = draw_mutation_count(self.random)
+        mutation_count = self.random.choice(self.MUTATION_COUNTS)
         for _ in range(mutation_count):
             sensor_id = self.random.randrange(left_sensor, right_sensor)
             sensing_id = sensor_id * 2
@@ -208,23 +222,51 @@ class Ring_SE(CCSInitialization, PooledEvaluation, BaseSE):
 
         # A searcher considers only its own child1 proposals and remains
         # unchanged unless the best proposal improves its previous fitness.
-        accept_searcher_children(
-            self, children, child1_fitness, searcher_fitness_before
+        self.accept_searcher_children(
+            children, child1_fitness, searcher_fitness_before
         )
 
         # The pool is shared: every searcher this round is a candidate
         # visitor for every good slot, regardless of which segment it
         # operated on. Each good is replaced by its best child2 even when
-        # that child is worse (EN; GOOD_ACCEPT_TOLERANCE = -inf).
-        accept_good_children(
+        # that child is worse (N; see GOOD_ELITIST).
+        self.accept_good_children(
             self.goods,
             self.goods_fitness,
             goods_fitness_before,
             children,
             child2_fitness,
             range(self.n),
-            self.GOOD_ACCEPT_TOLERANCE,
         )
+
+    def accept_searcher_children(self, children, child1_fitness,
+                                 searcher_fitness_before):
+        """每個 searcher 取自己最好的 child1（E：嚴格變好才換）。
+
+        ``children[s]`` 依 good 交錯排列 ``[child1, child2, ...]``。
+        """
+        for searcher_id in range(self.n):
+            good_id = int(np.argmax(child1_fitness[searcher_id]))
+            score = float(child1_fitness[searcher_id, good_id])
+            if self.SEARCHER_ELITIST and score <= searcher_fitness_before[searcher_id]:
+                continue
+            self.searchers[searcher_id] = children[searcher_id][good_id * 2].copy()
+            self.searcher_fitness[searcher_id] = score
+
+    def accept_good_children(self, goods, goods_fitness, goods_fitness_before,
+                             children, child2_fitness, visitors):
+        """每個 good 取造訪者中最好的 child2（N：一律換）；同分取第一個造訪者。"""
+        if not len(visitors):
+            return
+        for good_id in range(len(goods)):
+            winner = int(
+                max(visitors, key=lambda index: child2_fitness[int(index), good_id])
+            )
+            winner_score = float(child2_fitness[winner, good_id])
+            if self.GOOD_ELITIST and winner_score <= goods_fitness_before[good_id]:
+                continue
+            goods[good_id] = children[winner][good_id * 2 + 1].copy()
+            goods_fitness[good_id] = winner_score
 
     def update_search_memory(self, problem, evaluation_start):
         """No region memory to update; only record this round's history."""
