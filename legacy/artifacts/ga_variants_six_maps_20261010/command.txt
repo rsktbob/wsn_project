@@ -1,0 +1,7 @@
+Working directory: /home/g114056067/wsn_project/codes/2027WSN
+Environment: OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1
+Python: /home/g114056067/miniconda3/envs/wsnenv/bin/python
+Command:
+python -u experiment_algorithms.py --algorithm ga ga_elitist ga_adaptive --mode lifetime --maps maps/maps_100100100.json --runs 3 --seed 7 --evaluate 1000 --execution parallel --jobs 6 --result-dir /home/g114056067/wsn_project/artifacts/ga_variants_six_maps_20261010 --experiment-name results
+Analysis:
+python /home/g114056067/wsn_project/artifacts/ga_variants_six_maps_20261010/analyze.py

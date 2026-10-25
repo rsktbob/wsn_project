@@ -1,0 +1,35 @@
+{
+  "ga": {
+    "lifetime_mean": 941.1111111111111,
+    "elapsed_mean": 8.904269,
+    "evaluations_mean": 25888.88888888889,
+    "wins": 0,
+    "ties": 18,
+    "losses": 0,
+    "stop_reasons": {
+      "infeasible_solution": 18
+    }
+  },
+  "ga_elitist": {
+    "lifetime_mean": 930.0,
+    "elapsed_mean": 8.731849666666667,
+    "evaluations_mean": 25611.11111111111,
+    "wins": 10,
+    "ties": 0,
+    "losses": 8,
+    "stop_reasons": {
+      "infeasible_solution": 18
+    }
+  },
+  "ga_adaptive": {
+    "lifetime_mean": 950.8888888888889,
+    "elapsed_mean": 10.780439388888889,
+    "evaluations_mean": 26388.88888888889,
+    "wins": 12,
+    "ties": 0,
+    "losses": 6,
+    "stop_reasons": {
+      "infeasible_solution": 18
+    }
+  }
+}

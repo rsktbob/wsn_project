@@ -1,0 +1,88 @@
+{
+  "map": "A2",
+  "single_search_seeds": [
+    7,
+    11
+  ],
+  "budget": 10000,
+  "single_search_exact_match": true,
+  "single_search_rounds": {
+    "sa_sets:7": 156,
+    "sa_sets:11": 156,
+    "si_setsv2:7": 312,
+    "si_setsv2:11": 312
+  },
+  "lifetime_seed": 7,
+  "lifetime": {
+    "sa_sets": {
+      "summary.csv": {
+        "rows": 1,
+        "exact_non_timing_match": true
+      },
+      "before_lifetime": 949,
+      "after_lifetime": 949,
+      "actual_evaluations": 180000,
+      "before_seconds": 12.408546,
+      "after_seconds": 17.98771,
+      "trace.csv": {
+        "rows": 18,
+        "exact_non_timing_match": true
+      }
+    },
+    "si_setsv2": {
+      "summary.csv": {
+        "rows": 1,
+        "exact_non_timing_match": true
+      },
+      "before_lifetime": 1026,
+      "after_lifetime": 1026,
+      "actual_evaluations": 240000,
+      "before_seconds": 25.722176,
+      "after_seconds": 26.23863,
+      "trace.csv": {
+        "rows": 24,
+        "exact_non_timing_match": true
+      }
+    }
+  },
+  "excluded_comparison_columns": [
+    "elapsed_seconds",
+    "optimize_elapsed_seconds"
+  ],
+  "baseline_git_head": "141530bff08d98c96ac459dbd2f74155e939e8c1",
+  "source_sha256": {
+    "Algorithm/se/BaseSA.py": "dc7d0214805fe85e37e14554f58d5b4a59992c87506b9f16ab4e6dce1e5d2b0d",
+    "Algorithm/se/BaseSE.py": "be907ee9a41f74d61a07a29301bc2e51579f1f43f6f8a4d508a59de9be0953ab",
+    "Algorithm/se/BaseSI.py": "39f72d6e19daef6c937bc235c4721f24c27c5ea3bbc2e5044b63eef215cd8198",
+    "Algorithm/se/CodingSE.py": "d06ed9b10fdf861f781fa4b8bc3be3578bffcfcb1a846655dfa44b2b532b7b1c",
+    "Algorithm/se/CodingSEv2.py": "ea9bde5b5d4889fb6bda0d38ed49369f588b5868c3f156a8914e5b3b56bdbbf9",
+    "Algorithm/se/ContextualThompsonIG_SA_SETS.py": "66e18f630d88ab0a3aed3e8dfb775ac4989185b55227e6c6f07966a33055f8e0",
+    "Algorithm/se/EXP3_SA_SETS.py": "099f29a5bc767343e9d119e42290867ffc5d36971f9898c088ff7d7050e14605",
+    "Algorithm/se/LinUCB_SA_SETS.py": "6d17618e7f1ec8ec8906839cc153c78fd622f13841a882c4d88dd377340a0d27",
+    "Algorithm/se/RL_SETS.py": "d6d05710114565614f3c742c986293c25880b3b487646a6057d8aaef26585f6a",
+    "Algorithm/se/RL_SETSv2.py": "b180ee835997ac6bfe61d2e24bad32a314fe776d2551338176359052cd435cfc",
+    "Algorithm/se/RL_SETSv3.py": "01cd2bef6c451a6718a70da6b9e600a8166a653bcf138c6e2c3d16e7c669e1c0",
+    "Algorithm/se/RL_SETSv4.py": "2a55b7c168074109e8e43251568c17fb4ec7fa2a9100062d8aea5be82ddcb19d",
+    "Algorithm/se/RL_SETSv5.py": "c2ebbf1285a1a3802199488eced04e4d746fecc79e3a6857e3177a1d7010f9fe",
+    "Algorithm/se/RegionSelectionSA_SETS.py": "8cc6a47ac30e907d738c95eb67c1851ec2f2aa8c5ef93b3d4b32659822b5aa21",
+    "Algorithm/se/Ring_SETS.py": "a8acd7d904854accc88b5ee94b728f743c2b4ec55b0bc14784965e901d459803",
+    "Algorithm/se/Ring_SETSv2.py": "e5f0d1905692902055f3e749c8a4dce950d31a4926314089b942ba2de5a521fb",
+    "Algorithm/se/SA_SETS.py": "449d2f009a454e03e06f1180757c98274a3391e253a9bf834dc6f91a95baaaed",
+    "Algorithm/se/SA_SETS_Target.py": "9191580f4f7b2dd032083323f1747afef7970bed006bba2809b9d152a98cb902",
+    "Algorithm/se/SA_SETSv2.py": "4b029da4d0a437e5c34f47df3f186f2d97397f524b1e653b4308b5450723329a",
+    "Algorithm/se/SETS.py": "eaea176f2eb933b946fc44225a856bf145dd9bc0e89b606b32baeaadb9c41b22",
+    "Algorithm/se/SETSv2.py": "eee445598d382adf4b5d1e6f16c0e824078b4c24ac9f940abe29482fb0c4224e",
+    "Algorithm/se/SI_SETS.py": "129d8c079454149107dd6523db42968461721deac9a9cbb4f5cb15c7b47d627c",
+    "Algorithm/se/SI_SETSv2.py": "10976653bce3a180362a14490c5df7ec7005f5c5978fb914793f35783f21a5ee",
+    "Algorithm/se/Thompson_SA_SETS.py": "ae07a61ae4096370bf3037324b87b1597a66218050b065098860c6a974098439",
+    "Algorithm/se/__init__.py": "df3b75cfeadc7ab24c7a01b5257893a0c0982cdac833c834cb84682f7d2d1c77",
+    "Algorithm/se/d3qn.py": "4703e3090a76402d1aca827e1330ec54aba9c67204aee3adb4220ca801dc9fc5",
+    "Algorithm/se/market_components.py": "76dca78318c1941d634adaa81714faf8aa4a0d209135da27901ca46144a16312",
+    "Algorithm/se/parallel_market.py": "e0807126fd0c84d2ecaba85281b964918bdd925aa5564c8e1d85f6a7ae7cb8c0",
+    "Algorithm/se/persistent_worker_pool.py": "942fa44ba43d30c3c2b873fe15bd6ae4b04649c2877437e4b03c81402ddf3ae9",
+    "Algorithm/se/population_updates.py": "dbf638d7cced14047cea23d8f87c3fd24e0afb112cd2d401aa23ebebfc7849a7",
+    "Algorithm/se/rl_sets_components.py": "aeaee41531b48b73d10942352a0497b28c358dfb8b5c5079826950cc2a0b6864",
+    "Algorithm/se/selective_evaluation.py": "99cc81f358b39c8f3b8869e335963cb75c9fb4196462970578019eda990293c5",
+    "Algorithm/se/sensor_operators.py": "3db3032bc61307362e20627ec5faa2f96265d04f7db558db21e5ea8b91763ce2"
+  }
+}

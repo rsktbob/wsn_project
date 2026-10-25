@@ -1,0 +1,132 @@
+{
+  "algorithms": [
+    {
+      "implementation": "algorithm",
+      "label": "GA",
+      "name": "ga",
+      "parameter_basis": "Project 2023 thesis, Section 4.1: population=30, crossover=0.8. Mutation is the classic per-gene rate 1/L instead of the thesis's mutation=0.1 with one gene per selected chromosome (that was ~10x weaker; per-gene 1/L gave +7.8%/+9.5% lifetime at 1000/10000 evaluations on MAP01-06).",
+      "params": {
+        "cu": 0.8,
+        "n": 30
+      }
+    },
+    {
+      "implementation": "algorithm",
+      "label": "Elitist GA",
+      "name": "ga_elitist",
+      "parameter_basis": "Same initialization, integer encoding, n=30, cu=0.8 and per-gene mu=1/L as GA; carry 2 unmodified elites with cached fitness. Elite count is an exploratory, untuned default.",
+      "params": {
+        "cu": 0.8,
+        "elite_count": 2,
+        "n": 30
+      }
+    },
+    {
+      "implementation": "algorithm",
+      "label": "Adaptive GA",
+      "name": "ga_adaptive",
+      "parameter_basis": "Project-specific adaptive mutation, not a published AGA replica: mu from 1/L to min(1,5/L), driven by normalized gene diversity below 0.3 or best-fitness stagnation over 10 generations. No elitism by default, to isolate adaptation; n=30 and cu=0.8 match GA. Exploratory, untuned defaults.",
+      "params": {
+        "cu": 0.8,
+        "diversity_threshold": 0.3,
+        "elite_count": 0,
+        "mutation_multiplier": 5.0,
+        "n": 30,
+        "stagnation_window": 10
+      }
+    }
+  ],
+  "experiment_settings": {
+    "draw_fitness_history": false,
+    "draw_save": false,
+    "evaluate_budget": 1000,
+    "evaluation_backend": "numba",
+    "fitness_parameters": {
+      "formula": "feasible fitness = 1 - (0.3 * global_depletion + 0.7 * worst_target_depletion)",
+      "incomplete_order": "fitness = -uncovered_ratio - 0.5 / target_count * weighted_depletion",
+      "invalid_base_score": -2.0,
+      "weights": [
+        0.3,
+        0.7
+      ]
+    },
+    "fitness_service": "v2",
+    "implementation": "algorithm",
+    "lifetime_cap": null,
+    "map_count": 6,
+    "maps": [
+      {
+        "boundary": 100,
+        "file": "MAP01",
+        "full_energy": 10.0,
+        "geometry_sha256": "bfc6ed48ed5d53fa9d1c26875eb4bfac26cb64b777f3f68b06013ad6ecb32570",
+        "map_seed": 1001,
+        "name": "MAP01",
+        "sensors": 100,
+        "targets": 100
+      },
+      {
+        "boundary": 100,
+        "file": "MAP02",
+        "full_energy": 10.0,
+        "geometry_sha256": "80bbc003c9db312fbd28eb1996bff55fb487de2669ebc90a9c10d6dfe411a240",
+        "map_seed": 1002,
+        "name": "MAP02",
+        "sensors": 100,
+        "targets": 100
+      },
+      {
+        "boundary": 100,
+        "file": "MAP03",
+        "full_energy": 10.0,
+        "geometry_sha256": "4b93118afa434855ab1b8fce6c3f6269e9e89f695bd57d4b85e981802f383ed8",
+        "map_seed": 1003,
+        "name": "MAP03",
+        "sensors": 100,
+        "targets": 100
+      },
+      {
+        "boundary": 100,
+        "file": "MAP04",
+        "full_energy": 10.0,
+        "geometry_sha256": "1948819281565e02c877a2d98257c202f1c32fe9d95ce064e9f3553c313c9f86",
+        "map_seed": 1004,
+        "name": "MAP04",
+        "sensors": 100,
+        "targets": 100
+      },
+      {
+        "boundary": 100,
+        "file": "MAP05",
+        "full_energy": 10.0,
+        "geometry_sha256": "894d79510c47de15fb8900590ca2a0eb8906520237118835cb566a4f9364a0ed",
+        "map_seed": 1005,
+        "name": "MAP05",
+        "sensors": 100,
+        "targets": 100
+      },
+      {
+        "boundary": 100,
+        "file": "MAP06",
+        "full_energy": 10.0,
+        "geometry_sha256": "cd825612e6dc30791d36109ffc861a8656f624c6d42d184afa73be02bf4561ce",
+        "map_seed": 1006,
+        "name": "MAP06",
+        "sensors": 100,
+        "targets": 100
+      }
+    ],
+    "max_rounds": 2000,
+    "mode": "lifetime",
+    "moving": false,
+    "moving_target_threshold": null,
+    "numba_version": "0.66.0",
+    "routing_service": "v1",
+    "runs_per_map": 3,
+    "segment_slot_limit": 5000,
+    "sensing_mode": "discrete",
+    "sensor_encoding": "v3",
+    "sensor_ring_id": true,
+    "total_cases_per_algorithm": 18
+  }
+}

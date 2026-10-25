@@ -1,0 +1,643 @@
+{
+  "date": "2026-10-02",
+  "seed": 20261002,
+  "sample_count_per_map_method": 128,
+  "scope": "six fixed maps; initial F=10; no optimizer, no lifetime, no movement; selected one-gene non-noop mutations; initial candidate distributions only",
+  "cases": [
+    {
+      "map": "MAP01",
+      "identity_original_ids": [
+        0,
+        1
+      ],
+      "methods": {
+        "uniform_level_priority": {
+          "full_coverage": 2,
+          "fitness_feasible": 2,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 85
+        },
+        "SA_CCS_before_alignment": {
+          "full_coverage": 105,
+          "fitness_feasible": 105,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 86
+        },
+        "C4_priority": {
+          "full_coverage": 128,
+          "fitness_feasible": 128,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 103
+        }
+      },
+      "identity_requested_to_decoded_counts": [
+        [
+          128,
+          0,
+          0,
+          0
+        ],
+        [
+          66,
+          62,
+          0,
+          0
+        ],
+        [
+          70,
+          0,
+          58,
+          0
+        ],
+        [
+          43,
+          49,
+          34,
+          2
+        ]
+      ],
+      "alignment_physical_unchanged": [
+        44,
+        92,
+        78,
+        126
+      ]
+    },
+    {
+      "map": "MAP02",
+      "identity_original_ids": [
+        0,
+        1
+      ],
+      "methods": {
+        "uniform_level_priority": {
+          "full_coverage": 4,
+          "fitness_feasible": 4,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 85
+        },
+        "SA_CCS_before_alignment": {
+          "full_coverage": 92,
+          "fitness_feasible": 92,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 89
+        },
+        "C4_priority": {
+          "full_coverage": 128,
+          "fitness_feasible": 128,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 113
+        }
+      },
+      "identity_requested_to_decoded_counts": [
+        [
+          128,
+          0,
+          0,
+          0
+        ],
+        [
+          73,
+          55,
+          0,
+          0
+        ],
+        [
+          58,
+          0,
+          70,
+          0
+        ],
+        [
+          39,
+          34,
+          55,
+          0
+        ]
+      ],
+      "alignment_physical_unchanged": [
+        40,
+        74,
+        93,
+        125
+      ]
+    },
+    {
+      "map": "MAP03",
+      "identity_original_ids": [
+        0,
+        1
+      ],
+      "methods": {
+        "uniform_level_priority": {
+          "full_coverage": 3,
+          "fitness_feasible": 3,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 68
+        },
+        "SA_CCS_before_alignment": {
+          "full_coverage": 88,
+          "fitness_feasible": 88,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 88
+        },
+        "C4_priority": {
+          "full_coverage": 128,
+          "fitness_feasible": 128,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 96
+        }
+      },
+      "identity_requested_to_decoded_counts": [
+        [
+          128,
+          0,
+          0,
+          0
+        ],
+        [
+          86,
+          42,
+          0,
+          0
+        ],
+        [
+          76,
+          0,
+          52,
+          0
+        ],
+        [
+          64,
+          25,
+          39,
+          0
+        ]
+      ],
+      "alignment_physical_unchanged": [
+        67,
+        89,
+        104,
+        124
+      ]
+    },
+    {
+      "map": "MAP04",
+      "identity_original_ids": [
+        0,
+        1
+      ],
+      "methods": {
+        "uniform_level_priority": {
+          "full_coverage": 8,
+          "fitness_feasible": 8,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 75
+        },
+        "SA_CCS_before_alignment": {
+          "full_coverage": 98,
+          "fitness_feasible": 98,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 87
+        },
+        "C4_priority": {
+          "full_coverage": 128,
+          "fitness_feasible": 128,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 93
+        }
+      },
+      "identity_requested_to_decoded_counts": [
+        [
+          128,
+          0,
+          0,
+          0
+        ],
+        [
+          46,
+          82,
+          0,
+          0
+        ],
+        [
+          60,
+          0,
+          68,
+          0
+        ],
+        [
+          32,
+          58,
+          31,
+          7
+        ]
+      ],
+      "alignment_physical_unchanged": [
+        34,
+        87,
+        67,
+        121
+      ]
+    },
+    {
+      "map": "MAP05",
+      "identity_original_ids": [
+        0,
+        1
+      ],
+      "methods": {
+        "uniform_level_priority": {
+          "full_coverage": 1,
+          "fitness_feasible": 1,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 90
+        },
+        "SA_CCS_before_alignment": {
+          "full_coverage": 94,
+          "fitness_feasible": 94,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 83
+        },
+        "C4_priority": {
+          "full_coverage": 128,
+          "fitness_feasible": 128,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 99
+        }
+      },
+      "identity_requested_to_decoded_counts": [
+        [
+          128,
+          0,
+          0,
+          0
+        ],
+        [
+          43,
+          85,
+          0,
+          0
+        ],
+        [
+          42,
+          0,
+          86,
+          0
+        ],
+        [
+          31,
+          44,
+          49,
+          4
+        ]
+      ],
+      "alignment_physical_unchanged": [
+        32,
+        74,
+        82,
+        123
+      ]
+    },
+    {
+      "map": "MAP06",
+      "identity_original_ids": [
+        0,
+        1
+      ],
+      "methods": {
+        "uniform_level_priority": {
+          "full_coverage": 2,
+          "fitness_feasible": 2,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 80
+        },
+        "SA_CCS_before_alignment": {
+          "full_coverage": 108,
+          "fitness_feasible": 108,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 96
+        },
+        "C4_priority": {
+          "full_coverage": 128,
+          "fitness_feasible": 128,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 98
+        }
+      },
+      "identity_requested_to_decoded_counts": [
+        [
+          128,
+          0,
+          0,
+          0
+        ],
+        [
+          103,
+          25,
+          0,
+          0
+        ],
+        [
+          80,
+          0,
+          48,
+          0
+        ],
+        [
+          68,
+          10,
+          34,
+          16
+        ]
+      ],
+      "alignment_physical_unchanged": [
+        71,
+        79,
+        100,
+        124
+      ]
+    }
+  ],
+  "existing_run_summary": {
+    "path": "runs/2027WSN/tmp/se_refactor/lifetime/20260927_211858_sa_sets_si_setsv2_ring_setsv2",
+    "rows": [
+      {
+        "map": "MAP01",
+        "methods": {
+          "sa_sets": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 1086.8,
+            "mean_seconds": 162.4398734,
+            "mean_actual_evaluations": 286000
+          },
+          "si_setsv2": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 1116.2,
+            "mean_seconds": 240.164455,
+            "mean_actual_evaluations": 320000
+          },
+          "ring_setsv2": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 1139.6,
+            "mean_seconds": 173.9017862,
+            "mean_actual_evaluations": 218566.8
+          }
+        }
+      },
+      {
+        "map": "MAP02",
+        "methods": {
+          "sa_sets": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 995.0,
+            "mean_seconds": 169.1932924,
+            "mean_actual_evaluations": 292000
+          },
+          "si_setsv2": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 1027.6,
+            "mean_seconds": 250.9628976,
+            "mean_actual_evaluations": 326000
+          },
+          "ring_setsv2": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 1106.2,
+            "mean_seconds": 173.0088032,
+            "mean_actual_evaluations": 208540.8
+          }
+        }
+      },
+      {
+        "map": "MAP03",
+        "methods": {
+          "sa_sets": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 971.0,
+            "mean_seconds": 125.3016604,
+            "mean_actual_evaluations": 216000
+          },
+          "si_setsv2": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 1008.4,
+            "mean_seconds": 197.3575552,
+            "mean_actual_evaluations": 256000
+          },
+          "ring_setsv2": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 1016.0,
+            "mean_seconds": 132.6148506,
+            "mean_actual_evaluations": 160416
+          }
+        }
+      },
+      {
+        "map": "MAP04",
+        "methods": {
+          "sa_sets": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 1047.6,
+            "mean_seconds": 184.4698278,
+            "mean_actual_evaluations": 314000
+          },
+          "si_setsv2": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 1066.0,
+            "mean_seconds": 249.4316848,
+            "mean_actual_evaluations": 318000
+          },
+          "ring_setsv2": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 1119.0,
+            "mean_seconds": 188.4363964,
+            "mean_actual_evaluations": 228592.8
+          }
+        }
+      },
+      {
+        "map": "MAP05",
+        "methods": {
+          "sa_sets": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 888.8,
+            "mean_seconds": 147.5126646,
+            "mean_actual_evaluations": 250000
+          },
+          "si_setsv2": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 941.2,
+            "mean_seconds": 221.9980022,
+            "mean_actual_evaluations": 288000
+          },
+          "ring_setsv2": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 974.8,
+            "mean_seconds": 158.9616834,
+            "mean_actual_evaluations": 190494
+          }
+        }
+      },
+      {
+        "map": "MAP06",
+        "methods": {
+          "sa_sets": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 1013.6,
+            "mean_seconds": 140.9477306,
+            "mean_actual_evaluations": 290000
+          },
+          "si_setsv2": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 992.2,
+            "mean_seconds": 160.93466700000002,
+            "mean_actual_evaluations": 246000
+          },
+          "ring_setsv2": {
+            "n": 5,
+            "seeds": [
+              7,
+              8,
+              9,
+              10,
+              11
+            ],
+            "mean_lifetime": 1150.6,
+            "mean_seconds": 148.7042316,
+            "mean_actual_evaluations": 234608.4
+          }
+        }
+      }
+    ],
+    "warning": "bundled method changes; only 5 seeds/map; shared prior maps; current source hash not proof of historical run code"
+  },
+  "source_sha256": {
+    "artifacts/ring_setsv2_evidence_audit_20261002.py": "c34888dec724484394ed8c7bb42f9f265b6899535f3d761ea03e0bac0218cd83",
+    "codes/2027WSN/State/PriorityEncoding.py": "d7b367167b87a2155528d7f225f2b0aa70c092a8743b5605ade4e5615522c40c",
+    "codes/2027WSN/State/SensorEncoding.py": "6906e8eb7e19a2abb9eff785fa9a8ea0ede506a1b165b95b3e70d19041b098a4",
+    "codes/2027WSN/Problem/Problem.py": "e500a41531b0b8f7327b1e547d31f7912b560db83b11ee46406801a3eb00bc33",
+    "codes/2027WSN/Problem/services/evaluation_kernels.py": "540096699d2dc163adece9128bc4ef0bfdff51d5b66e6f18477fc1075082f6e6",
+    "codes/2027WSN/Problem/services/fitness_servicev2.py": "f39d0474946370d3f304c835a4995931c715b54521bfedc5788140886c0904af",
+    "codes/2027WSN/Algorithm/se/SA_SETS.py": "c0ad27119913a7c80828324f7587e8e8c296107fa519f802ba0f2c51bc2e8559",
+    "codes/2027WSN/Algorithm/se/Ring_SETS.py": "2264a81bdf83726c3504682621647dd3b41c082cf50f813de50c9f7d9911b12e",
+    "codes/2027WSN/Algorithm/se/Ring_SETSv2.py": "e5f0d1905692902055f3e749c8a4dce950d31a4926314089b942ba2de5a521fb"
+  }
+}

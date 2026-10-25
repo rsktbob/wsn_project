@@ -1,0 +1,76 @@
+{
+  "scope": "finite algebra verification; no quantum circuits or WSN benchmark",
+  "pairwise_basis_checks": 729,
+  "pairwise_basis_failures": 0,
+  "toy_qubo_checks": {
+    "binary": {
+      "qubo_minimum": 1,
+      "sensor_levels": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "enumerated_bitstrings": 32
+    },
+    "gray": {
+      "qubo_minimum": 1,
+      "sensor_levels": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "enumerated_bitstrings": 32
+    },
+    "thermometer": {
+      "qubo_minimum": 1,
+      "sensor_levels": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "enumerated_bitstrings": 32
+    }
+  },
+  "uniform_valid_binary_probability_100": 3.207202185381504e-13,
+  "global_ternary_basis_qubits_100": 159,
+  "amplitude_features_100_qubits": 7,
+  "qrao_ideal_lower_bound_200": 67,
+  "pce_pair_slots": {
+    "12": 198,
+    "13": 234
+  },
+  "statevector_gib": {
+    "13": 0.0001220703125,
+    "28": 4.0,
+    "29": 8.0,
+    "30": 16.0,
+    "31": 32.0
+  },
+  "density_matrix_gib": {
+    "13": 1.0,
+    "14": 4.0,
+    "15": 16.0,
+    "16": 64.0
+  },
+  "qutrit_statevector_gib": {
+    "17": 1.924338385462761,
+    "18": 5.773015156388283,
+    "19": 17.31904546916485,
+    "20": 51.957136407494545
+  }
+}

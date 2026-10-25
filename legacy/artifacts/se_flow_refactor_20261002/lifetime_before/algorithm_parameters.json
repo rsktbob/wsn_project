@@ -1,0 +1,71 @@
+{
+  "algorithms": [
+    {
+      "implementation": "algorithm",
+      "label": "SA-SETS",
+      "name": "sa_sets",
+      "parameter_basis": "Project 2023 thesis: 8 searchers, 4 regions, 2 goods per region; mu is retained from the existing SA-SETS implementation. SensorEncodingV3 uses V2 coverage selection and redundancy removal, but a routing-rejected sensor remains scheduled with next_hop=-1 and the chromosome is not modified.",
+      "params": {
+        "h": 4,
+        "mu": 0.4,
+        "n": 8,
+        "w": 2
+      }
+    },
+    {
+      "implementation": "algorithm",
+      "label": "SI-SETSv2 (Elitist Role-separated Update)",
+      "name": "si_setsv2",
+      "parameter_basis": "RL-SETSv4 market-update ablation without reinforcement learning. Every searcher-good pair produces two crossover children and mutates each with probability mu. Searchers accept only their best improving child1; every visited good accepts the best visiting child2 only when it improves the old good.",
+      "params": {
+        "h": 4,
+        "mu": 0.4,
+        "n": 8,
+        "w": 2
+      }
+    }
+  ],
+  "experiment_settings": {
+    "draw_fitness_history": false,
+    "draw_save": false,
+    "evaluate_budget": 10000,
+    "evaluation_backend": "numba",
+    "fitness_parameters": {
+      "formula": "feasible fitness = 1 - (0.3 * global_depletion + 0.7 * worst_target_depletion)",
+      "incomplete_order": "fitness = -uncovered_ratio - 0.5 / target_count * weighted_depletion",
+      "invalid_base_score": -2.0,
+      "weights": [
+        0.3,
+        0.7
+      ]
+    },
+    "fitness_service": "v2",
+    "implementation": "algorithm",
+    "lifetime_cap": null,
+    "map_count": 1,
+    "maps": [
+      {
+        "boundary": 100,
+        "file": "A2",
+        "full_energy": 10.0,
+        "geometry_sha256": null,
+        "map_seed": null,
+        "name": "A2",
+        "sensors": 100,
+        "targets": 100
+      }
+    ],
+    "max_rounds": 2000,
+    "mode": "lifetime",
+    "moving": false,
+    "moving_target_threshold": null,
+    "numba_version": "0.66.0",
+    "routing_service": "v1",
+    "runs_per_map": 1,
+    "segment_slot_limit": 5000,
+    "sensing_mode": "discrete",
+    "sensor_encoding": "v3",
+    "sensor_ring_id": true,
+    "total_cases_per_algorithm": 1
+  }
+}

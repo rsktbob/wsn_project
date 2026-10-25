@@ -1,0 +1,18 @@
+{
+  "source": "/home/g114056067/.codex/attachments/4c27e225-df08-4c4c-8786-1d6afb5d5c36/wsn報告2.pptx",
+  "output": "/home/g114056067/wsn_project/wsn問題研究/thesis/wsn報告2_A-D修訂_20261002.pptx",
+  "changed_parts": [
+    "ppt/slides/slide2.xml",
+    "ppt/slides/slide3.xml",
+    "ppt/slides/slide4.xml",
+    "ppt/slides/slide5.xml",
+    "ppt/slides/slide6.xml",
+    "ppt/slides/slide7.xml",
+    "ppt/slides/slide8.xml",
+    "ppt/slides/slide9.xml"
+  ],
+  "EF_slide_xml_identical": true,
+  "zip_and_xml_valid": true,
+  "visual_rendering": "not performed: no PowerPoint or LibreOffice renderer installed",
+  "sha256": "93bf9bcfcad5432fee630f6482a43ce8f70ed1d756aa9cd491ce060a5b35c03b"
+}

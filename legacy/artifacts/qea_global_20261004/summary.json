@@ -1,0 +1,127 @@
+{
+  "budget": 3006,
+  "maps": [
+    {
+      "name": "MAP01",
+      "file": "MAP01",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100,
+      "full_energy": 10.0,
+      "map_seed": 1001,
+      "geometry_sha256": "bfc6ed48ed5d53fa9d1c26875eb4bfac26cb64b777f3f68b06013ad6ecb32570"
+    },
+    {
+      "name": "MAP02",
+      "file": "MAP02",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100,
+      "full_energy": 10.0,
+      "map_seed": 1002,
+      "geometry_sha256": "80bbc003c9db312fbd28eb1996bff55fb487de2669ebc90a9c10d6dfe411a240"
+    },
+    {
+      "name": "MAP03",
+      "file": "MAP03",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100,
+      "full_energy": 10.0,
+      "map_seed": 1003,
+      "geometry_sha256": "4b93118afa434855ab1b8fce6c3f6269e9e89f695bd57d4b85e981802f383ed8"
+    }
+  ],
+  "seeds": [
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "fitness_service": "v2",
+  "sensing_mode": "discrete",
+  "parameters": {
+    "qea": {
+      "n": 30,
+      "rotation": 0.031415926535897934,
+      "probability_floor": 0.01,
+      "update_rule": "rotation",
+      "learning_rate": 0.05
+    },
+    "qea_classical": {
+      "n": 30,
+      "rotation": 0.031415926535897934,
+      "probability_floor": 0.01,
+      "update_rule": "classical",
+      "learning_rate": 0.05
+    },
+    "qea_random": {
+      "n": 30,
+      "rotation": 0.031415926535897934,
+      "probability_floor": 0.01,
+      "update_rule": "none",
+      "learning_rate": 0.05
+    },
+    "ga": {
+      "n": 30,
+      "cu": 0.8,
+      "mu": 0.1
+    }
+  },
+  "summary": {
+    "qea": {
+      "mean_fitness": 0.9982534837979367,
+      "std_fitness": 0.00016317518403988372,
+      "mean_seconds": 0.7466963097453118,
+      "feasible_runs": 15,
+      "runs": 15
+    },
+    "qea_classical": {
+      "mean_fitness": 0.9979076975614816,
+      "std_fitness": 0.00021779858352893007,
+      "mean_seconds": 0.7616571145753066,
+      "feasible_runs": 15,
+      "runs": 15
+    },
+    "qea_random": {
+      "mean_fitness": 0.9980578852933333,
+      "std_fitness": 0.00014837120514927434,
+      "mean_seconds": 0.7077753552546103,
+      "feasible_runs": 15,
+      "runs": 15
+    },
+    "ga": {
+      "mean_fitness": 0.9982505023377777,
+      "std_fitness": 0.00014947494030432025,
+      "mean_seconds": 0.41631330711146197,
+      "feasible_runs": 15,
+      "runs": 15
+    }
+  },
+  "qea_paired_comparisons": {
+    "qea_classical": {
+      "wins": 14,
+      "ties": 0,
+      "losses": 1,
+      "mean_delta": 0.0003457862364551219
+    },
+    "qea_random": {
+      "wins": 14,
+      "ties": 0,
+      "losses": 1,
+      "mean_delta": 0.0001955985046033115
+    },
+    "ga": {
+      "wins": 5,
+      "ties": 0,
+      "losses": 10,
+      "mean_delta": 2.981460158853662e-06
+    }
+  },
+  "limitations": [
+    "Pilot only; no hyperparameter tuning or significance claim.",
+    "GA uses its existing coverage-seeded initialization; QEA controls share a uniform prior.",
+    "Single optimization; does not measure network lifetime or quantum hardware advantage."
+  ]
+}

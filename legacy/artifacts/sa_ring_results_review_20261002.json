@@ -1,0 +1,36 @@
+{
+  "source": "runs/2027WSN/experiment_results/20261002_164623_sa_sets_ring_sets",
+  "ablation_source": "runs/2027WSN/tmp/partition_ablation/res/20261002_163008_sa_sets_noregion_ring_sets_shuffled",
+  "comparisons": {
+    "ring_sets minus sa_sets": {
+      "mean_delta": 9.7,
+      "map_mean_t_ci95": [
+        -7.85878632055905,
+        27.258786320559054
+      ],
+      "map_mean_t_p": 0.21482357230362806,
+      "wins": 21,
+      "losses": 9
+    },
+    "sa_sets_noregion minus sa_sets": {
+      "mean_delta": 10.133333333333333,
+      "map_mean_t_ci95": [
+        -17.091111932179373,
+        37.35777859884604
+      ],
+      "map_mean_t_p": 0.38260603599804777,
+      "wins": 20,
+      "losses": 10
+    },
+    "ring_sets minus ring_sets_shuffled": {
+      "mean_delta": 5.733333333333333,
+      "map_mean_t_ci95": [
+        -31.712004812473218,
+        43.17867147913989
+      ],
+      "map_mean_t_p": 0.7101094359331339,
+      "wins": 17,
+      "losses": 13
+    }
+  }
+}

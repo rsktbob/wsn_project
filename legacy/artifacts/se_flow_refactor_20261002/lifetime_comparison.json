@@ -1,0 +1,30 @@
+{
+  "sa_sets": {
+    "summary.csv": {
+      "rows": 1,
+      "exact_non_timing_match": true
+    },
+    "lifetime": "949",
+    "before_seconds": "12.408546",
+    "after_seconds": "17.462246",
+    "evaluations": "180000",
+    "trace.csv": {
+      "rows": 18,
+      "exact_non_timing_match": true
+    }
+  },
+  "si_setsv2": {
+    "summary.csv": {
+      "rows": 1,
+      "exact_non_timing_match": true
+    },
+    "lifetime": "1026",
+    "before_seconds": "25.722176",
+    "after_seconds": "26.048454",
+    "evaluations": "240000",
+    "trace.csv": {
+      "rows": 24,
+      "exact_non_timing_match": true
+    }
+  }
+}

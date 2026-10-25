@@ -1,0 +1,188 @@
+{
+  "requested_evaluations_per_optimization": 10000,
+  "summary": {
+    "qea3": {
+      "mean_lifetime": 952.0666666666667,
+      "std_lifetime": 55.365826216572245,
+      "min_lifetime": 837,
+      "max_lifetime": 1035,
+      "runs": 30,
+      "mean_seconds": 93.30454940000003,
+      "actual_evaluations_per_segment": [
+        10000
+      ],
+      "total_evaluations": 10090000,
+      "stop_reasons": {
+        "infeasible_solution": 30
+      },
+      "early_stop_count": 0
+    },
+    "qea": {
+      "mean_lifetime": 989.7333333333333,
+      "std_lifetime": 61.30586591348579,
+      "min_lifetime": 847,
+      "max_lifetime": 1054,
+      "runs": 30,
+      "mean_seconds": 143.5351785666667,
+      "actual_evaluations_per_segment": [
+        10000
+      ],
+      "total_evaluations": 9650000,
+      "stop_reasons": {
+        "infeasible_solution": 30
+      },
+      "early_stop_count": 0
+    },
+    "sa_sets": {
+      "mean_lifetime": 1000.4666666666667,
+      "std_lifetime": 70.97631141169,
+      "min_lifetime": 841,
+      "max_lifetime": 1127,
+      "runs": 30,
+      "mean_seconds": 84.85371413333333,
+      "actual_evaluations_per_segment": [
+        10000
+      ],
+      "total_evaluations": 8240000,
+      "stop_reasons": {
+        "infeasible_solution": 30
+      },
+      "early_stop_count": 0
+    },
+    "si_sets": {
+      "mean_lifetime": 1038.1333333333334,
+      "std_lifetime": 62.164816156859104,
+      "min_lifetime": 900,
+      "max_lifetime": 1139,
+      "runs": 30,
+      "mean_seconds": 113.2960747,
+      "actual_evaluations_per_segment": [
+        10024
+      ],
+      "total_evaluations": 8951432,
+      "stop_reasons": {
+        "infeasible_solution": 30
+      },
+      "early_stop_count": 0
+    },
+    "ring_sets": {
+      "mean_lifetime": 1044.5666666666666,
+      "std_lifetime": 71.64889648707852,
+      "min_lifetime": 921,
+      "max_lifetime": 1179,
+      "runs": 30,
+      "mean_seconds": 103.45159403333334,
+      "actual_evaluations_per_segment": [
+        10000
+      ],
+      "total_evaluations": 8530000,
+      "stop_reasons": {
+        "infeasible_solution": 30
+      },
+      "early_stop_count": 0
+    },
+    "ring_setspriority": {
+      "mean_lifetime": 1108.8333333333333,
+      "std_lifetime": 67.36420994570629,
+      "min_lifetime": 974,
+      "max_lifetime": 1187,
+      "runs": 30,
+      "mean_seconds": 84.25804559999999,
+      "actual_evaluations_per_segment": [
+        10000
+      ],
+      "total_evaluations": 6450000,
+      "stop_reasons": {
+        "infeasible_solution": 30
+      },
+      "early_stop_count": 0
+    }
+  },
+  "qea3_paired_comparisons": {
+    "qea": {
+      "qea3_wins": 5,
+      "ties": 0,
+      "qea3_losses": 25,
+      "mean_delta_qea3_minus_baseline": -37.666666666666664,
+      "qea3_gain_percent": -3.8057389195742974
+    },
+    "sa_sets": {
+      "qea3_wins": 4,
+      "ties": 0,
+      "qea3_losses": 26,
+      "mean_delta_qea3_minus_baseline": -48.4,
+      "qea3_gain_percent": -4.837742386886113
+    },
+    "si_sets": {
+      "qea3_wins": 1,
+      "ties": 0,
+      "qea3_losses": 29,
+      "mean_delta_qea3_minus_baseline": -86.06666666666666,
+      "qea3_gain_percent": -8.290521448754173
+    },
+    "ring_sets": {
+      "qea3_wins": 0,
+      "ties": 0,
+      "qea3_losses": 30,
+      "mean_delta_qea3_minus_baseline": -92.5,
+      "qea3_gain_percent": -8.855346714746137
+    },
+    "ring_setspriority": {
+      "qea3_wins": 0,
+      "ties": 0,
+      "qea3_losses": 30,
+      "mean_delta_qea3_minus_baseline": -156.76666666666668,
+      "qea3_gain_percent": -14.137982864872978
+    }
+  },
+  "per_map_mean_lifetime": {
+    "qea3": {
+      "MAP01": 1010.0,
+      "MAP02": 943.2,
+      "MAP03": 925.2,
+      "MAP04": 986.4,
+      "MAP05": 859.0,
+      "MAP06": 988.6
+    },
+    "qea": {
+      "MAP01": 1037.4,
+      "MAP02": 993.4,
+      "MAP03": 945.2,
+      "MAP04": 1035.4,
+      "MAP05": 892.4,
+      "MAP06": 1034.6
+    },
+    "sa_sets": {
+      "MAP01": 1086.8,
+      "MAP02": 995.0,
+      "MAP03": 971.0,
+      "MAP04": 1047.6,
+      "MAP05": 888.8,
+      "MAP06": 1013.6
+    },
+    "si_sets": {
+      "MAP01": 1116.4,
+      "MAP02": 1032.2,
+      "MAP03": 1012.4,
+      "MAP04": 1084.8,
+      "MAP05": 945.4,
+      "MAP06": 1037.6
+    },
+    "ring_sets": {
+      "MAP01": 1130.4,
+      "MAP02": 1043.0,
+      "MAP03": 986.6,
+      "MAP04": 1086.8,
+      "MAP05": 938.2,
+      "MAP06": 1082.4
+    },
+    "ring_setspriority": {
+      "MAP01": 1153.8,
+      "MAP02": 1132.0,
+      "MAP03": 1042.0,
+      "MAP04": 1134.0,
+      "MAP05": 1009.4,
+      "MAP06": 1181.8
+    }
+  }
+}

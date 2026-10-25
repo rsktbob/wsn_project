@@ -1,0 +1,61 @@
+{
+  "algorithms": [
+    {
+      "encoding": "conditional thermometer sensing levels + routing ranks",
+      "implementation": "algorithm",
+      "label": "Global-QEA",
+      "name": "qea",
+      "parameter_basis": "Global conditional-thermometer QEA adaptation; n=30 matches GA population. Rotation=0.01*pi, probability floor=0.01; exploratory defaults, not tuned. Matched controls share initialization, decoding, elite path and evaluation budget; classical update rate=0.05, random has no update. Han & Kim 2002 DOI:10.1109/TEVC.2002.804320.",
+      "params": {
+        "learning_rate": 0.05,
+        "n": 30,
+        "probability_floor": 0.01,
+        "rotation": 0.031415926535897934,
+        "update_rule": "rotation"
+      }
+    }
+  ],
+  "experiment_settings": {
+    "draw_fitness_history": false,
+    "draw_save": false,
+    "evaluate_budget": 60,
+    "evaluation_backend": "numba",
+    "fitness_parameters": {
+      "formula": "feasible fitness = 1 - (0.3 * global_depletion + 0.7 * worst_target_depletion)",
+      "incomplete_order": "fitness = -uncovered_ratio - 0.5 / target_count * weighted_depletion",
+      "invalid_base_score": -2.0,
+      "weights": [
+        0.3,
+        0.7
+      ]
+    },
+    "fitness_service": "v2",
+    "implementation": "algorithm",
+    "lifetime_cap": 2,
+    "map_count": 1,
+    "maps": [
+      {
+        "boundary": 100,
+        "file": "MAP01",
+        "full_energy": 10.0,
+        "geometry_sha256": "bfc6ed48ed5d53fa9d1c26875eb4bfac26cb64b777f3f68b06013ad6ecb32570",
+        "map_seed": 1001,
+        "name": "MAP01",
+        "sensors": 100,
+        "targets": 100
+      }
+    ],
+    "max_rounds": 2,
+    "mode": "lifetime",
+    "moving": false,
+    "moving_target_threshold": null,
+    "numba_version": "0.66.0",
+    "routing_service": "v1",
+    "runs_per_map": 1,
+    "segment_slot_limit": 5000,
+    "sensing_mode": "discrete",
+    "sensor_encoding": "v3",
+    "sensor_ring_id": true,
+    "total_cases_per_algorithm": 1
+  }
+}

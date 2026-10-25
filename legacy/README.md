@@ -3,6 +3,21 @@
 不再使用、但保留原始碼與紀錄的實作。這裡的檔案**不在 registry、不在測試套件內**，
 也不保證能直接執行（import 路徑仍指向原本的位置）。
 
+## 目錄總覽
+
+| 資料夾 | 內容 | 詳細說明 |
+| --- | --- | --- |
+| `algorithms/` | 淘汰的演算法：misc、nsga、Routing、Scheduling、map_elites、gomea、BaseGA、SA-SETS 選區變體、QEA3、Q-Ring-SE、Q-SI-SETS、CodingSEv2 | 下面各節 |
+| `core/` | 只被淘汰演算法用到的 `evaluation.py`、`initialization.py`、`budget.py` | Retired core helpers、Evaluation budget helper |
+| `plotting/` | 選區策略第一段的繪圖 | SA-SETS 選區變體 |
+| `tests/` | 上述淘汰程式的測試，不在現行測試套件 | 下面各節 |
+| `rl_sets/` | RL-SETS v1–v5 | RL-SETS v1–v5 |
+| `rl_ring/` | RL-Ring-SETS 系列、LinUCB v2、D3QN | RL-Ring-SETS 系列 |
+| `priority_encoding/` | PriorityEncoding 只留 EF 前的完整版本（C4 等） | PriorityEncoding 其他版本 |
+| `sa_sets2023/` | 學長 SA-SETS 原始程式重現，**可直接執行** | SA-SETS 2023 原始程式重現 |
+| `rl_experiments/` | E01–E06 RL 實驗 | rl_experiments |
+| `artifacts/` | 9/19–10/10 原本在 `wsn_project/artifacts/` 的一次性腳本、報告與舊實驗結果 | artifacts |
+
 ## RL-SETS v1–v5（2026-10-04 移入，檔案在 `rl_sets/`）
 
 SI_SETS 上的 D3QN 超啟發式：每個 searcher 每回合選一個運算子，事先在訓練地圖上訓練、
@@ -196,3 +211,51 @@ label `Q-SI-SETS (SI-SETS with Q-bit goods)`。parameter_basis 說明：same def
 各資料夾的 `data`、`results` 捷徑已重新指到那裡（E04、E05 原本直接放在程式資料夾的 7.6 GB 資料也搬去了）。
 E01–E06 的 `common.py` 用 `HERE.parents[4]` 找專案根目錄，移到這裡後路徑層數不同，要重跑需先修這點。
 E07 用到的 E03／E06 環境程式已複製進 E07（`base_e03.py`、`base_e06.py`），不再引用這裡。
+
+## artifacts（2026-10-25 移入，原 `wsn_project/artifacts/`）
+
+9/19–10/10 的一次性腳本、報告和實驗結果。**全部早於 GA 重寫（10/09）和拿掉 0.5（10/13），數字已過時，不能拿來和現在的結果比較。**
+腳本裡的 `Path(__file__).resolve().parents[1]` 原本指向 `wsn_project/`，搬到這裡後路徑錯了，要重跑需先修。
+
+**論文規劃文件**
+
+| 檔案 | 內容 |
+| --- | --- |
+| `RL導引超啟發式WSN研究與論文時程規劃.docx`、`build_rl_thesis_plan.py`、`rendered_rl_thesis_plan/` | 9/19 的 RL 論文時程規劃，產生腳本與渲染頁面 |
+| `WSN研究與論文時程規劃_日期週次修正.docx`、`fix_schedule_dates.py`、`rendered_schedule_date_fix/` | 上面那份的日期週次修正版 |
+| `revise_wsn_ad_slides_20261002.py`、`wsn_ad_pptx_validation_20261002.json` | 10/02 報告投影片 A–D 頁修改與檢查 |
+
+**稽核、基準（每支 `.py` 配一份同名 `.json` 結果）**
+
+| 檔案 | 內容 |
+| --- | --- |
+| `benchmark_fitness_20261001`、`benchmark_fitness_fullradius_20261001` | fitness 評估計時（不含 import、JIT 暖機） |
+| `quantum_encoding_audit_20261001` | 量子編碼的有限代數檢查，不是量子基準 |
+| `ring_sets_evidence_audit_20261002`、`ring_setsv2_evidence_audit_20261002` | Ring_SETS／v2 初始狀態小診斷 |
+| `sa_ring_results_review_20261002.json` | sa_sets vs ring_sets、不分區消融的統計檢查 |
+
+**舊實驗結果（各資料夾有 README）**
+
+| 資料夾 | 內容 |
+| --- | --- |
+| `qea_global_20261004/` | 全局 QEA 初步比較（MAP01–03、3006 次評估、單次最佳化） |
+| `qea_maps_100100100_budget10000_20261004/` | QEA／GA／qea_classical／qea_random 單次最佳化，預算 10000 |
+| `qea_full_lifetime_budget10000_20261004/` | 同上四種方法的完整 lifetime |
+| `sets_vs_qea_full_lifetime_budget10000_20261004/` | QEA 對 sa／si／ring_sets／ring_setspriority 的 lifetime |
+| `qea3_map01_lifetime_20261005/`、`qea3_full_lifetime_budget10000_20261005/` | QEA3 MAP01 試跑、六圖 lifetime |
+| `distributed_routing_v1_20261005/` | 分散式路由原型（等級固定 5、三種路由策略），不能和壽命直接比 |
+| `ga_variants_six_maps_20261010/` | GA／菁英 GA／自適應 GA 六圖比較（預算 1000，舊 GA） |
+| `summarize_*.py`、`finish_*_report.py`、`*_report_status.log` | 上面幾批的彙整腳本和自動彙整紀錄 |
+
+**SE 流程重構紀錄**
+
+| 資料夾 | 內容 |
+| --- | --- |
+| `se_flow_refactor_20261002/`、`se_flow_refactor_20261003/` | 10/02–10/03 SE 流程重構前後的結果比對 |
+| `se_common_flow_20261003/` | SE 共用流程重構後的驗證，含重構前原始碼 `source_before.tar.gz` |
+
+**備份**
+
+| 檔案 | 內容 |
+| --- | --- |
+| `wsn_research_before_cleanup_20261002.tar.gz` | 10/02 整理前 `wsn問題研究` 的 markdown 文件（量子編碼、代理模型、CP-SAT 文獻調查、2023 計劃書等） |

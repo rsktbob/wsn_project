@@ -1,0 +1,78 @@
+{
+  "maps": "/home/g114056067/wsn_project/codes/2027WSN/maps/maps_100100100.json",
+  "map": null,
+  "policies": [
+    "energy_balanced",
+    "min_energy",
+    "min_hop"
+  ],
+  "radio_range": 30.0,
+  "control_bits": 128,
+  "level": 5,
+  "max_slots": 2000,
+  "seed": 7,
+  "output": "/home/g114056067/wsn_project/artifacts/distributed_routing_v1_20261005",
+  "map_specs": [
+    {
+      "name": "MAP01",
+      "file": "MAP01",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100,
+      "full_energy": 10.0,
+      "map_seed": 1001,
+      "geometry_sha256": "bfc6ed48ed5d53fa9d1c26875eb4bfac26cb64b777f3f68b06013ad6ecb32570"
+    },
+    {
+      "name": "MAP02",
+      "file": "MAP02",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100,
+      "full_energy": 10.0,
+      "map_seed": 1002,
+      "geometry_sha256": "80bbc003c9db312fbd28eb1996bff55fb487de2669ebc90a9c10d6dfe411a240"
+    },
+    {
+      "name": "MAP03",
+      "file": "MAP03",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100,
+      "full_energy": 10.0,
+      "map_seed": 1003,
+      "geometry_sha256": "4b93118afa434855ab1b8fce6c3f6269e9e89f695bd57d4b85e981802f383ed8"
+    },
+    {
+      "name": "MAP04",
+      "file": "MAP04",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100,
+      "full_energy": 10.0,
+      "map_seed": 1004,
+      "geometry_sha256": "1948819281565e02c877a2d98257c202f1c32fe9d95ce064e9f3553c313c9f86"
+    },
+    {
+      "name": "MAP05",
+      "file": "MAP05",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100,
+      "full_energy": 10.0,
+      "map_seed": 1005,
+      "geometry_sha256": "894d79510c47de15fb8900590ca2a0eb8906520237118835cb566a4f9364a0ed"
+    },
+    {
+      "name": "MAP06",
+      "file": "MAP06",
+      "boundary": 100,
+      "sensors": 100,
+      "targets": 100,
+      "full_energy": 10.0,
+      "map_seed": 1006,
+      "geometry_sha256": "cd825612e6dc30791d36109ffc861a8656f624c6d42d184afa73be02bf4561ce"
+    }
+  ],
+  "model": "fixed sensing; strict distance DAG; ideal reliable neighbor unicasts"
+}

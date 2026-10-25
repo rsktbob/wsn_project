@@ -1,0 +1,66 @@
+{
+  "requested_budget": 10000,
+  "mode": "single",
+  "summary": {
+    "qea": {
+      "runs": 30,
+      "mean_fitness": 0.998688645560185,
+      "std_fitness": 0.00011018319855989343,
+      "mean_seconds": 2.4223665333333333,
+      "actual_evaluations": [
+        10000
+      ],
+      "feasible_runs": 30
+    },
+    "ga": {
+      "runs": 30,
+      "mean_fitness": 0.9982852213355554,
+      "std_fitness": 0.00021927644112903986,
+      "mean_seconds": 1.383251666666667,
+      "actual_evaluations": [
+        10012
+      ],
+      "feasible_runs": 30
+    },
+    "qea_classical": {
+      "runs": 30,
+      "mean_fitness": 0.9983203114916585,
+      "std_fitness": 0.00019437547173358955,
+      "mean_seconds": 2.472659566666667,
+      "actual_evaluations": [
+        10000
+      ],
+      "feasible_runs": 30
+    },
+    "qea_random": {
+      "runs": 30,
+      "mean_fitness": 0.9980944257925924,
+      "std_fitness": 0.00022315707406902994,
+      "mean_seconds": 2.2918849666666663,
+      "actual_evaluations": [
+        10000
+      ],
+      "feasible_runs": 30
+    }
+  },
+  "qea_paired_comparisons": {
+    "ga": {
+      "wins": 30,
+      "ties": 0,
+      "losses": 0,
+      "mean_delta": 0.0004034242246295931
+    },
+    "qea_classical": {
+      "wins": 30,
+      "ties": 0,
+      "losses": 0,
+      "mean_delta": 0.00036833406852685807
+    },
+    "qea_random": {
+      "wins": 30,
+      "ties": 0,
+      "losses": 0,
+      "mean_delta": 0.0005942197675926149
+    }
+  }
+}

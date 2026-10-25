@@ -1,0 +1,9 @@
+{
+  "Algorithm/ga/GA.py": "48c93cd5a642977739b68a92f326f429bea273c42e38c90f139b4b873bbdf2a0",
+  "Algorithm/ga/ElitistGA.py": "1263d6b7efb8c269547504a3ab4129fde54fe0a0f2d41ad6179d67267bbb381e",
+  "Algorithm/ga/AdaptiveGA.py": "f3021941edaa3fa1036f929b89458a924dd65d09bf966cc1699e8750ef42b078",
+  "State/SensorEncoding.py": "6906e8eb7e19a2abb9eff785fa9a8ea0ede506a1b165b95b3e70d19041b098a4",
+  "experiments/presets.py": "fb87c31fe12c6b88f970013a89af178fb9cb9029584625a60b2f3be4b55ba313",
+  "experiments/config.py": "9a8025d4a6597fad5408190c3beb6503e53102a05014879942eca5b9e9eebc87",
+  "maps/maps_100100100.json": "0a16db4fb0163624f7914f9ae4ecfd222180cdb8726c5aec5148c4d9055f7775"
+}

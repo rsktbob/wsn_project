@@ -1,0 +1,649 @@
+{
+  "date": "2026-10-01",
+  "cpu": "Intel(R) Core(TM) i9-9900K CPU @ 3.60GHz",
+  "python": "3.12.14 | packaged by Anaconda, Inc. | (main, Aug 27 2026, 14:46:43) [GCC 14.3.0]",
+  "platform": "Linux-6.17.0-23-generic-x86_64-with-glibc2.39",
+  "numpy": "2.4.6",
+  "numba": "0.66.0",
+  "numba_available": true,
+  "decoder": "v3",
+  "fitness": "v2",
+  "seed": 20261001,
+  "candidates_per_case": 256,
+  "batch_repeats": 5,
+  "thread_environment": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null
+  },
+  "note": "Initial energy=10; random chromosomes, not optimized population; no lifetime rollout or movement. Three-level sensitivity uses physical radii [0,7.5,15], not a claimed user setting. Evaluation-only reuses decoded states; combined creates fresh states.",
+  "cases": [
+    {
+      "map": "MAP01",
+      "radii_case": "default_six",
+      "physical_radii": [
+        0.0,
+        3.0,
+        6.0,
+        9.0,
+        12.0,
+        15.0
+      ],
+      "sensor_count": 100,
+      "target_count": 100,
+      "feasible_count": 10,
+      "incomplete_count": 246,
+      "invalid_count": 0,
+      "decode_and_route": {
+        "batch_mean_ms_per_candidate": [
+          0.0703622265625,
+          0.06917426953125,
+          0.06910065625,
+          0.069046359375,
+          0.06920493359375
+        ],
+        "median_batch_mean_ms": 0.06917426953125,
+        "individual_median_ms": 0.0693385,
+        "individual_p95_ms": 0.07356425
+      },
+      "fitness_on_decoded_state": {
+        "batch_mean_ms_per_candidate": [
+          0.09908744140625,
+          0.0985376796875,
+          0.09849313671875,
+          0.0988517890625,
+          0.09827891796875
+        ],
+        "median_batch_mean_ms": 0.0985376796875,
+        "individual_median_ms": 0.0985895,
+        "individual_p95_ms": 0.10265774999999999
+      },
+      "decode_route_and_fitness": {
+        "batch_mean_ms_per_candidate": [
+          0.19544762109375,
+          0.1952600859375,
+          0.19539927734375,
+          0.19528816015625,
+          0.1955965859375
+        ],
+        "median_batch_mean_ms": 0.19539927734375,
+        "individual_median_ms": 0.1949165,
+        "individual_p95_ms": 0.203189
+      }
+    },
+    {
+      "map": "MAP02",
+      "radii_case": "default_six",
+      "physical_radii": [
+        0.0,
+        3.0,
+        6.0,
+        9.0,
+        12.0,
+        15.0
+      ],
+      "sensor_count": 100,
+      "target_count": 100,
+      "feasible_count": 10,
+      "incomplete_count": 246,
+      "invalid_count": 0,
+      "decode_and_route": {
+        "batch_mean_ms_per_candidate": [
+          0.06941612890625,
+          0.06873275,
+          0.0685332734375,
+          0.0688902109375,
+          0.06857103125
+        ],
+        "median_batch_mean_ms": 0.06873275,
+        "individual_median_ms": 0.06906699999999999,
+        "individual_p95_ms": 0.0733705
+      },
+      "fitness_on_decoded_state": {
+        "batch_mean_ms_per_candidate": [
+          0.09720226953125,
+          0.09750519140625,
+          0.09705112890625,
+          0.09706034375,
+          0.09865428515625
+        ],
+        "median_batch_mean_ms": 0.09720226953125,
+        "individual_median_ms": 0.09732350000000001,
+        "individual_p95_ms": 0.10200899999999999
+      },
+      "decode_route_and_fitness": {
+        "batch_mean_ms_per_candidate": [
+          0.19321435546875,
+          0.19276129296875,
+          0.19266444140625,
+          0.192452984375,
+          0.192442359375
+        ],
+        "median_batch_mean_ms": 0.19266444140625,
+        "individual_median_ms": 0.19327450000000002,
+        "individual_p95_ms": 0.20020875
+      }
+    },
+    {
+      "map": "MAP03",
+      "radii_case": "default_six",
+      "physical_radii": [
+        0.0,
+        3.0,
+        6.0,
+        9.0,
+        12.0,
+        15.0
+      ],
+      "sensor_count": 100,
+      "target_count": 100,
+      "feasible_count": 5,
+      "incomplete_count": 251,
+      "invalid_count": 0,
+      "decode_and_route": {
+        "batch_mean_ms_per_candidate": [
+          0.07060880078125,
+          0.0702904140625,
+          0.0703490078125,
+          0.07011047265625,
+          0.070110359375
+        ],
+        "median_batch_mean_ms": 0.0702904140625,
+        "individual_median_ms": 0.070264,
+        "individual_p95_ms": 0.07456125
+      },
+      "fitness_on_decoded_state": {
+        "batch_mean_ms_per_candidate": [
+          0.09812644140625,
+          0.09970103125,
+          0.09832534765625,
+          0.09768887109375,
+          0.09751765625
+        ],
+        "median_batch_mean_ms": 0.09812644140625,
+        "individual_median_ms": 0.098228,
+        "individual_p95_ms": 0.10255425
+      },
+      "decode_route_and_fitness": {
+        "batch_mean_ms_per_candidate": [
+          0.19415755078125,
+          0.193682390625,
+          0.1937199140625,
+          0.193707875,
+          0.19357933203125
+        ],
+        "median_batch_mean_ms": 0.193707875,
+        "individual_median_ms": 0.194028,
+        "individual_p95_ms": 0.2236955
+      }
+    },
+    {
+      "map": "MAP04",
+      "radii_case": "default_six",
+      "physical_radii": [
+        0.0,
+        3.0,
+        6.0,
+        9.0,
+        12.0,
+        15.0
+      ],
+      "sensor_count": 100,
+      "target_count": 100,
+      "feasible_count": 7,
+      "incomplete_count": 249,
+      "invalid_count": 0,
+      "decode_and_route": {
+        "batch_mean_ms_per_candidate": [
+          0.06929566796875,
+          0.06895008984375,
+          0.0689741796875,
+          0.0690991484375,
+          0.0691150859375
+        ],
+        "median_batch_mean_ms": 0.0690991484375,
+        "individual_median_ms": 0.06973099999999999,
+        "individual_p95_ms": 0.07389825
+      },
+      "fitness_on_decoded_state": {
+        "batch_mean_ms_per_candidate": [
+          0.0975392265625,
+          0.0971141484375,
+          0.0964357734375,
+          0.097454328125,
+          0.09647117578125
+        ],
+        "median_batch_mean_ms": 0.0971141484375,
+        "individual_median_ms": 0.0972675,
+        "individual_p95_ms": 0.10158425
+      },
+      "decode_route_and_fitness": {
+        "batch_mean_ms_per_candidate": [
+          0.193527734375,
+          0.1926356328125,
+          0.19250728515625,
+          0.1927414609375,
+          0.19260933984375
+        ],
+        "median_batch_mean_ms": 0.1926356328125,
+        "individual_median_ms": 0.19291750000000002,
+        "individual_p95_ms": 0.199245
+      }
+    },
+    {
+      "map": "MAP05",
+      "radii_case": "default_six",
+      "physical_radii": [
+        0.0,
+        3.0,
+        6.0,
+        9.0,
+        12.0,
+        15.0
+      ],
+      "sensor_count": 100,
+      "target_count": 100,
+      "feasible_count": 5,
+      "incomplete_count": 251,
+      "invalid_count": 0,
+      "decode_and_route": {
+        "batch_mean_ms_per_candidate": [
+          0.0693085546875,
+          0.06879462890625,
+          0.06904566796875,
+          0.0686834609375,
+          0.0688043671875
+        ],
+        "median_batch_mean_ms": 0.0688043671875,
+        "individual_median_ms": 0.069326,
+        "individual_p95_ms": 0.0738355
+      },
+      "fitness_on_decoded_state": {
+        "batch_mean_ms_per_candidate": [
+          0.0971281875,
+          0.09631383984375,
+          0.09627771875,
+          0.09627802734375,
+          0.09609323828125
+        ],
+        "median_batch_mean_ms": 0.09627802734375,
+        "individual_median_ms": 0.09665850000000001,
+        "individual_p95_ms": 0.101066
+      },
+      "decode_route_and_fitness": {
+        "batch_mean_ms_per_candidate": [
+          0.19318671484375,
+          0.19283587890625,
+          0.19273550390625,
+          0.19273326953125,
+          0.19293612890625
+        ],
+        "median_batch_mean_ms": 0.19283587890625,
+        "individual_median_ms": 0.193126,
+        "individual_p95_ms": 0.19955425
+      }
+    },
+    {
+      "map": "MAP06",
+      "radii_case": "default_six",
+      "physical_radii": [
+        0.0,
+        3.0,
+        6.0,
+        9.0,
+        12.0,
+        15.0
+      ],
+      "sensor_count": 100,
+      "target_count": 100,
+      "feasible_count": 8,
+      "incomplete_count": 248,
+      "invalid_count": 0,
+      "decode_and_route": {
+        "batch_mean_ms_per_candidate": [
+          0.06963589453125,
+          0.0691960703125,
+          0.0691252734375,
+          0.06906499609375,
+          0.06974935546875
+        ],
+        "median_batch_mean_ms": 0.0691960703125,
+        "individual_median_ms": 0.0693335,
+        "individual_p95_ms": 0.074347
+      },
+      "fitness_on_decoded_state": {
+        "batch_mean_ms_per_candidate": [
+          0.09823429296875,
+          0.09757605078125,
+          0.0971471875,
+          0.0977133046875,
+          0.09720865625
+        ],
+        "median_batch_mean_ms": 0.09757605078125,
+        "individual_median_ms": 0.09763150000000001,
+        "individual_p95_ms": 0.10230025
+      },
+      "decode_route_and_fitness": {
+        "batch_mean_ms_per_candidate": [
+          0.19418034375,
+          0.19416562109375,
+          0.194691734375,
+          0.19393348046875,
+          0.19379151953125
+        ],
+        "median_batch_mean_ms": 0.19416562109375,
+        "individual_median_ms": 0.194674,
+        "individual_p95_ms": 0.20141599999999998
+      }
+    },
+    {
+      "map": "MAP01",
+      "radii_case": "illustrative_three",
+      "physical_radii": [
+        0.0,
+        7.5,
+        15.0
+      ],
+      "sensor_count": 100,
+      "target_count": 100,
+      "feasible_count": 22,
+      "incomplete_count": 234,
+      "invalid_count": 0,
+      "decode_and_route": {
+        "batch_mean_ms_per_candidate": [
+          0.06377205859375,
+          0.06372884375,
+          0.0634645390625,
+          0.0634145234375,
+          0.0633444609375
+        ],
+        "median_batch_mean_ms": 0.0634645390625,
+        "individual_median_ms": 0.06365499999999999,
+        "individual_p95_ms": 0.06734699999999999
+      },
+      "fitness_on_decoded_state": {
+        "batch_mean_ms_per_candidate": [
+          0.0958823359375,
+          0.09549005078125,
+          0.09566750390625,
+          0.0955779453125,
+          0.09582373828125
+        ],
+        "median_batch_mean_ms": 0.09566750390625,
+        "individual_median_ms": 0.095869,
+        "individual_p95_ms": 0.10012
+      },
+      "decode_route_and_fitness": {
+        "batch_mean_ms_per_candidate": [
+          0.1859009609375,
+          0.1859021796875,
+          0.185891796875,
+          0.1864230703125,
+          0.186017796875
+        ],
+        "median_batch_mean_ms": 0.1859021796875,
+        "individual_median_ms": 0.18587599999999999,
+        "individual_p95_ms": 0.191425
+      }
+    },
+    {
+      "map": "MAP02",
+      "radii_case": "illustrative_three",
+      "physical_radii": [
+        0.0,
+        7.5,
+        15.0
+      ],
+      "sensor_count": 100,
+      "target_count": 100,
+      "feasible_count": 20,
+      "incomplete_count": 236,
+      "invalid_count": 0,
+      "decode_and_route": {
+        "batch_mean_ms_per_candidate": [
+          0.06374801953125,
+          0.063589046875,
+          0.0634840703125,
+          0.06345887109375,
+          0.06333204296875
+        ],
+        "median_batch_mean_ms": 0.0634840703125,
+        "individual_median_ms": 0.063965,
+        "individual_p95_ms": 0.06744225
+      },
+      "fitness_on_decoded_state": {
+        "batch_mean_ms_per_candidate": [
+          0.09605344921875,
+          0.0956808984375,
+          0.09609989453125,
+          0.09586453125,
+          0.09574159375
+        ],
+        "median_batch_mean_ms": 0.09586453125,
+        "individual_median_ms": 0.0959555,
+        "individual_p95_ms": 0.10056575
+      },
+      "decode_route_and_fitness": {
+        "batch_mean_ms_per_candidate": [
+          0.1860629140625,
+          0.18619360546875,
+          0.1862034609375,
+          0.18605898828125,
+          0.18614551953125
+        ],
+        "median_batch_mean_ms": 0.18614551953125,
+        "individual_median_ms": 0.1863545,
+        "individual_p95_ms": 0.1922
+      }
+    },
+    {
+      "map": "MAP03",
+      "radii_case": "illustrative_three",
+      "physical_radii": [
+        0.0,
+        7.5,
+        15.0
+      ],
+      "sensor_count": 100,
+      "target_count": 100,
+      "feasible_count": 18,
+      "incomplete_count": 238,
+      "invalid_count": 0,
+      "decode_and_route": {
+        "batch_mean_ms_per_candidate": [
+          0.06338413671875,
+          0.06306250390625,
+          0.0630890546875,
+          0.0632043203125,
+          0.0630015703125
+        ],
+        "median_batch_mean_ms": 0.0630890546875,
+        "individual_median_ms": 0.063461,
+        "individual_p95_ms": 0.067728
+      },
+      "fitness_on_decoded_state": {
+        "batch_mean_ms_per_candidate": [
+          0.0947206875,
+          0.0944452890625,
+          0.095722546875,
+          0.094525515625,
+          0.0943620703125
+        ],
+        "median_batch_mean_ms": 0.094525515625,
+        "individual_median_ms": 0.095026,
+        "individual_p95_ms": 0.09960649999999999
+      },
+      "decode_route_and_fitness": {
+        "batch_mean_ms_per_candidate": [
+          0.18497299609375,
+          0.1859685703125,
+          0.18417198828125,
+          0.18407989453125,
+          0.18425510546875
+        ],
+        "median_batch_mean_ms": 0.18425510546875,
+        "individual_median_ms": 0.1846525,
+        "individual_p95_ms": 0.19090775
+      }
+    },
+    {
+      "map": "MAP04",
+      "radii_case": "illustrative_three",
+      "physical_radii": [
+        0.0,
+        7.5,
+        15.0
+      ],
+      "sensor_count": 100,
+      "target_count": 100,
+      "feasible_count": 25,
+      "incomplete_count": 231,
+      "invalid_count": 0,
+      "decode_and_route": {
+        "batch_mean_ms_per_candidate": [
+          0.06488748828125,
+          0.0644752109375,
+          0.064337515625,
+          0.0644078203125,
+          0.06454312890625
+        ],
+        "median_batch_mean_ms": 0.0644752109375,
+        "individual_median_ms": 0.0642255,
+        "individual_p95_ms": 0.06889075
+      },
+      "fitness_on_decoded_state": {
+        "batch_mean_ms_per_candidate": [
+          0.0955658984375,
+          0.0952734921875,
+          0.09523853515625,
+          0.09654791015625,
+          0.0953764296875
+        ],
+        "median_batch_mean_ms": 0.0953764296875,
+        "individual_median_ms": 0.09552050000000001,
+        "individual_p95_ms": 0.10025700000000001
+      },
+      "decode_route_and_fitness": {
+        "batch_mean_ms_per_candidate": [
+          0.1867030703125,
+          0.1864711328125,
+          0.18656000390625,
+          0.18633976953125,
+          0.18630979296875
+        ],
+        "median_batch_mean_ms": 0.1864711328125,
+        "individual_median_ms": 0.186215,
+        "individual_p95_ms": 0.19266049999999998
+      }
+    },
+    {
+      "map": "MAP05",
+      "radii_case": "illustrative_three",
+      "physical_radii": [
+        0.0,
+        7.5,
+        15.0
+      ],
+      "sensor_count": 100,
+      "target_count": 100,
+      "feasible_count": 23,
+      "incomplete_count": 233,
+      "invalid_count": 0,
+      "decode_and_route": {
+        "batch_mean_ms_per_candidate": [
+          0.06408603125,
+          0.06387808203125,
+          0.06393377734375,
+          0.064005703125,
+          0.064081359375
+        ],
+        "median_batch_mean_ms": 0.064005703125,
+        "individual_median_ms": 0.06451599999999999,
+        "individual_p95_ms": 0.06848775
+      },
+      "fitness_on_decoded_state": {
+        "batch_mean_ms_per_candidate": [
+          0.09616566015625,
+          0.09565992578125,
+          0.0955564765625,
+          0.095590234375,
+          0.0956277421875
+        ],
+        "median_batch_mean_ms": 0.0956277421875,
+        "individual_median_ms": 0.095649,
+        "individual_p95_ms": 0.09998825
+      },
+      "decode_route_and_fitness": {
+        "batch_mean_ms_per_candidate": [
+          0.1862222421875,
+          0.18683420703125,
+          0.18597987890625,
+          0.18704037109375,
+          0.18577587109375
+        ],
+        "median_batch_mean_ms": 0.1862222421875,
+        "individual_median_ms": 0.1864335,
+        "individual_p95_ms": 0.19325825000000002
+      }
+    },
+    {
+      "map": "MAP06",
+      "radii_case": "illustrative_three",
+      "physical_radii": [
+        0.0,
+        7.5,
+        15.0
+      ],
+      "sensor_count": 100,
+      "target_count": 100,
+      "feasible_count": 31,
+      "incomplete_count": 225,
+      "invalid_count": 0,
+      "decode_and_route": {
+        "batch_mean_ms_per_candidate": [
+          0.06369700390625,
+          0.0635073984375,
+          0.0635331875,
+          0.0633771640625,
+          0.0633794375
+        ],
+        "median_batch_mean_ms": 0.0635073984375,
+        "individual_median_ms": 0.0636005,
+        "individual_p95_ms": 0.06744225
+      },
+      "fitness_on_decoded_state": {
+        "batch_mean_ms_per_candidate": [
+          0.09490277734375,
+          0.09459558203125,
+          0.0944961171875,
+          0.09431429296875,
+          0.09437875390625
+        ],
+        "median_batch_mean_ms": 0.0944961171875,
+        "individual_median_ms": 0.0947185,
+        "individual_p95_ms": 0.09889575
+      },
+      "decode_route_and_fitness": {
+        "batch_mean_ms_per_candidate": [
+          0.1867652734375,
+          0.18561162109375,
+          0.18520575390625,
+          0.1853043125,
+          0.1852754453125
+        ],
+        "median_batch_mean_ms": 0.1853043125,
+        "individual_median_ms": 0.185696,
+        "individual_p95_ms": 0.19241724999999998
+      }
+    }
+  ],
+  "source_hashes": {
+    "artifacts/benchmark_fitness_20261001.py": "94eca0967a7a5349e5c4099463bd7060db0df8399e84c28892a856ae932053e3",
+    "codes/2027WSN/State/SensorEncoding.py": "6906e8eb7e19a2abb9eff785fa9a8ea0ede506a1b165b95b3e70d19041b098a4",
+    "codes/2027WSN/Problem/services/fitness_servicev2.py": "f39d0474946370d3f304c835a4995931c715b54521bfedc5788140886c0904af",
+    "codes/2027WSN/Problem/services/energy_service.py": "a74d7cc4cebfbca5af2b17d1f9aeb7958aa30015cae3fd3c18149f78ab7f8a13",
+    "codes/2027WSN/Problem/services/routing_service.py": "2a8449ee13ef9f566afa93948156ddc158881342055a51a3d50b375767f80d01",
+    "codes/2027WSN/Problem/services/coverage_service.py": "6868cd4648f45f94cb64c8116503d5bf43d03ec6f5fefe0efd1831cb0c4f7078",
+    "codes/2027WSN/Problem/services/evaluation_kernels.py": "540096699d2dc163adece9128bc4ef0bfdff51d5b66e6f18477fc1075082f6e6"
+  }
+}

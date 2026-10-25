@@ -1,0 +1,377 @@
+{
+  "date": "2026-10-02",
+  "seed": 20261002,
+  "sample_count_per_map_method": 128,
+  "scope": "six fixed maps; initial F=10; no optimizer, no lifetime, no movement; selected one-gene non-noop mutations; initial candidate distributions only",
+  "cases": [
+    {
+      "map": "MAP01",
+      "identity_original_ids": [
+        0,
+        1
+      ],
+      "methods": {
+        "uniform_level_priority": {
+          "full_coverage": 2,
+          "fitness_feasible": 2,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 86
+        },
+        "SA_CCS_before_alignment": {
+          "full_coverage": 105,
+          "fitness_feasible": 105,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 93
+        },
+        "Ring_CCS": {
+          "full_coverage": 105,
+          "fitness_feasible": 105,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 93
+        }
+      },
+      "SA_Ring_initial_codes_equal": 128,
+      "identity_requested_to_decoded_counts": [
+        [
+          128,
+          0,
+          0,
+          0
+        ],
+        [
+          66,
+          62,
+          0,
+          0
+        ],
+        [
+          70,
+          0,
+          58,
+          0
+        ],
+        [
+          43,
+          49,
+          34,
+          2
+        ]
+      ],
+      "alignment_physical_unchanged": [
+        44,
+        92,
+        78,
+        126
+      ]
+    },
+    {
+      "map": "MAP02",
+      "identity_original_ids": [
+        0,
+        1
+      ],
+      "methods": {
+        "uniform_level_priority": {
+          "full_coverage": 4,
+          "fitness_feasible": 4,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 91
+        },
+        "SA_CCS_before_alignment": {
+          "full_coverage": 92,
+          "fitness_feasible": 92,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 88
+        },
+        "Ring_CCS": {
+          "full_coverage": 92,
+          "fitness_feasible": 92,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 88
+        }
+      },
+      "SA_Ring_initial_codes_equal": 128,
+      "identity_requested_to_decoded_counts": [
+        [
+          128,
+          0,
+          0,
+          0
+        ],
+        [
+          73,
+          55,
+          0,
+          0
+        ],
+        [
+          58,
+          0,
+          70,
+          0
+        ],
+        [
+          39,
+          34,
+          55,
+          0
+        ]
+      ],
+      "alignment_physical_unchanged": [
+        40,
+        74,
+        93,
+        125
+      ]
+    },
+    {
+      "map": "MAP03",
+      "identity_original_ids": [
+        0,
+        1
+      ],
+      "methods": {
+        "uniform_level_priority": {
+          "full_coverage": 3,
+          "fitness_feasible": 3,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 92
+        },
+        "SA_CCS_before_alignment": {
+          "full_coverage": 88,
+          "fitness_feasible": 88,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 96
+        },
+        "Ring_CCS": {
+          "full_coverage": 88,
+          "fitness_feasible": 88,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 96
+        }
+      },
+      "SA_Ring_initial_codes_equal": 128,
+      "identity_requested_to_decoded_counts": [
+        [
+          128,
+          0,
+          0,
+          0
+        ],
+        [
+          86,
+          42,
+          0,
+          0
+        ],
+        [
+          76,
+          0,
+          52,
+          0
+        ],
+        [
+          64,
+          25,
+          39,
+          0
+        ]
+      ],
+      "alignment_physical_unchanged": [
+        67,
+        89,
+        104,
+        124
+      ]
+    },
+    {
+      "map": "MAP04",
+      "identity_original_ids": [
+        0,
+        1
+      ],
+      "methods": {
+        "uniform_level_priority": {
+          "full_coverage": 8,
+          "fitness_feasible": 8,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 73
+        },
+        "SA_CCS_before_alignment": {
+          "full_coverage": 98,
+          "fitness_feasible": 98,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 89
+        },
+        "Ring_CCS": {
+          "full_coverage": 98,
+          "fitness_feasible": 98,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 89
+        }
+      },
+      "SA_Ring_initial_codes_equal": 128,
+      "identity_requested_to_decoded_counts": [
+        [
+          128,
+          0,
+          0,
+          0
+        ],
+        [
+          46,
+          82,
+          0,
+          0
+        ],
+        [
+          60,
+          0,
+          68,
+          0
+        ],
+        [
+          32,
+          58,
+          31,
+          7
+        ]
+      ],
+      "alignment_physical_unchanged": [
+        34,
+        87,
+        67,
+        121
+      ]
+    },
+    {
+      "map": "MAP05",
+      "identity_original_ids": [
+        0,
+        1
+      ],
+      "methods": {
+        "uniform_level_priority": {
+          "full_coverage": 1,
+          "fitness_feasible": 1,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 88
+        },
+        "SA_CCS_before_alignment": {
+          "full_coverage": 94,
+          "fitness_feasible": 94,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 88
+        },
+        "Ring_CCS": {
+          "full_coverage": 94,
+          "fitness_feasible": 94,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 88
+        }
+      },
+      "SA_Ring_initial_codes_equal": 128,
+      "identity_requested_to_decoded_counts": [
+        [
+          128,
+          0,
+          0,
+          0
+        ],
+        [
+          43,
+          85,
+          0,
+          0
+        ],
+        [
+          42,
+          0,
+          86,
+          0
+        ],
+        [
+          31,
+          44,
+          49,
+          4
+        ]
+      ],
+      "alignment_physical_unchanged": [
+        32,
+        74,
+        82,
+        123
+      ]
+    },
+    {
+      "map": "MAP06",
+      "identity_original_ids": [
+        0,
+        1
+      ],
+      "methods": {
+        "uniform_level_priority": {
+          "full_coverage": 2,
+          "fitness_feasible": 2,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 88
+        },
+        "SA_CCS_before_alignment": {
+          "full_coverage": 108,
+          "fitness_feasible": 108,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 79
+        },
+        "Ring_CCS": {
+          "full_coverage": 108,
+          "fitness_feasible": 108,
+          "unique_physical_states": 128,
+          "one_gene_neutral": 79
+        }
+      },
+      "SA_Ring_initial_codes_equal": 128,
+      "identity_requested_to_decoded_counts": [
+        [
+          128,
+          0,
+          0,
+          0
+        ],
+        [
+          103,
+          25,
+          0,
+          0
+        ],
+        [
+          80,
+          0,
+          48,
+          0
+        ],
+        [
+          68,
+          10,
+          34,
+          16
+        ]
+      ],
+      "alignment_physical_unchanged": [
+        71,
+        79,
+        100,
+        124
+      ]
+    }
+  ],
+  "source_sha256": {
+    "artifacts/ring_sets_evidence_audit_20261002.py": "5b1cbe47a67098639ad991a63768f2d19b2ffaf04cf9d0cd05be4913d6448d59",
+    "codes/2027WSN/State/SensorEncoding.py": "6906e8eb7e19a2abb9eff785fa9a8ea0ede506a1b165b95b3e70d19041b098a4",
+    "codes/2027WSN/Problem/Problem.py": "e500a41531b0b8f7327b1e547d31f7912b560db83b11ee46406801a3eb00bc33",
+    "codes/2027WSN/Problem/services/evaluation_kernels.py": "540096699d2dc163adece9128bc4ef0bfdff51d5b66e6f18477fc1075082f6e6",
+    "codes/2027WSN/Problem/services/fitness_servicev2.py": "f39d0474946370d3f304c835a4995931c715b54521bfedc5788140886c0904af",
+    "codes/2027WSN/Algorithm/se/SA_SETS.py": "c0ad27119913a7c80828324f7587e8e8c296107fa519f802ba0f2c51bc2e8559",
+    "codes/2027WSN/Algorithm/se/Ring_SETS.py": "2264a81bdf83726c3504682621647dd3b41c082cf50f813de50c9f7d9911b12e"
+  }
+}

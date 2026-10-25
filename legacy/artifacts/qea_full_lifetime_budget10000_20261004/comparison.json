@@ -1,0 +1,83 @@
+{
+  "requested_budget_per_optimization": 10000,
+  "mode": "lifetime",
+  "moving": false,
+  "summary": {
+    "qea": {
+      "runs": 30,
+      "mean_lifetime": 989.7333333333333,
+      "std_lifetime": 61.30586591348579,
+      "min_lifetime": 847,
+      "max_lifetime": 1054,
+      "mean_seconds": 143.5351785666667,
+      "mean_reoptimizations": 31.166666666666668,
+      "total_evaluations": 9650000,
+      "stop_reasons": {
+        "infeasible_solution": 30
+      },
+      "early_stop_count": 0
+    },
+    "ga": {
+      "runs": 30,
+      "mean_lifetime": 861.6333333333333,
+      "std_lifetime": 79.91007158193443,
+      "min_lifetime": 697,
+      "max_lifetime": 986,
+      "mean_seconds": 64.12714139999999,
+      "mean_reoptimizations": 23.033333333333335,
+      "total_evaluations": 7218652,
+      "stop_reasons": {
+        "infeasible_solution": 30
+      },
+      "early_stop_count": 0
+    },
+    "qea_classical": {
+      "runs": 30,
+      "mean_lifetime": 817.8666666666667,
+      "std_lifetime": 78.74258950719648,
+      "min_lifetime": 582,
+      "max_lifetime": 913,
+      "mean_seconds": 136.09521486666665,
+      "mean_reoptimizations": 28.3,
+      "total_evaluations": 8790000,
+      "stop_reasons": {
+        "infeasible_solution": 30
+      },
+      "early_stop_count": 0
+    },
+    "qea_random": {
+      "runs": 30,
+      "mean_lifetime": 766.5333333333333,
+      "std_lifetime": 77.72353006932187,
+      "min_lifetime": 548,
+      "max_lifetime": 882,
+      "mean_seconds": 109.08714163333335,
+      "mean_reoptimizations": 24.6,
+      "total_evaluations": 7680000,
+      "stop_reasons": {
+        "infeasible_solution": 30
+      },
+      "early_stop_count": 0
+    }
+  },
+  "qea_paired_comparisons": {
+    "ga": {
+      "wins": 30,
+      "ties": 0,
+      "losses": 0,
+      "mean_lifetime_delta": 128.1
+    },
+    "qea_classical": {
+      "wins": 30,
+      "ties": 0,
+      "losses": 0,
+      "mean_lifetime_delta": 171.86666666666667
+    },
+    "qea_random": {
+      "wins": 30,
+      "ties": 0,
+      "losses": 0,
+      "mean_lifetime_delta": 223.2
+    }
+  }
+}

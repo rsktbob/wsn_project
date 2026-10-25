@@ -1,0 +1,73 @@
+{
+  "map": "A2",
+  "single_search_seeds": [
+    7,
+    11
+  ],
+  "budget": 10000,
+  "single_search_exact_match": true,
+  "lifetime_seed": 7,
+  "lifetime": {
+    "sa_sets": {
+      "summary.csv": {
+        "rows": 1,
+        "exact_non_timing_match": true
+      },
+      "before_lifetime": 949,
+      "after_lifetime": 949,
+      "actual_evaluations": 180000,
+      "seconds": 17.510026,
+      "trace.csv": {
+        "rows": 18,
+        "exact_non_timing_match": true
+      }
+    },
+    "si_setsv2": {
+      "summary.csv": {
+        "rows": 1,
+        "exact_non_timing_match": true
+      },
+      "before_lifetime": 1026,
+      "after_lifetime": 1026,
+      "actual_evaluations": 240000,
+      "seconds": 26.088678,
+      "trace.csv": {
+        "rows": 24,
+        "exact_non_timing_match": true
+      }
+    }
+  },
+  "source_sha256": {
+    "Algorithm/se/EXP3_SA_SETS.py": "099f29a5bc767343e9d119e42290867ffc5d36971f9898c088ff7d7050e14605",
+    "Algorithm/se/RegionSelectionSA_SETS.py": "8cc6a47ac30e907d738c95eb67c1851ec2f2aa8c5ef93b3d4b32659822b5aa21",
+    "Algorithm/se/RL_SETSv5.py": "c2ebbf1285a1a3802199488eced04e4d746fecc79e3a6857e3177a1d7010f9fe",
+    "Algorithm/se/parallel_market.py": "1f3511d97e0e53d4ae17970ece9f6f8e5bfabf6e3fd42197514031c167ba009d",
+    "Algorithm/se/SA_SETS.py": "449d2f009a454e03e06f1180757c98274a3391e253a9bf834dc6f91a95baaaed",
+    "Algorithm/se/LinUCB_SA_SETS.py": "6d17618e7f1ec8ec8906839cc153c78fd622f13841a882c4d88dd377340a0d27",
+    "Algorithm/se/market_components.py": "864bf6007d9b1e5ddcda4252a7bd086949e02b9a1667b20438ec4f5b5a6f4765",
+    "Algorithm/se/BaseSE.py": "29da399cf49f6f600cfd1b983438ecddee3ccfa9b5bdc12a41e480cc26d9c52f",
+    "Algorithm/se/SI_SETSv2.py": "10976653bce3a180362a14490c5df7ec7005f5c5978fb914793f35783f21a5ee",
+    "Algorithm/se/SA_SETSv2.py": "4b029da4d0a437e5c34f47df3f186f2d97397f524b1e653b4308b5450723329a",
+    "Algorithm/se/RL_SETS.py": "d6d05710114565614f3c742c986293c25880b3b487646a6057d8aaef26585f6a",
+    "Algorithm/se/SETS.py": "fc48d2ec0c65299999b1b3656c82324ef43da1a3ab8ca77971bed5e3765d44ac",
+    "Algorithm/se/Ring_SETSv2.py": "e5f0d1905692902055f3e749c8a4dce950d31a4926314089b942ba2de5a521fb",
+    "Algorithm/se/selective_evaluation.py": "99cc81f358b39c8f3b8869e335963cb75c9fb4196462970578019eda990293c5",
+    "Algorithm/se/Ring_SETS.py": "2f3a1e27dfe71bc27026ab12724410e53bb4a23cb73685558f0cd001cded2767",
+    "Algorithm/se/SETSv2.py": "eee445598d382adf4b5d1e6f16c0e824078b4c24ac9f940abe29482fb0c4224e",
+    "Algorithm/se/__init__.py": "df3b75cfeadc7ab24c7a01b5257893a0c0982cdac833c834cb84682f7d2d1c77",
+    "Algorithm/se/CodingSE.py": "889217d43c7fc6788d7d639d1865df2f431f86f938b28fa1893223a9f6a09918",
+    "Algorithm/se/ContextualThompsonIG_SA_SETS.py": "66e18f630d88ab0a3aed3e8dfb775ac4989185b55227e6c6f07966a33055f8e0",
+    "Algorithm/se/SA_SETS_Target.py": "9191580f4f7b2dd032083323f1747afef7970bed006bba2809b9d152a98cb902",
+    "Algorithm/se/RL_SETSv2.py": "b180ee835997ac6bfe61d2e24bad32a314fe776d2551338176359052cd435cfc",
+    "Algorithm/se/rl_sets_components.py": "aeaee41531b48b73d10942352a0497b28c358dfb8b5c5079826950cc2a0b6864",
+    "Algorithm/se/CodingSEv2.py": "69027f8c9264a6fda5811d7686b68e922428b01309bd195ee7dbf8ac35579921",
+    "Algorithm/se/sensor_operators.py": "3db3032bc61307362e20627ec5faa2f96265d04f7db558db21e5ea8b91763ce2",
+    "Algorithm/se/SI_SETS.py": "59c4dc72f69722789bcc688f93eb714813a150dff6b070f6f08c79d8ace5914f",
+    "Algorithm/se/RL_SETSv4.py": "2a55b7c168074109e8e43251568c17fb4ec7fa2a9100062d8aea5be82ddcb19d",
+    "Algorithm/se/d3qn.py": "4703e3090a76402d1aca827e1330ec54aba9c67204aee3adb4220ca801dc9fc5",
+    "Algorithm/se/Thompson_SA_SETS.py": "ae07a61ae4096370bf3037324b87b1597a66218050b065098860c6a974098439",
+    "Algorithm/se/persistent_worker_pool.py": "942fa44ba43d30c3c2b873fe15bd6ae4b04649c2877437e4b03c81402ddf3ae9",
+    "Algorithm/se/population_updates.py": "dbf638d7cced14047cea23d8f87c3fd24e0afb112cd2d401aa23ebebfc7849a7",
+    "Algorithm/se/RL_SETSv3.py": "01cd2bef6c451a6718a70da6b9e600a8166a653bcf138c6e2c3d16e7c669e1c0"
+  }
+}
