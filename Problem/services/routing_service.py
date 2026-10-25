@@ -150,7 +150,7 @@ class RoutingService:
             capacity_failed_ids=capacity_failed_ids,
         )
 
-    def build_capacities(self, schedule=None):
+    def build_capacities(self):
         """Build link-capacity and amplifier-cost tables."""
         problem = self.problem
         problem.link_capacity = np.zeros(
@@ -159,11 +159,6 @@ class RoutingService:
         problem.amp_cost = np.zeros(
             [problem.SENSOR_NUMBER, problem.DEVICE_NUMBER]
         )
-        # Preserve the historical first=True behaviour when a schedule is
-        # supplied: callers currently build the full table with schedule=None.
-        if schedule is not None:
-            return
-
         for sensor_id in range(problem.SENSOR_NUMBER):
             for parent_id in range(problem.DEVICE_NUMBER):
                 if (
@@ -173,7 +168,7 @@ class RoutingService:
                     continue
 
                 distance = problem.distances[sensor_id][parent_id]
-                if distance <= 87:
+                if distance <= problem.d0:
                     problem.amp_cost[sensor_id, parent_id] = (
                         problem.amp_factors[0] * pj * distance * distance
                     )
@@ -221,7 +216,7 @@ class RoutingService:
     def precompute_route_capacity(self, cost=None, schedule=None, first=False):
         """Compatibility wrapper for the former combined capacity method."""
         if first:
-            return self.build_capacities(schedule)
+            return self.build_capacities()
         return self.update_capacities(cost, schedule)
 
     def update_capacity(self, state, routed_nodes):
@@ -298,14 +293,12 @@ class RoutingService:
         )
 
         for sensor_id in range(problem.SENSOR_NUMBER):
+            # 沒開的 sensor 不產生資料，負載維持 0（只累加別人轉送的量）。
             if sensing_radii is not None and sensing_radii[sensor_id] <= 0:
-                tx_load[sensor_id] = problem.generated_load[sensor_id]
                 continue
 
             paths[sensor_id] = np.array(paths[sensor_id])
-            tx_load[paths[sensor_id][:-1]] += problem.generated_load[
-                paths[sensor_id][:-1]
-            ]
+            tx_load[paths[sensor_id][:-1]] += problem.generated_load[sensor_id]
 
         return tx_load
 

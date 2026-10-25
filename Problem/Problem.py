@@ -652,9 +652,9 @@ class Problem:
         """依 sensor 到 BS 的距離與目前剩餘能量更新 routing priority。"""
         return self.routing_service.compute_priorities()
 
-    def build_capacities(self, schedule=None):
+    def build_capacities(self):
         """依目前剩餘能量建立連線容量與放大器成本表。"""
-        return self.routing_service.build_capacities(schedule)
+        return self.routing_service.build_capacities()
 
     def update_capacities(self, cost, schedule=None):
         """把已消耗能量反映到現有連線容量表。"""
@@ -695,12 +695,13 @@ class Problem:
 
         Args:
             cost: lifetime 已消耗的每個 sensor 成本；更新 cap 時使用。
-            schedule: 可選的 sensor level，用來略過未開啟 sensor。
+            schedule: 可選的 sensor level，更新 cap 時略過未開啟 sensor；
+                首次建立時不使用。
             first: True 表示首次建立 cap 與單次傳輸成本 d3；False 表示
                 以 cost 更新既有 cap。
         """
         if first:
-            return self.build_capacities(schedule)
+            return self.build_capacities()
         return self.update_capacities(cost, schedule)
 
     def update_state_route_capacity(self, state, connected_nodes):

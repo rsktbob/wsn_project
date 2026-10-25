@@ -76,7 +76,7 @@ class EnergyService:
             if not 0 <= next_hop < problem.DEVICE_NUMBER:
                 continue
             distance = problem.distances[sensor_id][next_hop]
-            if distance <= 87:
+            if distance <= problem.d0:
                 distance_cost = (
                     problem.amp_factors[0] * pj * distance * distance
                 )
