@@ -2,6 +2,10 @@
     e07_net：凍結的網路，選分數／Q 最大（監督式、D3QN 都用這個，網路種類存在 checkpoint 裡）
     e07_net_sample：監督式依 softmax(分數) 的機率抽樣（亂數依演算法 seed，各場可重現）
     e07_oracle：作弊版天花板（偷看 4 個候選只交換的子代、選一般 Δ 最大；偷看不計預算；不需要 E07_CKPT）
+    e07_oracle_diff：作弊版，跟 diff_cur 標籤一致（其他交易固定為原版隨機選擇算差異獎勵、選最大；全 0 留隨機）
+    e07_oracle_plain：作弊版，跟 plain_delta 標籤一致（只看這筆交易、選一般 Δ 最大；全 0 留隨機）
+    e07_random_pri、e07_oracle_plain_pri：染色體換成 PriorityEncoding（初始化、突變同 Ring_SEpri）；
+        random_pri 應和 ring_sepri 逐場相同（驗證用），oracle_plain_pri 是 ring_sepri 的 plain 作弊版
 checkpoint 由環境變數 E07_CKPT 給，裝置 E07_DEVICE（預設有 GPU 就用）。
 
 用法（在 2027WSN 根目錄）：
@@ -26,7 +30,9 @@ import torch  # noqa: E402
 
 import experiments.registry as registry  # noqa: E402
 
-VARIANTS = {"e07_net": "Ring_SE_E07_Net", "e07_net_sample": "Ring_SE_E07_NetSample", "e07_oracle": "Ring_SE_E07_Oracle"}
+VARIANTS = {"e07_net": "Ring_SE_E07_Net", "e07_net_sample": "Ring_SE_E07_NetSample", "e07_oracle": "Ring_SE_E07_Oracle",
+            "e07_oracle_diff": "Ring_SE_E07_OracleDiff", "e07_oracle_plain": "Ring_SE_E07_OraclePlain",
+            "e07_random_pri": "Ring_SE_E07_RandomPri", "e07_oracle_plain_pri": "Ring_SE_E07_OraclePlainPri"}
 for name, cls in VARIANTS.items():
     registry.ALGORITHM_IMPORTS[name] = ("evaluate", cls)
 registry.ALGORITHM_NAMES = tuple(registry.ALGORITHM_IMPORTS)
@@ -40,6 +46,7 @@ for name, cls in VARIANTS.items():
     ALGORITHM_PRESETS[name]["label"] = cls
 
 from env import Ring_SE_E07  # noqa: E402
+from Algorithm.se.ring_se.Ring_SEpri import Ring_SEpri  # noqa: E402
 from model import greedy_policy, load_net, sample_policy  # noqa: E402
 
 _NET = {}
@@ -71,6 +78,31 @@ class Ring_SE_E07_NetSample(Ring_SE_E07):
 class Ring_SE_E07_Oracle(Ring_SE_E07):
     def __init__(self, problem, **kwargs):
         super().__init__(problem, policy="oracle", **kwargs)
+
+
+class Ring_SE_E07_OracleDiff(Ring_SE_E07):
+    def __init__(self, problem, **kwargs):
+        super().__init__(problem, policy="oracle_diff", **kwargs)
+
+
+class Ring_SE_E07_OraclePlain(Ring_SE_E07):
+    def __init__(self, problem, **kwargs):
+        super().__init__(problem, policy="oracle_plain", **kwargs)
+
+
+class Ring_SE_E07_RandomPri(Ring_SE_E07):
+    ROUTING_MUTATION_MULTIPLIER = Ring_SEpri.ROUTING_MUTATION_MULTIPLIER
+    create_candidate = Ring_SEpri.create_candidate
+    mutate_candidate = Ring_SEpri.mutate_candidate
+
+
+class Ring_SE_E07_OraclePlainPri(Ring_SE_E07):
+    ROUTING_MUTATION_MULTIPLIER = Ring_SEpri.ROUTING_MUTATION_MULTIPLIER
+    create_candidate = Ring_SEpri.create_candidate
+    mutate_candidate = Ring_SEpri.mutate_candidate
+
+    def __init__(self, problem, **kwargs):
+        super().__init__(problem, policy="oracle_plain", **kwargs)
 
 
 if __name__ == "__main__":

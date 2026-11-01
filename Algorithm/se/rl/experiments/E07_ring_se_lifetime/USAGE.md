@@ -28,8 +28,8 @@ $PY $E/train_sup.py --budget 1000 --maps 30 --label diff_cur --val --epochs 20
 | --- | --- | --- |
 | `--budget` | 用哪個預算的資料 | 1000 |
 | `--maps` | 用 train 的前幾張地圖 | 30、60、140 |
-| `--label` | 學哪一種標籤 | `diff_cur`（主要）、`diff_prev`、`oracle_choice` |
-| `--loss` | `huber`：回歸 4 個標籤值；`rank`：拿掉 4 個全為 0 的組，只學「最好的分數最高」（資料夾加 `_rank`） | `huber`（預設） |
+| `--label` | 學哪一種標籤 | `diff_cur`（差異獎勵，看其他交易）、`plain_delta`（一般 Δ，只看這筆交易）|
+| `--loss` | `huber`：回歸 4 個標籤值；`cls`：拿掉 4 個全為 0 的組，只學「最好的分數最高」、同分平分（資料夾加 `_cls`）；`soft`：軟標籤 softmax(標籤 ÷ 最大 ÷ `--tau`)（資料夾加 `_soft{τ}`）；`prop`：按比例分 標籤 ÷ 總和（資料夾加 `_prop`） | `huber`（預設） |
 | `--val` | 用 val 30 張決定最好的 epoch（早停） | 建議都加 |
 | `--epochs` | 最多看幾遍資料 | 20 |
 | `--seed` | 訓練的亂數種子 | 0（預設）、1、2… |
@@ -72,7 +72,7 @@ $PY $E/compare.py --split test --budget 1000
 ## 一次做完：訓練 → 跑 test → 看結果
 
 ```bash
-$PY $E/train_sup.py --budget 1000 --maps 30 --label diff_prev --val --epochs 20 && SPLIT=test BUDGET=1000 TAGS="sup_b1000_m30_diff_prev" bash $E/run_eval_maps.sh && $PY $E/compare.py --split test --budget 1000
+$PY $E/train_sup.py --budget 1000 --maps 30 --label plain_delta --loss cls --val --epochs 20 && SPLIT=test BUDGET=1000 TAGS="sup_b1000_m30_plain_delta_cls" bash $E/run_eval_maps.sh && $PY $E/compare.py --split test --budget 1000
 ```
 
 跑很久的話可以在最前面加 `nohup`、最後加 `> my_run.log 2>&1 &`，讓它在背景跑，關掉終端機也不會停。

@@ -1,7 +1,9 @@
 """E07 環境（監督式用）：原版 ring_se，每組交易照常在 4 段各抽一個 80/20 候選範圍，由 policy 選 1 個。
 
 policy："random"（4 選 1 均勻 ＝ 原版 ring_se；蒐集資料用）、callable(round_data) → actions（網路；評估用）
-    或 "oracle"（作弊版天花板：偷看 4 個候選只交換的子代，選 oracle_choice；偷看不計預算）。
+    或 "oracle"（作弊版天花板：偷看 4 個候選只交換的子代，選 oracle_choice；偷看不計預算）、
+    "oracle_diff"（作弊版，跟 diff_cur／diff_prev 標籤一致：先照原版隨機選，其他交易固定為這組選擇算差異獎勵，
+    每組選最大、全為 0 留隨機的）、"oracle_plain"（跟 plain_delta 標籤一致：選一般 Δ 最大、全為 0 留隨機的）。
 交換、突變（只在選到的範圍內）、EN 更新、評估計預算都和 Ring_SE 相同。
 
 recorder 不是 None 時（蒐集資料），每組交易另外偷看 4 個候選「只交換」的結果（不計預算、不更新最佳、不用演算法亂數
@@ -244,13 +246,23 @@ class Ring_SE_E07(PairSegmentMarket):
         searcher_before = self.searcher_fitness.copy()
         pairs = self._build_pairs(self._round_context(problem))
         data = self._round_data(problem, pairs)
-        peek = self.recorder is not None or self.policy == "oracle"
+        peek = self.recorder is not None or self.policy in ("oracle", "oracle_diff", "oracle_plain")
         fit, crossed = self._peek(pairs) if peek else (None, None)
         if self.policy == "random":
             actions = np.array([self.random.randrange(H) for _ in pairs], dtype=int)
         elif self.policy == "oracle":
             plain = plain_delta(fit, searcher_before, goods_before, data)
             actions = oracle_choice(plain, fit[:, :, 1]).astype(int)
+        elif self.policy == "oracle_diff":
+            # 和收資料時一樣算標籤：先照原版隨機選，其他交易固定為這組選擇；每組選差異獎勵最大，全為 0 就留隨機的
+            drawn = np.array([self.random.randrange(H) for _ in pairs], dtype=int)
+            raw, _ = self._labels(fit, drawn, data, searcher_before, goods_before)
+            actions = np.where(raw.max(axis=1) > 0, raw.argmax(axis=1), drawn)
+        elif self.policy == "oracle_plain":
+            # 跟 plain_delta 標籤一致：只看這筆交易，選一般 Δ 最大；全為 0 就留原版隨機的
+            drawn = np.array([self.random.randrange(H) for _ in pairs], dtype=int)
+            plain = plain_delta(fit, searcher_before, goods_before, data)
+            actions = np.where(plain.max(axis=1) > 0, plain.argmax(axis=1), drawn)
         else:
             actions = np.asarray(self.policy(data), dtype=int)
 
