@@ -2,16 +2,17 @@ name: wsnenv
 channels:
   - defaults
 dependencies:
-  - python=3.12
-  - numpy
-  - numba
-  - pandas
-  - scipy
-  - matplotlib
-  - opencv
-  - pillow
-  - ipykernel
-  - pip
+  - python=3.12.14
+  - numpy=2.4.6
+  - numba=0.66.0
+  - llvmlite=0.48.0
+  - pandas=3.0.5
+  - scipy=1.18.1
+  - matplotlib=3.11.0
+  - opencv=4.14.0
+  - pillow=12.3.0
+  - ipykernel=7.3.0
+  - pip=26.2.1
   - pip:
       - --extra-index-url https://download.pytorch.org/whl/cu126
       - torch==2.14.1
