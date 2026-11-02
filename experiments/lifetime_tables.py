@@ -1,9 +1,12 @@
 """Lifetime tables (markdown) for one result folder.
 
-One table per algorithm: per map mean / best / worst / sample std over runs.
+One table per algorithm: per map mean / best / worst / sample std over runs,
+plus each run's mean segment search time and optimization count (from
+trace.csv), averaged over the runs.
 With two or more algorithms, a comparison table follows: per map
 mean ± std for every algorithm, the winner (highest mean) and the paired
-t-test p value of the winner against the runner-up, paired by (map, seed).
+t-test p value of the winner against the runner-up, paired by (map, seed);
+then a table of every algorithm's segment search time and count per map.
 
 Reads the folder written by write_grouped_results, so older results can be
 redone with:
@@ -34,6 +37,40 @@ def load_lifetimes(result_root):
                     per_map.setdefault(row["map"], {})[row["seed"]] = int(row["lifetime"])
         data[name] = per_map
     return order, data
+
+
+def load_segment_times(result_root, order):
+    """Return {name: {map: {seed: [search seconds of every segment]}}} from trace.csv.
+
+    Each trace row is one segment's optimization (movement re-optimization
+    included), the last row of a run too, since its search ran even if the
+    state failed.
+    """
+    times = {}
+    for name, _ in order:
+        per_map = {}
+        for path in sorted((result_root / name).glob("*/trace.csv")):
+            with path.open(newline="", encoding="utf-8") as csv_file:
+                for row in csv.DictReader(csv_file):
+                    seconds = row.get("optimize_elapsed_seconds")
+                    if seconds:
+                        per_map.setdefault(row["map"], {}).setdefault(
+                            row["seed"], []
+                        ).append(float(seconds))
+        times[name] = per_map
+    return times
+
+
+def _time_stats(segment_runs):
+    """Mean over runs of each run's mean segment seconds and segment count.
+
+    segment_runs maps one key per run, (map, seed) or seed, to its segments.
+    """
+    if not segment_runs:
+        return "-", "-"
+    seconds = st.mean(st.mean(segments) for segments in segment_runs.values())
+    count = st.mean(len(segments) for segments in segment_runs.values())
+    return f"{seconds:.3f}", f"{count:.1f}"
 
 
 def _std(values):
@@ -68,24 +105,26 @@ def _format_p(p_value):
     return text + " *" if p_value < 0.05 else text
 
 
-def _stats_row(label, runs):
+def _stats_row(label, runs, segment_runs):
     values = list(runs.values())
+    seconds, count = _time_stats(segment_runs)
     return (
         f"| {label} | {len(values)} | {st.mean(values):.1f} | "
-        f"{max(values)} | {min(values)} | {_std(values):.1f} |"
+        f"{max(values)} | {min(values)} | {_std(values):.1f} | "
+        f"{seconds} | {count} |"
     )
 
 
-def algorithm_table(label, per_map):
+def algorithm_table(label, per_map, times):
     lines = [
         f"### {label}",
         "",
-        "| 地圖 | 場數 | 平均 | 最佳 | 最差 | 標準差 |",
-        "|---|---|---|---|---|---|",
+        "| 地圖 | 場數 | 平均 | 最佳 | 最差 | 標準差 | 單段平均時間（秒） | 平均最佳化次數 |",
+        "|---|---|---|---|---|---|---|---|",
     ]
     for map_name in sorted(per_map):
-        lines.append(_stats_row(map_name, per_map[map_name]))
-    lines.append(_stats_row("**全部**", _all_runs(per_map)))
+        lines.append(_stats_row(map_name, per_map[map_name], times.get(map_name, {})))
+    lines.append(_stats_row("**全部**", _all_runs(per_map), _all_runs(times)))
     return "\n".join(lines)
 
 
@@ -141,13 +180,47 @@ def comparison_table(order, data):
     return "\n".join(lines)
 
 
+def _time_cell(segment_runs):
+    if not segment_runs:
+        return "-"
+    seconds, count = _time_stats(segment_runs)
+    return f"{seconds}（{count} 次）"
+
+
+def time_table(order, times):
+    """Per map mean segment search seconds and optimization count per run."""
+    labels = [label for _, label in order]
+    lines = [
+        "### 單段平均搜尋時間（秒）與平均最佳化次數",
+        "",
+        "| 地圖 | " + " | ".join(labels) + " |",
+        "|---|" + "---|" * len(labels),
+    ]
+    maps = sorted({map_name for per_map in times.values() for map_name in per_map})
+    for map_name in maps:
+        cells = [_time_cell(times[name].get(map_name, {})) for name, _ in order]
+        lines.append(f"| {map_name} | " + " | ".join(cells) + " |")
+    cells = [_time_cell(_all_runs(times[name])) for name, _ in order]
+    lines.append("| **全部** | " + " | ".join(cells) + " |")
+    lines += [
+        "",
+        "先算每張地圖每個 seed 那一場的單段平均時間與最佳化次數，再對各場取平均。"
+        "單段：每段一次最佳化（開移動時，該段移動後的重新最佳化併入同一段），"
+        "每場最後一次撐不過任何 slot 的最佳化也算一次。"
+        "平行執行時含其他 case 搶 CPU 的時間。",
+    ]
+    return "\n".join(lines)
+
+
 def build_report(result_root):
     order, data = load_lifetimes(result_root)
+    times = load_segment_times(result_root, order)
     sections = [f"# {result_root.name}"]
     for name, label in order:
-        sections.append(algorithm_table(f"{label}（{name}）", data[name]))
+        sections.append(algorithm_table(f"{label}（{name}）", data[name], times[name]))
     if len(order) >= 2:
         sections.append(comparison_table(order, data))
+        sections.append(time_table(order, times))
     return "\n\n".join(sections) + "\n"
 
 
